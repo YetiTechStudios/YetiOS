@@ -39,6 +39,7 @@ EYetiOsDeviceStartResult UYetiOS_PortableDevice::StartDevice(FYetiOsError& OutEr
 
 void UYetiOS_PortableDevice::BeginBatteryCharge()
 {
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_ConsumeBattery);
 	const float ChargingSpeed = GetChargingSpeed();
 	printlog_display(FString::Printf(TEXT("Begin charging device %s. Charging every %f seconds. Will take %f hours to fully charge."), *GetDeviceName().ToString(), ChargingSpeed, GetTimeToFullyRechargeInHours()));
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_ChargeBattery, this, &UYetiOS_PortableDevice::Internal_ChargeBattery, ChargingSpeed, true);
@@ -55,6 +56,7 @@ void UYetiOS_PortableDevice::StopBatteryCharge()
 	}
 
 	printlog_display(FString::Printf(TEXT("Stopped battery charging for device %s. Current battery level: %f%."), *GetDeviceName().ToString(), BatteryLevel * 100.f));
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_ConsumeBattery, this, &UYetiOS_PortableDevice::Internal_ConsumeBattery, BatteryConsumeTimerDelay, true);
 }
 
 const bool UYetiOS_PortableDevice::IsDeviceCharging() const
