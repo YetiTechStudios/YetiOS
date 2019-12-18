@@ -42,6 +42,16 @@ void UYetiOS_OsWidget::BeginShutdownOS()
 	K2_OnBeginShuttingdownOS();
 }
 
+void UYetiOS_OsWidget::OnBatteryLevelChanged(const float& CurrentBatteryLevel)
+{
+	K2_OnBatteryLevelChanged(CurrentBatteryLevel);
+}
+
+void UYetiOS_OsWidget::OnLowBatteryWarningReceived(const bool bIsLowBattery)
+{
+	K2_OnLowBatteryWarningReceived(bIsLowBattery);
+}
+
 const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)
 {
 	if (OwningOS)

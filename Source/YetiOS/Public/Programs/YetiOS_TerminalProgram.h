@@ -7,7 +7,7 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_TerminalProgram.generated.h"
 
-UCLASS(Abstract)
+UCLASS(Abstract, DisplayName = "Terminal")
 class YETIOS_API UYetiOS_TerminalProgram : public UYetiOS_BaseProgram
 {
 	GENERATED_BODY()

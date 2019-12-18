@@ -14,7 +14,7 @@ YetiOS_BaseDevice.h
 * Description:
 A device encapsulates an OS and represents a full product.
 *************************************************************************/
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, NotBlueprintable)
 class YETIOS_API UYetiOS_BaseDevice : public UObject
 {
 	GENERATED_BODY()
@@ -26,8 +26,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	FText DeviceName;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
-	FYetiOsMotherBoard MotherBoard;
+	UPROPERTY(meta = (DeprecatedProperty, DeprecationMessage = "This property is deprecated. Access the motherboard from respective child class. This property will be removed in the next Unreal Engine release."))
+	FYetiOsMotherBoard MotherBoard_DEPRECATED;
 
 	//UPROPERTY(EditDefaultsOnly)
 	//TArray<FYetiOsWiFi> WifiConnections;
@@ -41,31 +41,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_BsodWidget> BsodWidgetClass;
 
-	/* Is this a portable device? */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
-	uint8 bIsPortableDevice : 1;
-
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bOperatingSystemInstalled : 1;
 
-	/* If true, user has already been notified of low battery. */
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	uint8 bLowBatteryWarned : 1;
-
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bBsodHappened : 1;
-
-	/* (PORTABLE DEVICE ONLY) Battery level for this portable device. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", meta = (EditCondition = "bIsPortableDevice", UIMin = "0", UIMax = "1", ClampMin = "0", ClampMax = "1"))
-	float BatteryLevel;
-
-	/* (PORTABLE DEVICE ONLY) If battery level is <= to this, then device emits a warning signal. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", meta = (EditCondition = "bIsPortableDevice", UIMin = "0.15", UIMax = "0.95", ClampMin = "0.1", ClampMax = "0.99"))
-	float LowBatteryWarningLevel;
-
-	/* (PORTABLE DEVICE ONLY) Speed at which this device charges. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", meta = (EditCondition = "bIsPortableDevice"))
-	float ChargingSpeed;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	float DeviceScore;
@@ -92,6 +72,9 @@ public:
 
 	UYetiOS_BaseDevice();
 
+	template <class T>
+	T* GetCastedDevice() { return Cast<T>(this); }
+
 	virtual void OnCreateDevice(FYetiOsError& OutErrorMessage);
 
 	/**
@@ -100,7 +83,7 @@ public:
 	* @param OutErrorMessage [FText&] Output of any error message. if return result is success, this will be empty.
 	* @return [EDeviceStartResult] Returns Device start result.
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti Base Device")
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device")
 	virtual EYetiOsDeviceStartResult StartDevice(FYetiOsError& OutErrorMessage);
 
 	/**
@@ -108,7 +91,7 @@ public:
 	* Changes the on screen widget.
 	* @param InNewWidget [class UUserWidget*] New widget to add.
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti Base Device")	
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device")	
 	void ChangeOnScreenWidget(class UUserWidget* InNewWidget = nullptr);
 
 	/**
@@ -117,15 +100,15 @@ public:
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
 	* @param bShowBsodOnError [const bool] If true, then show Blue Screen if error happens.
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti Base Device")	
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device")	
 	void StartOperatingSystem(FYetiOsError& OutErrorMessage, const bool bShowBsodOnError = true);
 
 	/**
 	* public UYetiOS_BaseDevice::ShutdownYetiDevice
 	* Shuts down this device.
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti Base Device", DisplayName = "Shutdown Device")	
-	void ShutdownYetiDevice();
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device", DisplayName = "Shutdown Device")	
+	virtual void ShutdownYetiDevice();
 
 	/**
 	* public UYetiOS_BaseDevice::ShowBSOD
@@ -137,11 +120,19 @@ public:
 	void ShowBSOD(const FText InFaultingModuleName = FText::GetEmpty(), const FText InExceptionName = FText::GetEmpty(), const FText InDetailedException = FText::GetEmpty());
 
 	/**
+	* public UYetiOS_BaseDevice::IsPortableDevice const
+	* Checks if this device is a portable device or not. Portable devices has battery level, charging etc.
+	* @return [bool] True if this is a portable device.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	virtual const bool IsPortableDevice() const { return false; }
+
+	/**
 	* public UYetiOS_BaseDevice::GetOperatingSystem const
 	* Gets the current operating system.
 	* @return [class UYetiOS_Core*] Returns OperatingSystem.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	inline class UYetiOS_Core* GetOperatingSystem() const { return OperatingSystem; }
 
 	/**
@@ -149,7 +140,7 @@ public:
 	* Gets the current device widget.
 	* @return [class UYetiOS_DeviceWidget*] Returns DeviceWidget.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
 	inline class UYetiOS_DeviceWidget* GetDeviceWidget() const { return DeviceWidget; }
 
 	/**
@@ -157,7 +148,7 @@ public:
 	* Gets the name of the device.
 	* @return [FText] Returns device name.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	inline FText GetDeviceName() const { return DeviceName; }
 
 	/**
@@ -165,8 +156,9 @@ public:
 	* Gets device mother board.
 	* @return [FYetiOsMotherBoard] Returns MotherBoard.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")	
-	inline FYetiOsMotherBoard GetMotherBoard() const { return MotherBoard; }
+	UE_DEPRECATED(4.23, "Cast to the respective child class and access motherboard variable. This function will be removed in the next Unreal Engine release.")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device", meta = (DeprecatedFunction, DeprecationMessage = "Cast to the respective child class and access motherboard variable. This function will be removed in the next Unreal Engine release."))
+	inline FYetiOsMotherBoard GetMotherBoard() const { return MotherBoard_DEPRECATED; }
 
 	/**
 	* public UYetiOS_BaseDevice::UpdateDeviceState
@@ -249,6 +241,30 @@ private:
 	**/
 	void Internal_CreateRequiredPhysicalDirectories();
 
+protected:
+
+	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance);
+
+	virtual const FYetiOsHardDisk GetHardDisk() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetHardDisk, return FYetiOsHardDisk(););
+	virtual const float GetTotalCpuSpeed(const bool bWithDurability) const				PURE_VIRTUAL(UYetiOS_BaseDevice::GetTotalCpuSpeed, return 0.f;);
+	virtual const float GetTotalMemorySize() const										PURE_VIRTUAL(UYetiOS_BaseDevice::GetTotalMemorySize(), return 0.f;);
+	virtual const float GetMotherboardDurability() const								PURE_VIRTUAL(UYetiOS_BaseDevice::GetMotherboardDurability, return 0.f;);
+	virtual const bool MotherboardHasOnBoardGraphics() const							PURE_VIRTUAL(UYetiOS_BaseDevice::MotherboardHasOnBoardGraphics, return false;);
+	virtual const bool CpusAreOfCorrectType(FYetiOsCpu& OutIncorrectCpu) const			PURE_VIRTUAL(UYetiOS_BaseDevice::CpusAreOfCorrectType, return false;);
+	virtual const bool IsGpuInstalled() const											PURE_VIRTUAL(UYetiOS_BaseDevice::IsGpuInstalled, return false;);
+	virtual const bool HasEnoughPower() const											PURE_VIRTUAL(UYetiOS_BaseDevice::HasEnoughPower, return false;);
+	virtual const FString GetSocketName() const											PURE_VIRTUAL(UYetiOS_BaseDevice::GetSocketName, return FString(););
+	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const		PURE_VIRTUAL(UYetiOS_BaseDevice::GetRootDirectoryClass, return nullptr;);
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	virtual const TArray<FYetiOsCpu> GetAllCpus() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllCpus, return TArray<FYetiOsCpu>(););
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	virtual const TArray<FYetiOsMemory> GetAllMemory() const							PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllMemory, return TArray<FYetiOsMemory>(););
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	virtual const TArray<FYetiOsGpu> GetAllGpu() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllGpu, return TArray<FYetiOsGpu>(););
+
 public:
 
 	/**
@@ -258,7 +274,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of wallpaper paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	static TArray<FString> GetLoginWallpapers(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -268,7 +284,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of wallpaper paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
 	static TArray<FString> GetDesktopWallpapers(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -278,7 +294,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of icon paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
 	static TArray<FString> GetUserIconImages(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -289,13 +305,12 @@ public:
 	* @param DefaultTextureIfNull [UTexture2D*] Default texture to return if runtime texture fails to load.
 	* @return [UTexture2D*] Loaded texture or default texture if runtime texture loading fails.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	static UTexture2D* CreateTextureFromPath(const FString& InImagePath, UTexture2D* DefaultTextureIfNull);
 
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
 	FORCEINLINE const bool IsInBsodState() const { return bBsodHappened; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
 	FORCEINLINE const float GetDeviceScore(const bool bNormalize = true) const { return bNormalize ? (DeviceScore / MaxDeviceScore) : DeviceScore; }
-	FORCEINLINE const float GetBatteryLevel() const { return BatteryLevel; }
-	FORCEINLINE const FYetiOsCpu GetCpu(const int32& AtIndex) const { return MotherBoard.MotherboardCpus[AtIndex]; }
+	
 };

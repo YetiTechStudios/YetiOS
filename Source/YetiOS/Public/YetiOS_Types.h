@@ -61,6 +61,9 @@ enum class EYetiOsDeviceStartResult : uint8
 	/* An operating system is required to boot so if no OS then this is the result. */
 	DEVICESTART_NoOs			UMETA(DisplayName = "No Operating System"),
 
+	/* Device cannot start because of no battery power. Only applicable if owning device is portable. */
+	DEVICESTART_NoBattery		UMETA(DisplayName = "No battery power"),
+
 	/* Device was able to start but one or more hardware is having low durability. */
 	DEVICESTART_PartialSuccess	UMETA(DisplayName = "Partial Success"),
 
@@ -107,6 +110,21 @@ enum class EYetiOsMemorySize : uint8
 	SIZE_2048, // 2 GB Ram
 	SIZE_4096, // 4 GB Ram
 	SIZE_8192 // 8 GB Ram
+};
+
+UENUM(BlueprintType)
+enum class EYetiOsPortableBatteryEfficiencyLoss : uint8
+{
+	LOSS_TenPercent				UMETA(DisplayName = "10% Loss"),
+	LOSS_TwentyPercent			UMETA(DisplayName = "20% Loss"),
+	LOSS_ThirtyPercent			UMETA(DisplayName = "30% Loss"),
+	LOSS_FourtyPercent			UMETA(DisplayName = "40% Loss"),
+	LOSS_FiftyPercent			UMETA(DisplayName = "50% Loss"),
+	LOSS_SixtyPercent			UMETA(DisplayName = "60% Loss"),
+	LOSS_SeventyPercent			UMETA(DisplayName = "70% Loss"),
+	LOSS_EightyPercent			UMETA(DisplayName = "80% Loss"),
+	LOSS_NinetyPercent			UMETA(DisplayName = "90% Loss"),
+	LOSS_NoLoss					UMETA(DisplayName = "No Loss"),
 };
 
 static FORCEINLINE const float GetMemorySizeImplementation(const EYetiOsMemorySize InMemorySize)
@@ -198,6 +216,90 @@ struct FYetiOsError
 		ErrorCode = FText::GetEmpty();
 		ErrorException = FText::GetEmpty();
 		ErrorDetailedException = FText::GetEmpty();
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOsPortableBattery
+{
+	GENERATED_USTRUCT_BODY();
+	
+	/* Battery Name */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery")
+	FText BatteryName;
+
+	/* Brand name of this battery. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery")
+	FText BatteryBrand;
+	
+	/* Total battery power. In milliamp Hour units */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery", DisplayName = "Battery Capacity (mAh)", meta = (UIMin = "1000", ClampMin = "1000", UIMax = "5000"))
+	float BatteryCapacity;
+
+	/* Speed at which this battery should charge. Higher rate charges battery faster. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery", DisplayName = "Charge Rate (mA)", meta = (UIMin = "1000", ClampMin = "1000", UIMax = "5000"))
+	float ChargeRate;
+
+	/* Simulates energy loss while charging. Higher loss means more time to charge. This can also be consideredn as battery health. Higher loss means less healthy.
+	 * For example: A battery with 3200 mAh and charge rate of 1000 mA will take 3.2 hours to fully charge without energy loss. With 40% energy loss it would take 4.5 hours to fully charge.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery")
+	EYetiOsPortableBatteryEfficiencyLoss EfficiencyLoss;
+
+	/* If battery level is <= to this, then device emits a warning signal. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery", meta = (UIMin = "0.15", UIMax = "0.95", ClampMin = "0.1", ClampMax = "0.99"))
+	float LowBatteryWarningLevel;
+
+	FORCEINLINE const float GetEfficiencyLossvalue() const
+	{
+		switch (EfficiencyLoss)
+		{
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_TenPercent:
+				return 11.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_TwentyPercent:
+				return 12.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_ThirtyPercent:
+				return 13.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_FourtyPercent:
+				return 14.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_FiftyPercent:
+				return 15.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_SixtyPercent:
+				return 16.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_SeventyPercent:
+				return 17.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_EightyPercent:
+				return 18.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_NinetyPercent:
+				return 19.f;
+				break;
+			case EYetiOsPortableBatteryEfficiencyLoss::LOSS_NoLoss:
+			default:
+				break;
+		}
+
+		return 10.f;
+	}
+
+	FORCEINLINE const bool GetBatteryHealth(const bool bNormalize) const
+	{
+		return bNormalize ? ((uint8)EfficiencyLoss + 1) / 10.f : (((uint8)EfficiencyLoss + 1) * 100.f) / 10.f;
+	}
+
+	FYetiOsPortableBattery()
+	{
+		BatteryCapacity = 1200.f;
+		ChargeRate = 2000.f;
+		LowBatteryWarningLevel = 0.2;
+		EfficiencyLoss = EYetiOsPortableBatteryEfficiencyLoss::LOSS_NoLoss;
 	}
 };
 
@@ -400,6 +502,7 @@ struct FYetiOsPowerSupply : public FYetiOsHardwareBase
 	}
 };
 
+// #YETI_OS TODO Deprecated. Will be removed later
 USTRUCT(BlueprintType)
 struct FYetiOsMotherBoard : public FYetiOsHardware
 {
@@ -545,6 +648,197 @@ struct FYetiOsMotherBoard : public FYetiOsHardware
 	}
 
 	FYetiOsMotherBoard()
+	{
+		MotherboardSocketType = EYetiOsSocketType::SOCKET_1150;
+		MotherboardCpus.Init(FYetiOsCpu(), 1);
+		MotherboardMemories.Init(FYetiOsMemory(), 1);
+		HardDisk = FYetiOsHardDisk();
+		MotherboardDurability = 1.f;
+		MotherBoardPrice = 300.f;
+		bHasOnboardGraphics = false;
+		Wattage = 125;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FMotherboardBase : public FYetiOsHardwareBase
+{
+	GENERATED_USTRUCT_BODY();
+	
+	/* Type of socket this motherboard supports. All cpus in this motherboard must be of this same socket type. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Mother Board Base")
+	EYetiOsSocketType MotherboardSocketType;
+
+	/* Current durability of this board. Lower durability tends to break faster. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Mother Board Base", meta = (UIMin = "0", ClampMin = "0", UIMax = "1", ClampMax = "1"))
+	float MotherboardDurability;
+
+	/* Price of this board. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Mother Board Base", meta = (UIMin = "0", ClampMin = "0", UIMax = "4000", ClampMax = "4000"))
+	float MotherBoardPrice;
+
+	/* Hard disk settings. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Mother Board Base")
+	FYetiOsHardDisk HardDisk;
+
+	FORCEINLINE const FString GetSocketName() const
+	{
+		return GetSocketNameImplementation(MotherboardSocketType);
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOsPortableDeviceMotherBoard : public FMotherboardBase
+{
+	GENERATED_USTRUCT_BODY();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Mother Board")
+	FYetiOsCpu MotherboardCpu;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Mother Board")
+	FYetiOsMemory MotherboardMemory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Mother Board")
+	FYetiOsGpu MotherboardGpu;
+
+	FORCEINLINE const float GetTotalCpuSpeed(const bool bWithDurability) const { return MotherboardCpu.GetCpuSpeed(bWithDurability); }
+	FORCEINLINE const float GetTotalMemorySize() const { return MotherboardMemory.GetMemorySize(); }
+	FORCEINLINE const float GetTotalVRamSize() const { return MotherboardGpu.GetVRamSize(); }
+	FORCEINLINE const bool IsCpuOfCorrectType() const { return MotherboardCpu.CpuSocketType == MotherboardSocketType; }
+	
+	FYetiOsPortableDeviceMotherBoard()
+	{
+		
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOsStationaryDeviceMotherBoard : public FMotherboardBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Stationary Mother Board")
+	bool bHasOnboardGraphics;
+
+	/* Only first 4 are supported. If you add more than 4 they are ignored. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Stationary Mother Board")
+	TArray<FYetiOsCpu> MotherboardCpus;
+
+	/* Only first 4 are supported. If you add more than 4 they are ignored. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Stationary Mother Board")
+	TArray<FYetiOsMemory> MotherboardMemories;
+
+	/* Only first 4 are supported. If you add more than 4 they are ignored. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Stationary Mother Board")
+	TArray<FYetiOsGpu> MotherboardGpus;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Stationary Mother Board")
+	FYetiOsPowerSupply PowerSupply;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (UIMin = "0", ClampMin = "0", UIMax = "280"), Category = "Yeti OS Stationary Mother Board")
+	int32 Wattage;
+
+	FORCEINLINE const float GetTotalCpuSpeed(const bool bWithDurability) const
+	{
+		float TotalSpeed = 0.f;
+		for (int32 i = 0; i < 4; ++i)
+		{
+			if (MotherboardCpus.IsValidIndex(i))
+			{
+				TotalSpeed += MotherboardCpus[i].GetCpuSpeed(bWithDurability);
+			}
+		}
+		return TotalSpeed;
+	}
+
+	FORCEINLINE const float GetTotalMemorySize() const
+	{
+		float TotalSize = 0.f;
+		for (int32 i = 0; i < 4; ++i)
+		{
+			if (MotherboardMemories.IsValidIndex(i))
+			{
+				TotalSize += MotherboardMemories[i].GetMemorySize();
+			}
+		}
+		return TotalSize;
+	}
+
+	FORCEINLINE const float GetTotalVRamSize() const
+	{
+		float TotalSize = 0.f;
+		for (int32 i = 0; i < 4; ++i)
+		{
+			if (MotherboardGpus.IsValidIndex(i))
+			{
+				TotalSize += MotherboardGpus[i].GetVRamSize();
+			}
+		}
+		return TotalSize;
+	}
+
+	FORCEINLINE const bool HasEnoughPower() const
+	{
+		const int32 TotalPower = PowerSupply.TotalWattage;
+		int32 CurrentPower = Wattage;
+		CurrentPower += HardDisk.Wattage;
+
+		for (int32 i = 0; i < 4; ++i)
+		{
+			if (MotherboardCpus.IsValidIndex(i))
+			{
+				CurrentPower += MotherboardCpus[i].Wattage;
+			}
+		}
+
+		for (int32 i = 0; i < 4; ++i)
+		{
+			if (MotherboardMemories.IsValidIndex(i))
+			{
+				CurrentPower += MotherboardMemories[i].Wattage;
+			}
+		}
+
+		for (int32 i = 0; i < 4; ++i)
+		{
+			if (MotherboardGpus.IsValidIndex(i))
+			{
+				CurrentPower += MotherboardGpus[i].Wattage;
+			}
+		}
+
+		return CurrentPower < TotalPower;
+	}
+
+	FORCEINLINE const bool AllCpusAreOfCorrectSocketType(FYetiOsCpu& OutIncorrectCpu) const
+	{
+		for (int32 i = 0; i < 4; ++i)
+		{
+			if (MotherboardCpus.IsValidIndex(i))
+			{
+				const FYetiOsCpu Local_CurrentCpu = MotherboardCpus[i];
+				if (Local_CurrentCpu.CpuSocketType != MotherboardSocketType)
+				{
+					OutIncorrectCpu = Local_CurrentCpu;
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	FORCEINLINE const bool HasGPUInstalled() const
+	{
+		return MotherboardGpus.Num() > 0;
+	}
+
+	FORCEINLINE const bool HasOnboardGraphics() const
+	{
+		return bHasOnboardGraphics;
+	}
+
+	FYetiOsStationaryDeviceMotherBoard()
 	{
 		MotherboardSocketType = EYetiOsSocketType::SOCKET_1150;
 		MotherboardCpus.Init(FYetiOsCpu(), 1);

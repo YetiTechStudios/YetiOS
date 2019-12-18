@@ -11,6 +11,7 @@
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseProgram, All, All)
 
 #define printlog_display(Param1)		UE_LOG(LogYetiOsBaseProgram, Display, TEXT("%s"), *FString(Param1))
+#define printlog_error(Param1)			UE_LOG(LogYetiOsBaseProgram, Error, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "YetiOS"
 
@@ -19,6 +20,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	ProgramName = FText::GetEmpty();
 	ProgramIcon = nullptr;	
 	bSingleInstanceOnly = true;
+	bCanRunOnPortableDevice = true;
 	bIsSystemInstalledProgram = false;
 
 	bCanCallOnCreate = true;
@@ -33,9 +35,21 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 	if (InOS && !InOS->IsPendingKill())
 	{
 		UYetiOS_BaseProgram* ProxyProgram = NewObject<UYetiOS_BaseProgram>(InOS, ProgramClass);
+		const UYetiOS_BaseDevice* OwningDevice = InOS->GetOwningDevice();
+		if (OwningDevice->IsPortableDevice() && ProxyProgram->bCanRunOnPortableDevice == false)
+		{
+			printlog_error(FString::Printf(TEXT("%s cannot run on %s portable device."), *ProxyProgram->ProgramName.ToString(), *OwningDevice->GetDeviceName().ToString()));
+			OutErrorMessage.ErrorCode = FText::AsCultureInvariant("ERR_INCOMPATIBLE_DEVICE");
+			OutErrorMessage.ErrorException = LOCTEXT("YetiOS_InCompatibleDeviceErrorException", "Incompatible device.");
+			OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InCompatibleDeviceErrorDetailedException", "{0} is not compatible with this device."), ProxyProgram->ProgramName);
+			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode);
+			InOS->CreateOsNotification(NewNotification);
+			return nullptr;
+		}
+
 		ProxyProgram->OwningOS = InOS;
 		ProxyProgram->bIsSystemInstalledProgram = bIsOsPredefinedProgram;
-		
+
 		if (ProxyProgram->bCanCallOnCreate)
 		{
 			ProxyProgram->K2_OnCreate();
@@ -98,4 +112,6 @@ bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilitySt
 }
 
 #undef printlog_display
+#undef printlog_error
+
 #undef LOCTEXT_NAMESPACE

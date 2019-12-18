@@ -15,7 +15,7 @@ This is the main root directory for the OS (if OS requires root directory).
 Note that this is inherited from the base class because we don't want any
 properties of a normal directory.
 *************************************************************************/
-UCLASS()
+UCLASS(DisplayName = "Root Directory")
 class YETIOS_API UYetiOS_DirectoryRoot : public UYetiOS_DirectoryBase
 {
 	GENERATED_BODY()

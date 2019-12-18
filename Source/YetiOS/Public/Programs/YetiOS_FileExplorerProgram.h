@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Abstract)
+UCLASS(Abstract, DisplayName = "File Explorer")
 class YETIOS_API UYetiOS_FileExplorerProgram : public UYetiOS_BaseProgram
 {
 	GENERATED_BODY()

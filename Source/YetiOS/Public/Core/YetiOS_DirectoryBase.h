@@ -15,7 +15,7 @@ YetiOS_DirectoryBase.h
 * Description:
 Base class for all directories.
 *************************************************************************/
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, DisplayName = "Base Directory")
 class YETIOS_API UYetiOS_DirectoryBase : public UObject
 {
 	GENERATED_BODY()

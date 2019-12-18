@@ -30,15 +30,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
 UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 {
 	DeviceName = FText::GetEmpty();
-	MotherBoard = FYetiOsMotherBoard();
-	MotherBoard.HardDisk.RootDirectoryClass = UYetiOS_DirectoryRoot::StaticClass();
-	bIsPortableDevice = false;
 	bOperatingSystemInstalled = false;
-	bLowBatteryWarned = false;
 	bBsodHappened = false;
-	BatteryLevel = 1.f;
-	ChargingSpeed = 1.f;
-	LowBatteryWarningLevel = 0.2f;
 	OperatingSystem = nullptr;
 	DeviceWidget = nullptr;
 	CurrentDeviceState = EYetiOsDeviceState::STATE_None;
@@ -58,12 +51,7 @@ void UYetiOS_BaseDevice::OnCreateDevice(FYetiOsError& OutErrorMessage)
 EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorMessage)
 {
 	const UYetiOS_SaveGame* LoadGameInstance = UYetiOS_SaveGame::LoadGame();
-	if (LoadGameInstance)
-	{
-		printlog_veryverbose("Loading device save data...");
-		bOperatingSystemInstalled = LoadGameInstance->GetDeviceLoadData().bSaveLoad_OsInstalled;
-		BatteryLevel = LoadGameInstance->GetDeviceLoadData().SaveLoad_BatteryLevel;
-	}
+	LoadSavedData(LoadGameInstance);
 
 	bBsodHappened = false;
 	OutErrorMessage = FYetiOsError();
@@ -176,6 +164,7 @@ void UYetiOS_BaseDevice::StartOperatingSystem(FYetiOsError& OutErrorMessage, con
 
 void UYetiOS_BaseDevice::ShutdownYetiDevice()
 {
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 	const bool bSaveSuccess = UYetiOS_SaveGame::SaveGame(this);
 	printlog_display(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
 	OperatingSystem->ShutdownOS();
@@ -252,46 +241,54 @@ void UYetiOS_BaseDevice::DestroyYetiDevice()
 void UYetiOS_BaseDevice::Internal_CalculateDeviceScore()
 {	
 	MaxDeviceScore = 0.f;
-	for (auto const& It : MotherBoard.MotherboardCpus)
+	for (auto const& It : GetAllCpus())
 	{
 		DeviceScore += (It.CpuSpeed * It.CpuDurability);
 		MaxDeviceScore += It.GetMaxCPUSpeed();
 	}
 
-	for (auto const& It : MotherBoard.MotherboardMemories)
+	for (auto const& It : GetAllMemory())
 	{
 		DeviceScore += (It.GetMemorySize() * It.MemoryDurability);
 		MaxDeviceScore += It.GetMaxMemorySize();
 	}
 
-	DeviceScore += (MotherBoard.HardDisk.HddRpmSpeed * MotherBoard.HardDisk.HddDurability);
-	MaxDeviceScore += MotherBoard.HardDisk.HddRpmSpeed;
+	FYetiOsHardDisk Local_HDD = GetHardDisk();
+	DeviceScore += (Local_HDD.HddRpmSpeed * Local_HDD.HddDurability);
+	MaxDeviceScore += Local_HDD.HddRpmSpeed;
 
-	DeviceScore = (DeviceScore * MotherBoard.MotherboardDurability);
+	DeviceScore = (DeviceScore * GetMotherboardDurability());
 }
 
 inline const float UYetiOS_BaseDevice::Internal_GetSystemDurability(FYetiOsError& OutErrorMessage) const
 {
 	OutErrorMessage = FYetiOsError();
 	OutErrorMessage.ErrorCode = LOCTEXT("Device_HardwareDurabilityErrorCode", "FATAL_ERROR_HARDWARE_FAIL");
-	const float TotalValue = MotherBoard.MotherboardCpus.Num() + MotherBoard.MotherboardMemories.Num() + MotherBoard.MotherboardGpus.Num() + 2; // + 2 means taking motherboard and HDD durabilities into account.
-	float NewDurability = MotherBoard.MotherboardDurability + MotherBoard.HardDisk.HddDurability;
 
-	if (MotherBoard.MotherboardDurability == 0.f)
+	TArray<FYetiOsCpu> AllCpus = GetAllCpus();
+	TArray<FYetiOsMemory> AllMemories = GetAllMemory();
+	TArray<FYetiOsGpu> AllGpus = GetAllGpu();
+
+	const float TotalValue = AllCpus.Num() + AllMemories.Num() + AllGpus.Num() + 2; // + 2 means taking motherboard and HDD durabilities into account.
+	const float MotherboardDurability = GetMotherboardDurability();
+	const float HddDurability = GetHardDisk().HddDurability;
+	float NewDurability = MotherboardDurability + HddDurability;
+
+	if (MotherboardDurability == 0.f)
 	{
 		OutErrorMessage.ErrorException = LOCTEXT("Device_MotherboardDurabilityErrorException", "Motherboard failed to boot.");
 		return 0.f;
 	}
 
-	if (MotherBoard.HardDisk.HddDurability == 0.f)
+	if (HddDurability == 0.f)
 	{
 		OutErrorMessage.ErrorException = LOCTEXT("Device_HddDurability", "Hard disk failed to boot.");
 		return 0.f;
 	}
 
-	for (int32 i = 0; i < MotherBoard.MotherboardCpus.Num(); ++i)
+	for (int32 i = 0; i < AllCpus.Num(); ++i)
 	{
-		const float Durability = MotherBoard.MotherboardCpus[i].CpuDurability;
+		const float Durability = AllCpus[i].CpuDurability;
 		if (Durability == 0.f)
 		{
 			OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_CpuDurability", "CPU #{0} failed to boot."), FText::AsNumber(i));
@@ -301,9 +298,9 @@ inline const float UYetiOS_BaseDevice::Internal_GetSystemDurability(FYetiOsError
 		NewDurability += Durability;
 	}
 
-	for (int32 i = 0; i < MotherBoard.MotherboardMemories.Num(); ++i)
+	for (int32 i = 0; i < AllMemories.Num(); ++i)
 	{
-		const float Durability = MotherBoard.MotherboardMemories[i].MemoryDurability;
+		const float Durability = AllMemories[i].MemoryDurability;
 		if (Durability == 0.f)
 		{
 			OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_MemoryDurability", "Memory #{0} failed to boot."), FText::AsNumber(i));
@@ -313,9 +310,9 @@ inline const float UYetiOS_BaseDevice::Internal_GetSystemDurability(FYetiOsError
 		NewDurability += Durability;
 	}
 
-	for (int32 i = 0; i < MotherBoard.MotherboardGpus.Num(); ++i)
+	for (int32 i = 0; i < AllGpus.Num(); ++i)
 	{
-		const float Durability = MotherBoard.MotherboardGpus[i].GpuDurability;
+		const float Durability = AllGpus[i].GpuDurability;
 		if (Durability == 0.f)
 		{
 			OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_GpuDurability", "GPU #{0} failed to boot."), FText::AsNumber(i));
@@ -340,7 +337,7 @@ inline const float UYetiOS_BaseDevice::Internal_GetSystemDurability(FYetiOsError
 
 inline const bool UYetiOS_BaseDevice::Internal_DeviceCanBoot(FYetiOsError& OutErrorMessage) const
 {
-	if (MotherBoard.MotherboardCpus.IsValidIndex(0) == false)
+	if (GetAllCpus().IsValidIndex(0) == false)
 	{
 		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoCpuErrorCode", "NO_CPU_BOOT_ERROR");
 		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoCpuErrorException", "You need a cpu to boot this device.");
@@ -348,35 +345,35 @@ inline const bool UYetiOS_BaseDevice::Internal_DeviceCanBoot(FYetiOsError& OutEr
 	}
 	
 	FYetiOsCpu OutIncorrectCpu;
-	if (MotherBoard.AllCpusAreOfCorrectSocketType(OutIncorrectCpu) == false)
+	if (CpusAreOfCorrectType(OutIncorrectCpu) == false)
 	{
 		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorIncorrectCpuErrorCode", "INCORRECT_CPU_BOOT_ERROR");
-		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_BootErrorIncorrectCpuErrorException", "{0} {1} is of incorrect socket type ({2}). This motherboard requires '{3}' socket type."), OutIncorrectCpu.Brand, OutIncorrectCpu.Model, FText::FromString(OutIncorrectCpu.GetSocketName()), FText::FromString(MotherBoard.GetSocketName()));
+		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_BootErrorIncorrectCpuErrorException", "{0} {1} is of incorrect socket type ({2}). This motherboard requires '{3}' socket type."), OutIncorrectCpu.Brand, OutIncorrectCpu.Model, FText::FromString(OutIncorrectCpu.GetSocketName()), FText::FromString(GetSocketName()));
 		return false;
 	}
 
-	if (MotherBoard.MotherboardMemories.IsValidIndex(0) == false)
+	if (GetAllMemory().IsValidIndex(0) == false)
 	{
 		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoRamErrorCode", "NO_RAM_BOOT_ERROR");
 		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoRamErrorException", "Missing memory.");
 		return false;
 	}
 
-	if (MotherBoard.MotherboardGpus.IsValidIndex(0) == false && MotherBoard.bHasOnboardGraphics == false)
+	if (GetAllGpu().IsValidIndex(0) == false && MotherboardHasOnBoardGraphics() == false)
 	{
 		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoGpuErrorCode", "NO_GRAPHICS_BOOT_ERROR");
 		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoGpuErrorException", "Requires a GPU to boot this device.");
 		return false;
 	}
 
-	if (MotherBoard.HasEnoughPower() == false)
+	if (HasEnoughPower() == false)
 	{
 		OutErrorMessage.ErrorCode = LOCTEXT("Device_PowerFailureErrorCode", "POWER_FAILURE");
 		OutErrorMessage.ErrorException = LOCTEXT("Device_PowerFailureErrorException", "Your device doesn't have enough power to boot.");
 		return false;
 	}
 
-	if (MotherBoard.HardDisk.RootDirectoryClass == nullptr)
+	if (GetRootDirectoryClass() == nullptr)
 	{
 		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoRootDirErrorCode", "NO_ROOT_DIRECTORY");
 		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoRootDirErrorException", "Requires a root directory to boot this device.");
@@ -449,6 +446,15 @@ void UYetiOS_BaseDevice::Internal_CreateRequiredPhysicalDirectories()
 	Internal_CreatePhysicalDirectory(Internal_GetLoginWallpapersPath(this));
 	Internal_CreatePhysicalDirectory(Internal_GetDesktopWallpapersPath(this));
 	Internal_CreatePhysicalDirectory(Internal_UserIconsPath(this));
+}
+
+void UYetiOS_BaseDevice::LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance)
+{
+	if (InLoadGameInstance)
+	{
+		printlog_veryverbose("Loading device save data...");
+		bOperatingSystemInstalled = InLoadGameInstance->GetDeviceLoadData().bSaveLoad_OsInstalled;
+	}
 }
 
 TArray<FString> UYetiOS_BaseDevice::GetLoginWallpapers(const UYetiOS_BaseDevice* InDevice)

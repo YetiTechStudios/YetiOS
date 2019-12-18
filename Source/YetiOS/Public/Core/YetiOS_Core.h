@@ -8,7 +8,7 @@
 #include "YetiOS_Core.generated.h"
 
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, DisplayName = "Operating System")
 class YETIOS_API UYetiOS_Core : public UObject
 {
 	GENERATED_BODY()
@@ -364,7 +364,29 @@ private:
 
 public:
 
-	inline bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage);
+	/**
+	* public UYetiOS_Core::NotifyBatteryLevelChange
+	* Notifies the operating system that this device consumed or charged battery.
+	* @param CurrentBatteryLevel [const float&] Remaining battery level.
+	**/
+	void NotifyBatteryLevelChange(const float& CurrentBatteryLevel);
+
+	/**
+	* public UYetiOS_Core::NotifyLowBattery
+	* Notifies the operating system that this device is running on low battery.
+	* @See UYetiOS_PortableDevice::Internal_ConsumeBattery()
+	**/
+	void NotifyLowBattery(const bool bIsLowBattery);
+
+	/**
+	* public UYetiOS_Core::IsProgramInstalled
+	* Checks if the given program (by identifier) is installed in this Operating System.
+	* @param InProgramIdentifier [const FName&] Program identifier reference.
+	* @param OutFoundProgram [UYetiOS_BaseProgram*&] If the return is true, then this will point to the installed program.
+	* @param OutErrorMessage [FYetiOsError&] Outputs any error message.
+	* @return [const bool] True if the given program is installed.
+	**/
+	const bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage);
 	
 	/**
 	* public UYetiOS_Core::AddToCreatedDirectories
@@ -480,6 +502,18 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
 	class UYetiOS_BaseProgram* FindRunningProgramByIdentifier(const FName& InIdentifier) const;
+
+protected:
+
+	/**
+	* protected UYetiOS_Core::K2_OnBatteryLevelChanged
+	* Event that is called when battery level changes. Either by depleting or charging.
+	* @param bConsumedBattery [const float&] Current battery level.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS", DisplayName = "OnBatteryLevelChanged")
+	void K2_OnBatteryLevelChanged(const float& CurrentBatteryLevel);
+
+public:
 	
 	/* Returns an array of compatible device classes for this operating system. */
 	FORCEINLINE const TArray<TSubclassOf<class UYetiOS_BaseDevice>> GetCompatibleDeviceClasses() const { return CompatibleDevices; }

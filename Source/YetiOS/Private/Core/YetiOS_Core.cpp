@@ -5,7 +5,8 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Core/YetiOS_DirectoryRoot.h"
 #include "Core/YetiOS_SaveGame.h"
-#include "Devices/YetiOS_BaseDevice.h"
+#include "Devices/YetiOS_PortableDevice.h"
+#include "Devices/YetiOS_StationaryDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
 #include "Widgets/YetiOS_OsWidget.h"
 #include "Widgets/YetiOS_AppIconWidget.h"
@@ -57,7 +58,7 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 		ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
 		ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
 		ProxyOS->InstalledPrograms.Empty();
-		ProxyOS->RemainingSpace = InParentDevice->GetMotherBoard().HardDisk.HddCapacity;
+		ProxyOS->RemainingSpace = InParentDevice->GetHardDisk().HddCapacity;
 		return ProxyOS;
 	}
 
@@ -412,23 +413,28 @@ void UYetiOS_Core::DestroyOS()
 
 const FYetiOsCpu UYetiOS_Core::GetMainCpu() const
 {
-	return Device->GetCpu(0);
+	if (Device->IsPortableDevice())
+	{
+		return Device->GetCastedDevice<UYetiOS_PortableDevice>()->GetCpu();
+	}
+
+	return Device->GetCastedDevice<UYetiOS_StationaryDevice>()->GetCpu(0);
 }
 
 const float UYetiOS_Core::GetTotalMemory(const bool bInBytes /*= true*/) const
 {
-	const float TotalMemory = Device->GetMotherBoard().GetTotalMemorySize();
+	const float TotalMemory = Device->GetTotalMemorySize();
 	return bInBytes ? TotalMemory * 1000000.f : TotalMemory;
 }
 
 const float UYetiOS_Core::GetTotalCPUSpeed(const bool bWithDurability /*= true*/) const
 {
-	return Device->GetMotherBoard().GetTotalCpuSpeed(bWithDurability);
+	return Device->GetTotalCpuSpeed(bWithDurability);
 }
 
 const bool UYetiOS_Core::HasGpuInstalled() const
 {
-	return Device->GetMotherBoard().HasGPUInstalled();
+	return Device->IsGpuInstalled();
 }
 
 const float UYetiOS_Core::GetDeviceScore() const
@@ -438,7 +444,7 @@ const float UYetiOS_Core::GetDeviceScore() const
 
 const bool UYetiOS_Core::HasValidRootDirectoryClass() const
 {
-	return (Device && Device->GetMotherBoard().HardDisk.RootDirectoryClass && !Device->GetMotherBoard().HardDisk.RootDirectoryClass->IsPendingKill());
+	return (Device && Device->GetRootDirectoryClass() != nullptr);
 }
 
 void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
@@ -492,7 +498,24 @@ const bool UYetiOS_Core::Internal_ConsumeSpace(float InSpaceToConsume)
 	return false;
 }
 
-inline bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage)
+void UYetiOS_Core::NotifyBatteryLevelChange(const float& CurrentBatteryLevel)
+{
+	K2_OnBatteryLevelChanged(CurrentBatteryLevel);
+	if (OsWidget)
+	{
+		OsWidget->OnBatteryLevelChanged(CurrentBatteryLevel);
+	}
+}
+
+void UYetiOS_Core::NotifyLowBattery(const bool bIsLowBattery)
+{
+	if (OsWidget)
+	{
+		OsWidget->OnLowBatteryWarningReceived(bIsLowBattery);
+	}
+}
+
+const bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage)
 {
 	OutFoundProgram = nullptr;
 	
@@ -533,7 +556,7 @@ UYetiOS_DirectoryRoot* UYetiOS_Core::GetRootDirectory()
 {
 	if (RootDirectory == nullptr && ensureMsgf(HasValidRootDirectoryClass(), TEXT("Valid root directory check has failed. This should never happen. Make sure you have a valid device and it has a RootDirectoryClass specified.")))
 	{
-		RootDirectory = NewObject<UYetiOS_DirectoryRoot>(this, Device->GetMotherBoard().HardDisk.RootDirectoryClass);
+		RootDirectory = NewObject<UYetiOS_DirectoryRoot>(this, Device->GetRootDirectoryClass());
 		AddToCreatedDirectories(RootDirectory);
 		FYetiOsError OutError;
 		RootDirectory->CreateNativeChildDirectories(OutError, true);

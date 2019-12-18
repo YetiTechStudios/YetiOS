@@ -44,6 +44,9 @@ public:
 	void BeginLoadOS();
 	void BeginShutdownOS();
 
+	void OnBatteryLevelChanged(const float& CurrentBatteryLevel);
+	void OnLowBatteryWarningReceived(const bool bIsLowBattery);
+
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
 	const float GetDelayTime(const float InMin = 0.01, const float InMax = 0.2) const;
 
@@ -66,6 +69,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginShuttingdownOS")
 	void K2_OnBeginShuttingdownOS();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget|Portable", DisplayName = "OnBatteryLevelChanged")
+	void K2_OnBatteryLevelChanged(const float& CurrentBatteryLevel);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget|Portable", DisplayName = "OnLowBatteryWarningReceived")
+	void K2_OnLowBatteryWarningReceived(const bool bIsLowBattery);
 
 public:
 

@@ -16,7 +16,7 @@ YetiOS_BaseProgram.h
 * Description:
 Base class for creating new programs.
 *************************************************************************/
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, DisplayName = "Base Program")
 class YETIOS_API UYetiOS_BaseProgram : public UObject
 {
 	GENERATED_BODY()
@@ -50,6 +50,10 @@ protected:
 	/* If true, user can only run one instance of this program. If false, user can create as many instances as they want. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
 	uint8 bSingleInstanceOnly : 1;
+
+	/* If true, then this program can run on portable device. */
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
+	uint8 bCanRunOnPortableDevice : 1;
 
 	/* If true, then C++ can call K2_OnCreate function. */
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")

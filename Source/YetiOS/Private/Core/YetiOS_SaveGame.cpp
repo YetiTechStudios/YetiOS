@@ -6,7 +6,7 @@
 #include "Core/YetiOS_DirectoryBase.h"
 #include "Core/YetiOS_BaseProgram.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
-#include "Devices/YetiOS_BaseDevice.h"
+#include "Devices/YetiOS_PortableDevice.h"
 #include "Templates/SubclassOf.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -30,7 +30,12 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 		{
 			UYetiOS_SaveGame* SaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
 			SaveGameInstance->DeviceData.bSaveLoad_OsInstalled = InDevice->IsOperatingSystemInstalled();
-			SaveGameInstance->DeviceData.SaveLoad_BatteryLevel = InDevice->GetBatteryLevel();
+
+			const UYetiOS_PortableDevice* MyPortableDevice = Cast<UYetiOS_PortableDevice>(InDevice);
+			if (MyPortableDevice)
+			{
+				SaveGameInstance->DeviceData.SaveLoad_BatteryLevel = MyPortableDevice->GetBatteryLevel();
+			}
 
 			const UYetiOS_Core* OperatingSystem = InDevice->GetOperatingSystem();
 			if (OperatingSystem)
@@ -84,15 +89,14 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 
 const UYetiOS_SaveGame* UYetiOS_SaveGame::LoadGame()
 {
-	UYetiOS_SaveGame* DummySaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
-	const FString MySaveSlotName = DummySaveGameInstance->SaveSlotName;
-	const uint32 MyUserIndex = DummySaveGameInstance->UserIndex;
-	DummySaveGameInstance->ConditionalBeginDestroy();
+	UYetiOS_SaveGame* Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
+	const FString MySaveSlotName = Local_SaveLoadInstance->SaveSlotName;
+	const uint32 MyUserIndex = Local_SaveLoadInstance->UserIndex;
 
 	if (UGameplayStatics::DoesSaveGameExist(MySaveSlotName, MyUserIndex))
 	{
-		UYetiOS_SaveGame* LoadedGame = Cast<UYetiOS_SaveGame>(UGameplayStatics::LoadGameFromSlot(MySaveSlotName, MyUserIndex));
-		return LoadedGame;
+		Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::LoadGameFromSlot(MySaveSlotName, MyUserIndex));
+		return Local_SaveLoadInstance;
 	}
 
 	return nullptr;
