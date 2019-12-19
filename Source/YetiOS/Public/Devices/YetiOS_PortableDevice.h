@@ -127,11 +127,5 @@ public:
 
 	FORCEINLINE const FYetiOsCpu GetCpu() const { return PortableDeviceMotherBoard.MotherboardCpu; }
 	FORCEINLINE const float GetChargingSpeed() const { return (GetTimeToFullyRechargeInHours() * 3600.f) / 10.f; }
-	FORCEINLINE const float GetTimeToFullyRechargeInHours() const
-	{
-		const float Local_BatteryCapacity = InstalledBattery.BatteryCapacity;
-		const float Local_BatteryChargeRate = InstalledBattery.ChargeRate;
-		const float Local_BatteryEfficiencyLoss = InstalledBattery.GetEfficiencyLossvalue();
-		return ((Local_BatteryCapacity / Local_BatteryChargeRate) * Local_BatteryEfficiencyLoss) / 10.f;
-	}
+	FORCEINLINE const float GetTimeToFullyRechargeInHours() const { return InstalledBattery.GetTimeToFullyRechargeInHours(); }
 };

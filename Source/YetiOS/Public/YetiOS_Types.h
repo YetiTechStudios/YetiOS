@@ -294,6 +294,8 @@ struct FYetiOsPortableBattery
 		return bNormalize ? ((uint8)EfficiencyLoss + 1) / 10.f : (((uint8)EfficiencyLoss + 1) * 100.f) / 10.f;
 	}
 
+	FORCEINLINE const float GetTimeToFullyRechargeInHours() const { return ((BatteryCapacity / ChargeRate) * GetEfficiencyLossvalue()) / 10.f; }
+
 	FYetiOsPortableBattery()
 	{
 		BatteryCapacity = 1200.f;
