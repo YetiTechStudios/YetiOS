@@ -24,9 +24,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device", meta = (UIMin = "0", UIMax = "1", ClampMin = "0", ClampMax = "1"))
 	float BatteryLevel;
 
+	/* Details of currently installed battery. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device")
 	FYetiOsPortableBattery InstalledBattery;
 
+	/* Time taken to consume battery if not charging. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device", meta = (UIMin = "1", ClampMin = "0.2", UIMax = "300"))
 	float BatteryConsumeTimerDelay;
 
@@ -76,10 +78,10 @@ public:
 	/**
 	* public UYetiOS_PortableDevice::GetBatteryLevel const
 	* Gets the current battery level.
-	* @return [float] Current battery level
+	* @return [const float] Current battery level
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Portable Device")
-	float GetBatteryLevel() const { return BatteryLevel; }
+	const float GetBatteryLevel() const { return BatteryLevel; }
 
 	/**
 	* public UYetiOS_PortableDevice::GetBatteryHealth const
