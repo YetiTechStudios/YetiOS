@@ -14,6 +14,10 @@
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Engine/Public/TimerManager.h"
 
+#if WITH_GAMEANALYTICS
+#include "GameAnalytics.h"
+#endif
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
 
@@ -53,6 +57,9 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 	UYetiOS_Core* ProxyOS = NewObject<UYetiOS_Core>(InParentDevice, InParentDevice->OperatingSystemClass);
 	if (ProxyOS->GetCompatibleDeviceClasses().Contains(InParentDevice->GetClass()))
 	{
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::addDesignEvent("OperatingSystem:Created");
+#endif
 		ProxyOS->Device = InParentDevice;
 		ProxyOS->OsWorld = InParentDevice->GetWorld();
 		ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
@@ -63,7 +70,12 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 	}
 
 	OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_CreateOperatingSystemErrorCode", "INCOMPATIBLE_OPERATING_SYSTEM");
-	OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_CreateOperatingSystemErrorException", "{0} is not compatible with this device."), ProxyOS->GetOsName());	
+	OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_CreateOperatingSystemErrorException", "{0} is not compatible with this device."), ProxyOS->GetOsName());
+
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::addErrorEvent(EGAErrorSeverity::error, TCHAR_TO_ANSI(*FString::Printf(TEXT("OperatingSystem Error: %s"), *OutErrorMessage.ErrorException.ToString())));
+#endif
+
 	ProxyOS->ConditionalBeginDestroy();
 	return nullptr;
 }
@@ -78,6 +90,10 @@ const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIf
 {
 	if (Internal_ConsumeSpace(InstallationSpace))
 	{
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::AddProgressionEventWithOne(EGAProgressionStatus::start, "OperatingSystem:Installation");
+#endif
+
 		static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
 		static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
 		static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "INSTALL_START");
@@ -92,6 +108,10 @@ const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIf
 		OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
 		return true;
 	}
+
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::addErrorEvent(EGAErrorSeverity::error, "OperatingSystem Installation Error: Not enough space to install Operating System on this device.");
+#endif
 
 	static const FText Exception = LOCTEXT("YetiOS_StartInstallation", "Insufficient space.");
 	static const FText DetailedException = LOCTEXT("YetiOS_StartInstallationDescription", "Not enough space to install Operating System on this device.");
@@ -114,6 +134,9 @@ void UYetiOS_Core::LoadOS()
 
 void UYetiOS_Core::ShutdownOS()
 {
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::addDesignEvent("OperatingSystem:Shutdown");
+#endif
 	TArray<UYetiOS_BaseProgram*> ProgramsArray;
 	RunningPrograms.GenerateValueArray(ProgramsArray);
 	for (const auto& It : ProgramsArray)
@@ -129,6 +152,9 @@ bool UYetiOS_Core::AddNewUser(FYetiOsUser InNewUser, FYetiOsError& OutErrorMessa
 {
 	if (InNewUser.UserName.EqualToCaseIgnored(UYetiOS_Core::ROOT_USER_NAME))
 	{
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::addErrorEvent(EGAErrorSeverity::error, "OperatingSystem Add User Error: You cannot use root username.");
+#endif
 		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_InvalidUsernameError", "ERR_INVALID_USERNAME");
 		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "You cannot use '{0}' as your username."), UYetiOS_Core::ROOT_USER_NAME);
 		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "'{0}' is a system reserved username. Please try again with another name."), UYetiOS_Core::ROOT_USER_NAME);
@@ -137,6 +163,10 @@ bool UYetiOS_Core::AddNewUser(FYetiOsUser InNewUser, FYetiOsError& OutErrorMessa
 		return false;
 	}
 	
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::addDesignEvent("OperatingSystem:NewUser");
+#endif
+
 	OsUsers.Add(InNewUser);
 	return true;
 }
@@ -449,6 +479,9 @@ const bool UYetiOS_Core::HasValidRootDirectoryClass() const
 
 void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 {
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::AddProgressionEventWithOne(EGAProgressionStatus::complete, "OperatingSystem:Installation");
+#endif
 	static const FText Title = LOCTEXT("YetiOS_FinishInstallation", "Finish Installation.");
 	static const FText Description = LOCTEXT("YetiOS_FinishInstallationDescription", "Operating system installation finished on device.");
 	static const FText Code = LOCTEXT("YetiOS_FinishInstallationCode", "INSTALL_FINISH");
@@ -578,7 +611,7 @@ const bool UYetiOS_Core::DirectoryExists(const FString& InDirectoryPath, UYetiOS
 	}
 
 	TArray<FString> OutPathArray;
-	const FString DirectoryString = InDirectoryPath;
+	const FString& DirectoryString = InDirectoryPath;
 	DirectoryString.ParseIntoArray(OutPathArray, *UYetiOS_Core::PATH_DELIMITER, true);
 	const int32 ArrayLength = OutPathArray.Num() - 1;
 
@@ -604,7 +637,7 @@ const bool UYetiOS_Core::DirectoryExists(const FString& InDirectoryPath) const
 UYetiOS_DirectoryBase* UYetiOS_Core::CreateDirectoryInPath(const FString& InDirectoryPath, const bool bHidden, FYetiOsError& OutErrorMessage, const FText& InDirName /*= FText::GetEmpty()*/)
 {
 	TArray<FString> OutPathArray;
-	const FString DirectoryString = InDirectoryPath;
+	const FString& DirectoryString = InDirectoryPath;
 	DirectoryString.ParseIntoArray(OutPathArray, *UYetiOS_Core::PATH_DELIMITER, true);
 	const int32 ArrayLength = OutPathArray.Num();
 

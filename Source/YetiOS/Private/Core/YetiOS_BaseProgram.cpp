@@ -8,6 +8,10 @@
 #include "Widgets/YetiOS_AppWidget.h"
 #include "Widgets/YetiOS_OsWidget.h"
 
+#if WITH_GAMEANALYTICS
+#include "GameAnalytics.h"
+#endif
+
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseProgram, All, All)
 
 #define printlog_display(Param1)		UE_LOG(LogYetiOsBaseProgram, Display, TEXT("%s"), *FString(Param1))
@@ -80,6 +84,12 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 		{
 			K2_OnStart();
 		}
+
+#if WITH_GAMEANALYTICS
+		const FString EventIDGame = FString::Printf(TEXT("Program:Start:%s"), *ProgramName.ToString().Replace(TEXT(" "), TEXT("")));
+		UGameAnalytics::AddDesignEvent(EventIDGame);
+#endif
+
 		return true;
 	}
 
@@ -88,6 +98,10 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 
 void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage)
 {
+#if WITH_GAMEANALYTICS
+	const FString EventIDGame = FString::Printf(TEXT("Program:Close:%s"), *ProgramName.ToString().Replace(TEXT(" "), TEXT("")));
+	UGameAnalytics::AddDesignEvent(EventIDGame);
+#endif
 	if (bCanCallOnClose)
 	{
 		K2_OnClose();

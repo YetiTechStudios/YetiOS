@@ -17,6 +17,10 @@
 #include "Misc/FileHelper.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#if WITH_GAMEANALYTICS
+#include "GameAnalytics.h"
+#endif
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
 
@@ -46,6 +50,10 @@ void UYetiOS_BaseDevice::OnCreateDevice(FYetiOsError& OutErrorMessage)
 	DeviceWidget = UYetiOS_DeviceWidget::Internal_CreateDeviceWidget(this);
 	ChangeOnScreenWidget(DeviceWidget);
 	printlog_veryverbose(FString::Printf(TEXT("Device %s created."), *DeviceName.ToString()));
+
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::AddDesignEvent("Device:Created");
+#endif
 }
 
 EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorMessage)
@@ -59,6 +67,9 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 
 	if (Internal_DeviceCanBoot(OutErrorMessage) == false)
 	{
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, FString::Printf(TEXT("Failed to start %s. Reason: %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
+#endif
 		printlog_error(FString::Printf(TEXT("Failed to start %s. Reason: %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
 		return EYetiOsDeviceStartResult::DEVICESTART_HardwareFail;
 	}
@@ -69,11 +80,17 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 	{
 		if (Local_DeviceDurability == 0.f)
 		{
+#if WITH_GAMEANALYTICS
+			UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, FString::Printf(TEXT("Failed to start %s. Reason: %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
+#endif
 			printlog_error(FString::Printf(TEXT("Failed to start %s. Reason: %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
 			return EYetiOsDeviceStartResult::DEVICESTART_HardwareFail;
 		}
 		else
-		{			
+		{
+#if WITH_GAMEANALYTICS
+			UGameAnalytics::AddErrorEvent(EGAErrorSeverity::warning, FString::Printf(TEXT("Low durability for device %s. %f"), *DeviceName.ToString(), Local_DeviceDurability));
+#endif
 			bPartialSuccess = true;
 		}
 	}
@@ -121,17 +138,29 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 					UYetiOS_AppIconWidget* OutWidget;
 					OperatingSystem->InstallProgram(It.SaveLoad_ProgramClass, OutErrorMessage, OutWidget);
 				}
+
+#if WITH_GAMEANALYTICS
+				UGameAnalytics::AddDesignEvent("Device:OperaingSystemLoadFromSavedData");
+#endif
 			}
 			
 		}
 		else
 		{
+#if WITH_GAMEANALYTICS
+			UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, "No operating system found for device");
+#endif
 			return EYetiOsDeviceStartResult::DEVICESTART_NoOs;
 		}
 	}
 	
 	Internal_CreateRequiredPhysicalDirectories();
 	UpdateDeviceState(EYetiOsDeviceState::STATE_Starting);
+
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::AddDesignEvent("Device:Started");
+#endif
+
 	return bPartialSuccess ? EYetiOsDeviceStartResult::DEVICESTART_PartialSuccess : EYetiOsDeviceStartResult::DEVICESTART_Success;
 }
 
@@ -159,11 +188,21 @@ void UYetiOS_BaseDevice::ChangeOnScreenWidget(class UUserWidget* InNewWidget /*=
 void UYetiOS_BaseDevice::StartOperatingSystem(FYetiOsError& OutErrorMessage, const bool bShowBsodOnError /*= true*/)
 {
 	ChangeOnScreenWidget(OperatingSystem->GetOsWidget());
-	bOperatingSystemInstalled ? OperatingSystem->LoadOS() : OperatingSystem->StartOperatingSystemInstallation(bShowBsodOnError, OutErrorMessage);
+	if (bOperatingSystemInstalled)
+	{
+		OperatingSystem->LoadOS();
+	}
+	else
+	{
+		OperatingSystem->StartOperatingSystemInstallation(bShowBsodOnError, OutErrorMessage);
+	}
 }
 
 void UYetiOS_BaseDevice::ShutdownYetiDevice()
 {
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::AddDesignEvent("Device:Shutdown");
+#endif
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 	const bool bSaveSuccess = UYetiOS_SaveGame::SaveGame(this);
 	printlog_display(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
@@ -181,6 +220,10 @@ void UYetiOS_BaseDevice::ShowBSOD(const FText InFaultingModuleName /*= FText::Ge
 	{
 		BsodWidget = UYetiOS_BsodWidget::CreateBsodWidget(this, BsodWidgetClass, InFaultingModuleName, InExceptionName, InDetailedException);
 	}
+
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::AddDesignEvent("Device:BSOD");
+#endif
 
 	ChangeOnScreenWidget(BsodWidget);
 }

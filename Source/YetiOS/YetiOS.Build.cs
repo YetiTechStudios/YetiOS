@@ -1,6 +1,9 @@
 // Copyright 2019 YetiTech Studios, Pvt Ltd. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
+using System;
+using System.ComponentModel;
 
 public class YetiOS : ModuleRules
 {
@@ -56,5 +59,22 @@ public class YetiOS : ModuleRules
 		{
 			PrivateDependencyModuleNames.Add("UnrealEd");
 		}
+
+		string PluginsPath = ModuleDirectory.Replace("\\YetiOS\\Source\\YetiOS", "");
+		string GameAnalyticsPath = Path.Combine(PluginsPath, "GameAnalytics");
+		bool bGameAnalyticsAvailable = Directory.Exists(GameAnalyticsPath);
+
+		if (bGameAnalyticsAvailable)
+		{
+			PrivateDependencyModuleNames.AddRange(new string[] { "GameAnalytics" });
+			PrivateIncludePathModuleNames.AddRange(new string[] { "GameAnalytics" });
+			PublicDefinitions.Add("WITH_GAMEANALYTICS=1");
+			System.Console.WriteLine("GameAnalytics is enabled!");
+		}
+		else
+		{
+			PublicDefinitions.Add("WITH_GAMEANALYTICS=0");
+			System.Console.WriteLine("GameAnalytics is disabled!");
+		}		
 	}
 }

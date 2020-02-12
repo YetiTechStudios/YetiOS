@@ -12,6 +12,10 @@
 #include "Components/SceneComponent.h"
 #endif
 
+#if WITH_GAMEANALYTICS
+#include "GameAnalytics.h"
+#endif
+
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDeviceManager, All, All)
 
 #define printlog_display(Param1)		UE_LOG(LogYetiOsDeviceManager, Display, TEXT("%s"), *FString(Param1))
@@ -66,6 +70,10 @@ void AYetiOS_DeviceManagerActor::BeginPlay()
 	}
 #endif
 
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::initialize("f70e2be1dad08f5a17450af415a40f46", "f6066f073675e6bf2cb850aac72a3cb080d962ff");
+#endif
+
 	if (bCreateDeviceOnBeginPlay)
 	{
 		FYetiOsError ErrorMessage;
@@ -75,6 +83,10 @@ void AYetiOS_DeviceManagerActor::BeginPlay()
 
 void AYetiOS_DeviceManagerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::OnQuit();
+#endif
+
 	Super::EndPlay(EndPlayReason);
 
 	FString EndReasonString = "Unknown";
