@@ -91,7 +91,7 @@ const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIf
 	if (Internal_ConsumeSpace(InstallationSpace))
 	{
 #if WITH_GAMEANALYTICS
-		UGameAnalytics::AddProgressionEventWithOne(EGAProgressionStatus::start, "OperatingSystem:Installation");
+		UGameAnalytics::addProgressionEvent(EGAProgressionStatus::start, "OperatingSystem", "Installation");
 #endif
 
 		static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
@@ -480,7 +480,7 @@ const bool UYetiOS_Core::HasValidRootDirectoryClass() const
 void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 {
 #if WITH_GAMEANALYTICS
-	UGameAnalytics::AddProgressionEventWithOne(EGAProgressionStatus::complete, "OperatingSystem:Installation");
+	UGameAnalytics::addProgressionEvent(EGAProgressionStatus::complete, "OperatingSystem", "Installation");
 #endif
 	static const FText Title = LOCTEXT("YetiOS_FinishInstallation", "Finish Installation.");
 	static const FText Description = LOCTEXT("YetiOS_FinishInstallationDescription", "Operating system installation finished on device.");
