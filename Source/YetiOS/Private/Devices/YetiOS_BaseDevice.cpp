@@ -501,7 +501,11 @@ UTexture2D* UYetiOS_BaseDevice::CreateTextureFromPath(const FString& InImagePath
 
 	if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(CompressedData.GetData(), CompressedData.Num()))
 	{
+#if ENGINE_MINOR_VERSION <= 24
 		const TArray<uint8>* UncompressedRGBA = nullptr;
+#else
+		TArray<uint8> UncompressedRGBA;
+#endif
 
 		if (ImageWrapper->GetRaw(ERGBFormat::RGBA, 8, UncompressedRGBA))
 		{
@@ -510,7 +514,11 @@ UTexture2D* UYetiOS_BaseDevice::CreateTextureFromPath(const FString& InImagePath
 			if (Texture != nullptr)
 			{
 				void* TextureData = Texture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+#if ENGINE_MINOR_VERSION <= 24
 				FMemory::Memcpy(TextureData, UncompressedRGBA->GetData(), UncompressedRGBA->Num());
+#else
+				FMemory::Memcpy(TextureData, UncompressedRGBA.GetData(), Texture->PlatformData->Mips[0].BulkData.GetBulkDataSize());
+#endif
 				Texture->PlatformData->Mips[0].BulkData.Unlock();
 				Texture->UpdateResource();
 			}

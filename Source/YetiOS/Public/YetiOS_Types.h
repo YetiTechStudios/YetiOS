@@ -289,7 +289,7 @@ struct FYetiOsPortableBattery
 		return 10.f;
 	}
 
-	FORCEINLINE const bool GetBatteryHealth(const bool bNormalize) const
+	FORCEINLINE const float GetBatteryHealth(const bool bNormalize) const
 	{
 		return bNormalize ? ((uint8)EfficiencyLoss + 1) / 10.f : (((uint8)EfficiencyLoss + 1) * 100.f) / 10.f;
 	}
