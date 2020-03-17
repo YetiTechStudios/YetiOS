@@ -39,7 +39,9 @@ public class YetiOS : ModuleRules
 				"InputCore",
 				"Slate",
 				"SlateCore",
-				"UMG"
+				"UMG",
+				"WebBrowserWidget",
+				"WebBrowser"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

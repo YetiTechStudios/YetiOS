@@ -16,6 +16,7 @@
 #include "Engine/Texture2D.h"
 #include "Misc/FileHelper.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)

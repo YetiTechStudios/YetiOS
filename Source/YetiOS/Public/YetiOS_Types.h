@@ -2,8 +2,12 @@
 
 #pragma once
 
+#include "UObject/Package.h"
 #include "Templates/SubclassOf.h"
 #include "YetiOS_Types.generated.h"
+
+#define ENUM_TO_STRING(EnumClassName, ValueOfEnum)				GetEnumAsString<EnumClassName>(FString(TEXT(#EnumClassName)), ValueOfEnum)
+#define STRING_TO_ENUM(EnumClassName, ValueOfEnum, OutEnum)		GetEnumValueFromString<EnumClassName>(FString(TEXT(#EnumClassName)), ValueOfEnum, OutEnum)
 
 class UYetiOS_DirectoryRoot;
 class UYetiOS_BaseProgram;
@@ -1306,3 +1310,31 @@ struct FYetiOsProgramSaveLoad
 	UPROPERTY()
 	bool bSaveLoad_SingleInstanceOnly;
 };
+
+template<typename TEnum>
+static FORCEINLINE const FString GetEnumAsString(const FString& Name, TEnum Value)
+{
+	if (const UEnum* EnumClass = FindObject<UEnum>(ANY_PACKAGE, *Name, true))
+	{
+		return EnumClass->GetNameByValue((int64)Value).ToString().Replace(*FString::Printf(TEXT("%s::"), *Name), TEXT(""));
+	}
+
+	ensureAlwaysMsgf(false, TEXT("Invalid enum %s"), *Name);
+	return FString("Invalid");
+}
+
+template <typename EnumType>
+static FORCEINLINE bool GetEnumValueFromString(const FString& EnumName, const FString& EnumString, EnumType& OutEnum)
+{
+	const FString TargetString = EnumString.Replace(TEXT(" "), TEXT(""));
+	UEnum* Enum = FindObject<UEnum>(ANY_PACKAGE, *EnumName, true);
+	if (!Enum)
+	{
+		ensureAlwaysMsgf(false, TEXT("Failed to find %s using string %s"), *EnumName, *EnumString);
+		OutEnum = EnumType(0);
+		return false;
+	}
+
+	OutEnum = (EnumType)Enum->GetIndexByName(FName(*TargetString));
+	return true;
+}
