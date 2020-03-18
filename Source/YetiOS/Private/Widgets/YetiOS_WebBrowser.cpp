@@ -37,7 +37,7 @@ const bool UYetiOS_WebBrowser::LoadURL(const FText& URL)
 		if (bShowWhitelistOnly)
 		{
 			bool bDenyAccess = true;
-			for (const FString It : WhitelistWebsites)
+			for (const FString& It : WhitelistWebsites)
 			{
 				if (It.Contains(NewURL))
 				{

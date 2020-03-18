@@ -30,13 +30,13 @@ struct FWebHistory
 {
 	GENERATED_USTRUCT_BODY();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Web History")
 	FText Title;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Web History")
 	FText URL;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Web History")
 	FDateTime DateAndTime;
 
 	FORCEINLINE FWebHistory()
