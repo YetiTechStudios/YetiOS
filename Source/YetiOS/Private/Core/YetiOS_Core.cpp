@@ -68,6 +68,11 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 	return nullptr;
 }
 
+const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
+{
+	return FText::AsTime(InDateTime, EDateTimeStyle::Short, FText::GetInvariantTimeZone());
+}
+
 void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotification)
 {
 	// #TERMINALPLUGIN TODO Show notification on os. Like notifications (action manager) in Windows.
