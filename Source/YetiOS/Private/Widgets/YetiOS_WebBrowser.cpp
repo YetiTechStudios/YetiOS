@@ -13,6 +13,10 @@
 #include "YetiOS_Types.h"
 #include <regex>
 
+#if WITH_GAMEANALYTICS
+#include "GameAnalytics.h"
+#endif
+
 static const FString BROWSER_IDENTIFIER_FAILSAFE = "browser";
 
 #define LOCTEXT_NAMESPACE "YetiOS"
@@ -33,6 +37,10 @@ const bool UYetiOS_WebBrowser::LoadURL(const FText& URL)
 	if (URL.IsEmptyOrWhitespace() == false)
 	{
 		FString NewURL = URL.ToString();
+
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::info, FString::Printf(TEXT("LoadURL: %s"), *NewURL));
+#endif
 
 		if (bShowWhitelistOnly)
 		{
@@ -92,6 +100,9 @@ void UYetiOS_WebBrowser::LoadString(FString Contents, FString DummyURL)
 {
 	if (WebBrowserWidget.IsValid())
 	{
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::info, FString::Printf(TEXT("LoadString: DummyURL: %s | Contents: %s"), *DummyURL, *Contents));
+#endif
 		WebBrowserWidget->LoadString(Contents, DummyURL);
 	}
 }
@@ -100,6 +111,9 @@ void UYetiOS_WebBrowser::ExecuteJavascript(const FString& ScriptText)
 {
 	if (WebBrowserWidget.IsValid())
 	{
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::info, FString::Printf(TEXT("ExecuteJavascript: Script: %s"), *ScriptText));
+#endif
 		WebBrowserWidget->ExecuteJavascript(ScriptText);
 	}
 }
@@ -175,8 +189,14 @@ void UYetiOS_WebBrowser::AssignDelegates()
 
 		ReloadButton->OnClicked.AddDynamic(this, &UYetiOS_WebBrowser::ReloadWebPage);
 	}
+#if WITH_GAMEANALYTICS
+	else
+	{
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, "Reload button was not assigned!");
+	}
+#endif
 
-	if (BackButton && ForwardButton)
+	if (BackButton)
 	{
 		if (BackButton->OnClicked.IsBound())
 		{
@@ -184,7 +204,16 @@ void UYetiOS_WebBrowser::AssignDelegates()
 		}
 
 		BackButton->OnClicked.AddDynamic(this, &UYetiOS_WebBrowser::Internal_GoBack);
+	}
+#if WITH_GAMEANALYTICS
+	else
+	{
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, "Back button was not assigned!");
+	}
+#endif
 
+	if (ForwardButton)
+	{
 		if (ForwardButton->OnClicked.IsBound())
 		{
 			ForwardButton->OnClicked.Clear();
@@ -192,6 +221,12 @@ void UYetiOS_WebBrowser::AssignDelegates()
 
 		ForwardButton->OnClicked.AddDynamic(this, &UYetiOS_WebBrowser::Internal_GoForward);
 	}
+#if WITH_GAMEANALYTICS
+	else
+	{
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, "Forward button was not assigned!");
+	}
+#endif
 }
 
 TSharedRef<SWidget> UYetiOS_WebBrowser::RebuildWidget()
@@ -240,10 +275,16 @@ void UYetiOS_WebBrowser::ReloadWebPage()
 		if (WebBrowserWidget->IsLoading())
 		{
 			WebBrowserWidget->StopLoad();
+#if WITH_GAMEANALYTICS			
+			UGameAnalytics::AddDesignEvent("WebBrowser:Reload:Stop");
+#endif
 		}
 		else
 		{
 			WebBrowserWidget->Reload();
+#if WITH_GAMEANALYTICS			
+			UGameAnalytics::AddDesignEvent("WebBrowser:Reload:Start");
+#endif
 		}
 	}
 }
@@ -277,6 +318,10 @@ void UYetiOS_WebBrowser::HandleOnLoadComplete()
 			BackButton->SetIsEnabled(WebBrowserWidget->CanGoBack());
 			ForwardButton->SetIsEnabled(WebBrowserWidget->CanGoForward());
 		}
+
+#if WITH_GAMEANALYTICS
+		UGameAnalytics::AddErrorEvent(EGAErrorSeverity::info, FString::Printf(TEXT("OnURL_Load: Title: %s | URL: %s"), *WebBrowserWidget->GetTitleText().ToString(), *WebBrowserWidget->GetUrl()));
+#endif
 	}
 
 	OnLoadCompleted.Broadcast();
@@ -285,6 +330,9 @@ void UYetiOS_WebBrowser::HandleOnLoadComplete()
 void UYetiOS_WebBrowser::HandleOnLoadError()
 {
 	OnLoadError.Broadcast();
+#if WITH_GAMEANALYTICS
+	UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, FString::Printf(TEXT("OnURL_Error: URL: %s"), *WebBrowserWidget->GetUrl()));
+#endif
 }
 
 bool UYetiOS_WebBrowser::HandleOnBeforePopup(FString URL, FString Frame)
@@ -293,6 +341,9 @@ bool UYetiOS_WebBrowser::HandleOnBeforePopup(FString URL, FString Frame)
 	{
 		if (IsInGameThread())
 		{
+#if WITH_GAMEANALYTICS
+			UGameAnalytics::AddErrorEvent(EGAErrorSeverity::error, FString::Printf(TEXT("OnURL_Popup: URL: %s | Frame: %s"), *URL, *Frame));
+#endif
 			OnBeforePopup.Broadcast(URL, Frame);
 		}
 		else
