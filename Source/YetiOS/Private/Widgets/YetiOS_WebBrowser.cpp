@@ -153,6 +153,18 @@ const bool UYetiOS_WebBrowser::GetBrowserUrlFromString(const FString& InString, 
 	return STRING_TO_ENUM(EBrowserURL, InString, OutResult);
 }
 
+const FText UYetiOS_WebBrowser::GetCleanDomainName(const FText& InURL)
+{	
+	const std::string SearchString = TCHAR_TO_UTF8(*InURL.ToString());
+	static const std::regex RegexPattern("(www)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?");
+	std::smatch RegexMatch;
+	std::regex_search(SearchString, RegexMatch, RegexPattern);
+		
+	const FString ReturnString = RegexMatch.str().c_str();
+
+	return FText::FromString(ReturnString);
+}
+
 const FString UYetiOS_WebBrowser::GetBrowserProtocolLink() const
 {
 	const FString Identifier = BrowserIdentifier.IsEmpty() ? BROWSER_IDENTIFIER_FAILSAFE : BrowserIdentifier;

@@ -211,6 +211,15 @@ public:
 	static const bool GetBrowserUrlFromString(const FString& InString, EBrowserURL& OutResult);
 
 	/**
+	* public static UYetiOS_WebBrowser::GetCleanDomainName
+	* Returns a clean domain name from given url. For example: www.google.com if you pass https://www.google.com/search?q=test
+	* @param InURL [const FText&] URL to get
+	* @return [const FText] Proper domain name.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Web Browser")
+	static const FText GetCleanDomainName(const FText& InURL);
+
+	/**
 	* public UYetiOS_WebBrowser::GetBrowserProtocolLink const
 	* Gets the protocol link for this browser. Similar to chrome://
 	* @See BrowserIdentifier variable.
@@ -219,7 +228,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Web Browser")
 	const FString GetBrowserProtocolLink() const;
 
-	// #YETI_OS TODO Not yet exposed to Blueprints. Slated for next update. :)
+	/**
+	* public UYetiOS_WebBrowser::GetHistory const
+	* Returns array of FWebHistory. This array contains all the web pages the user has visited if History is enabled.
+	* @return [const TArray<FWebHistory>] History array.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Web Browser")
 	const TArray<FWebHistory> GetHistory() const;
 
 	/**
