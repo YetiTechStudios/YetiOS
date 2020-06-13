@@ -124,7 +124,7 @@ void UYetiOS_Core::ShutdownOS()
 	for (const auto& It : ProgramsArray)
 	{
 		FYetiOsError OutError;
-		It->CloseProgram(OutError);
+		It->CloseProgram(OutError, true);
 	}
 
 	OsWidget->BeginShutdownOS();
