@@ -9,6 +9,22 @@
 #include "Widgets/YetiOS_AppWidget.h"
 #include "YetiOS_BaseProgram.generated.h"
 
+UENUM(BlueprintType)
+enum class EProgramSaveMethod : uint8
+{
+	/* Save automatically when Operating System is shutting down. */
+	SaveOnOperatingSystemShutdown,
+
+	/* Save automatically whenever this program is closed. Also saves on operating system shutdown since the program exits at shutdown. */
+	SaveOnExit,
+
+	/* No automatic saving. Player has to manually save settings using SaveSettinsg() method. */
+	SaveManually,
+
+	/* Do not save at all. */
+	DoNotSave
+};
+
 /*************************************************************************
 * File Information:
 YetiOS_BaseProgram.h
@@ -47,6 +63,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
 	TSubclassOf<UYetiOS_AppWidget> ProgramWidgetClass;
 
+	/* An optional class where you can save custom settings for this program. For example: Customizable options for a browser. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
+	TSubclassOf<class UYetiOS_ProgramSettings> SettingsClass;
+
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
+	EProgramSaveMethod SaveMethod;
+
 	/* If true, user can only run one instance of this program. If false, user can create as many instances as they want. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
 	uint8 bSingleInstanceOnly : 1;
@@ -80,6 +103,9 @@ protected:
 	/* Operating system that owns this program. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_Core* OwningOS;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UYetiOS_ProgramSettings* ProgramSettings;
 
 	/* Process ID assigned to this program while running. Will be -1 (or INDEX_NONE in C++) if not running. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -115,7 +141,15 @@ public:
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
-	virtual void CloseProgram(FYetiOsError& OutErrorMessage);
+	virtual void CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown = false);
+
+	/**
+	* virtual public UYetiOS_BaseProgram::SaveSettings
+	* Save settings manually. This function is automatically called if EProgramSaveMethod is set to save automatically.
+	* @return [bool] True if settings was saved successfully. Else false.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")	
+	virtual bool SaveSettings();
 
 	// #TERMINALPLUGIN TODO Not implemented yet
 	//UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program") 
@@ -139,6 +173,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")
 	inline int32 GetProcessID() const { return ProcessID; }
+
+private:
+
+	bool Internal_SetProgramSettings();
 
 protected:
 		
@@ -165,6 +203,13 @@ protected:
 	**/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "OnClose")	
 	void K2_OnClose();
+
+	/**
+	* protected UYetiOS_BaseProgram::K2_OnSettingsLoad
+	* Event called when program settings are loaded. Use Get Program Settings node to access and load your settings manually.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "OnLoadSettings")	
+	void K2_OnSettingsLoad();
 	
 public:
 
@@ -176,4 +221,5 @@ public:
 	FORCEINLINE const FText GetProgramName() const { return ProgramName; }
 	FORCEINLINE const FName GetProgramIdentifierName() const { return ProgramIdentifier; }
 	FORCEINLINE const bool IsSystemInstalledProgram() const { return bIsSystemInstalledProgram; }
+	FORCEINLINE const bool CanSaveSettings() const { return ProgramSettings != nullptr && SaveMethod != EProgramSaveMethod::DoNotSave; }
 };
