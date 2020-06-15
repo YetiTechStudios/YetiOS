@@ -13,7 +13,7 @@ YetiOS_ProgramSettings.h
 * Description:
 Base class for program settings.
 *************************************************************************/
-UCLASS(Blueprintable, DisplayName = "Program Settings")
+UCLASS(Blueprintable, hidedropdown, DisplayName = "Program Settings")
 class YETIOS_API UYetiOS_ProgramSettings : public USaveGame
 {
 	GENERATED_BODY()
@@ -28,6 +28,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Program Settings")
 	int32 UserIndex;
+
+	UPROPERTY()
+	class UYetiOS_BaseProgram* OwningProgram;
 
 public:
 
@@ -54,7 +57,7 @@ public:
 	/**
 	* public UYetiOS_ProgramSettings::SaveSettings
 	* DO NOT CALL THIS DIRECTLY. Use SaveSettings from the device that owns this settings class.
-	* Save settings to file. Make sure to implement Can Save and Pre Save functions. Calling this function will first call Can Save (K2_CanSave in C++) to make sure settings can be saved.
+	* Save settings to file. Make sure to implement Pre Save event. Calling this function will first call Can Save (K2_CanSave in C++) to make sure settings can be saved.
 	* @See Can Save - Native implementation checks if the owning program is allowed to save and for most cases it should be fine but you can override Can Save event to have any custom implementation.
 	* @See Pre Save - An event that you have to implement in Blueprint to collect whatever data you want to save.
 	* @return [bool] Returns if UGameplayStatics::SaveGameToSlot call was success or not.
@@ -68,6 +71,9 @@ private:
 	void Internal_SetSaveSlotName();
 
 protected:
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Program Settings")
+	class UYetiOS_BaseProgram* GetOwningProgram() const;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Yeti OS Program Settings", DisplayName = "Can Save")
 	bool K2_CanSave() const;

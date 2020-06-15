@@ -176,7 +176,7 @@ public:
 
 private:
 
-	bool Internal_SetProgramSettings();
+	bool Internal_LoadProgramSettings();
 
 protected:
 		

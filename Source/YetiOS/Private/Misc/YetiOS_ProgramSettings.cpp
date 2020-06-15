@@ -17,6 +17,7 @@ UYetiOS_ProgramSettings::UYetiOS_ProgramSettings()
 	ParentProgramIdentifier = NAME_None;
 	SaveSlotName = "";
 	UserIndex = 0;
+	OwningProgram = nullptr;
 }
 
 UYetiOS_ProgramSettings* UYetiOS_ProgramSettings::CreateSettings(const class UYetiOS_BaseProgram* InParentProgram, TSubclassOf<UYetiOS_ProgramSettings> InSettingsClass)
@@ -28,7 +29,7 @@ UYetiOS_ProgramSettings* UYetiOS_ProgramSettings::CreateSettings(const class UYe
 	}
 
 	UYetiOS_ProgramSettings* ProxyProgram = NewObject<UYetiOS_ProgramSettings>(const_cast<UYetiOS_BaseProgram*>(InParentProgram), InSettingsClass);
-	ProxyProgram->ParentProgramIdentifier = InParentProgram->GetProgramIdentifierName();
+	ProxyProgram->OwningProgram = const_cast<UYetiOS_BaseProgram*>(InParentProgram);
 	ProxyProgram->Internal_SetSaveSlotName();
 	return ProxyProgram;
 }
@@ -42,6 +43,8 @@ UYetiOS_ProgramSettings* UYetiOS_ProgramSettings::LoadSettings(const class UYeti
 	if (UGameplayStatics::DoesSaveGameExist(LoadSlotName, LoadUserIndex))
 	{
 		Local_LoadInstance = Cast<UYetiOS_ProgramSettings>(UGameplayStatics::LoadGameFromSlot(LoadSlotName, LoadUserIndex));
+		Local_LoadInstance->OwningProgram = const_cast<UYetiOS_BaseProgram*>(InParentProgram);
+		Local_LoadInstance->Internal_SetSaveSlotName();
 		return Local_LoadInstance;
 	}
 
@@ -52,7 +55,6 @@ bool UYetiOS_ProgramSettings::SaveSettings()
 {
 	if (K2_CanSave())
 	{
-		printlog(FString::Printf(TEXT("Beginning to save settings for %s"), *ParentProgramIdentifier.ToString()));
 		K2_PreSave();
 		return UGameplayStatics::SaveGameToSlot(this, SaveSlotName, UserIndex);
 	}
@@ -64,20 +66,26 @@ bool UYetiOS_ProgramSettings::SaveSettings()
 void UYetiOS_ProgramSettings::Destroy()
 {
 	ParentProgramIdentifier = NAME_None;
+	OwningProgram = nullptr;
 	ConditionalBeginDestroy();
 }
 
 void UYetiOS_ProgramSettings::Internal_SetSaveSlotName()
 {
+	ParentProgramIdentifier = OwningProgram->GetProgramIdentifierName();
 	SaveSlotName = ParentProgramIdentifier.ToString(); // FString::Printf(TEXT("%s_%s"), *ParentProgramIdentifier.ToString(), FGuid::NewGuid().ToString(EGuidFormats::Short));
+}
+
+class UYetiOS_BaseProgram* UYetiOS_ProgramSettings::GetOwningProgram() const
+{
+	return OwningProgram;
 }
 
 bool UYetiOS_ProgramSettings::K2_CanSave_Implementation() const
 {
 	if (ParentProgramIdentifier.IsNone() == false)
 	{
-		const UYetiOS_BaseProgram* Local_ParentProgram = Cast<UYetiOS_BaseProgram>(GetOuter());
-		const AYetiOS_DeviceManagerActor* Local_DeviceManager = Cast<AYetiOS_DeviceManagerActor>(Local_ParentProgram->GetOwningOS()->GetOwningDevice()->GetOuter());
+		const AYetiOS_DeviceManagerActor* Local_DeviceManager = Cast<AYetiOS_DeviceManagerActor>(OwningProgram->GetOwningOS()->GetOwningDevice()->GetOuter());
 		return Local_DeviceManager->CanSaveGame();
 	}
 

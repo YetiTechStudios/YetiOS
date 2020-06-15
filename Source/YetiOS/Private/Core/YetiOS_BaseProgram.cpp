@@ -55,8 +55,6 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 		ProxyProgram->OwningOS = InOS;
 		ProxyProgram->bIsSystemInstalledProgram = bIsOsPredefinedProgram;
 
-		ProxyProgram->Internal_SetProgramSettings();
-
 		if (ProxyProgram->bCanCallOnCreate)
 		{
 			ProxyProgram->K2_OnCreate();
@@ -87,6 +85,8 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 		{
 			K2_OnStart();
 		}
+
+		Internal_LoadProgramSettings();
 		return true;
 	}
 
@@ -99,10 +99,6 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 	{
 		K2_OnClose();
 	}
-	OwningOS->CloseRunningProgram(this, OutErrorMessage);
-	ProcessID = INDEX_NONE;
-	ProgramWidget->DestroyProgramWidget();
-	ProgramWidget = nullptr;
 
 	if (bIsOperatingSystemShuttingDown)
 	{
@@ -121,6 +117,11 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 		ProgramSettings->Destroy();
 		ProgramSettings = nullptr;
 	}
+
+	OwningOS->CloseRunningProgram(this, OutErrorMessage);
+	ProcessID = INDEX_NONE;
+	ProgramWidget->DestroyProgramWidget();
+	ProgramWidget = nullptr;
 
 	printlog_display(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
 }
@@ -158,12 +159,19 @@ bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilitySt
 	return false;
 }
 
-bool UYetiOS_BaseProgram::Internal_SetProgramSettings()
+bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
 {
+	if (ProgramSettings)
+	{
+		ProgramSettings->ConditionalBeginDestroy();
+		ProgramSettings = nullptr;
+	}
+
 	// First try to set from a load class
 	ProgramSettings = UYetiOS_ProgramSettings::LoadSettings(this);
 	if (ProgramSettings)
 	{
+		printlog_display(FString::Printf(TEXT("Loading saved settings for %s."), *ProgramName.ToString()));
 		K2_OnSettingsLoad();
 		return true;
 	}
@@ -172,6 +180,7 @@ bool UYetiOS_BaseProgram::Internal_SetProgramSettings()
 	if (SettingsClass)
 	{
 		ProgramSettings = UYetiOS_ProgramSettings::CreateSettings(this, SettingsClass);
+		printlog_display(FString::Printf(TEXT("Created new settings class for %s."), *ProgramName.ToString()));
 		return true;
 	}
 
