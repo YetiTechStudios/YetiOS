@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.5",
+	"VersionName": "1.6",
 	"FriendlyName": "Terminal Operating System",
 	"Description": "Terminal and Operating System simulator.",
 	"Category": "YetiTech Studios",
@@ -10,7 +10,7 @@
 	"DocsURL": "",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/f7b61d843b8e4b0a84079cb383073cc9",
 	"SupportURL": "https://forums.unrealengine.com/unreal-engine/marketplace/1685967-operating-system-and-terminal-simulator-c-plugin",
-	"EngineVersion": "4.24.0",
+	"EngineVersion": "4.25",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"Installed": true,
