@@ -7,10 +7,7 @@
 #include "Devices/YetiOS_BaseDevice.h"
 #include "Widgets/YetiOS_AppWidget.h"
 #include "Widgets/YetiOS_OsWidget.h"
-
-#if WITH_GAMEANALYTICS
-#include "GameAnalytics.h"
-#endif
+#include "Misc/YetiOS_ProgramSettings.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseProgram, All, All)
 
@@ -23,6 +20,10 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 {
 	ProgramName = FText::GetEmpty();
 	ProgramIcon = nullptr;	
+
+	SettingsClass = nullptr;
+	SaveMethod = EProgramSaveMethod::SaveOnExit;
+
 	bSingleInstanceOnly = true;
 	bCanRunOnPortableDevice = true;
 	bIsSystemInstalledProgram = false;
@@ -85,32 +86,65 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 			K2_OnStart();
 		}
 
-#if WITH_GAMEANALYTICS
-		const FString EventIDGame = FString::Printf(TEXT("Program:Start:%s"), *ProgramName.ToString().Replace(TEXT(" "), TEXT("")));
-		UGameAnalytics::AddDesignEvent(EventIDGame);
-#endif
-
+		Internal_LoadProgramSettings();
 		return true;
 	}
 
 	return false;
 }
 
-void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage)
+void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown /*= false*/)
 {
-#if WITH_GAMEANALYTICS
-	const FString EventIDGame = FString::Printf(TEXT("Program:Close:%s"), *ProgramName.ToString().Replace(TEXT(" "), TEXT("")));
-	UGameAnalytics::AddDesignEvent(EventIDGame);
-#endif
 	if (bCanCallOnClose)
 	{
 		K2_OnClose();
 	}
+
+	if (bIsOperatingSystemShuttingDown)
+	{
+		if (SaveMethod == EProgramSaveMethod::SaveOnOperatingSystemShutdown || SaveMethod == EProgramSaveMethod::SaveOnExit)
+		{
+			SaveSettings();
+		}
+	}
+	else if (SaveMethod == EProgramSaveMethod::SaveOnExit)
+	{
+		SaveSettings();
+	}
+
+	if (bIsOperatingSystemShuttingDown && ProgramSettings)
+	{
+		ProgramSettings->Destroy();
+		ProgramSettings = nullptr;
+	}
+
 	OwningOS->CloseRunningProgram(this, OutErrorMessage);
 	ProcessID = INDEX_NONE;
 	ProgramWidget->DestroyProgramWidget();
 	ProgramWidget = nullptr;
+
 	printlog_display(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
+}
+
+bool UYetiOS_BaseProgram::SaveSettings()
+{
+	if (CanSaveSettings())
+	{
+		const bool bSaveSuccess = ProgramSettings->SaveSettings();
+
+		if (bSaveSuccess)
+		{
+			printlog_display(FString::Printf(TEXT("Settings successfully saved for %s. Save method: %s"), *ProgramName.ToString(), *ENUM_TO_STRING(EProgramSaveMethod, SaveMethod)));
+		}
+		else
+		{
+			printlog_error(FString::Printf(TEXT("Failed to save settings for %s. Save method: %"), *ProgramName.ToString(), *ENUM_TO_STRING(EProgramSaveMethod, SaveMethod)));
+		}
+
+		return bSaveSuccess;
+	}
+
+	return false;
 }
 
 bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
@@ -119,6 +153,34 @@ bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilitySt
 	{
 		CurrentVisibilityState = InNewState;
 		ProgramWidget->Internal_OnChangeVisibilityState(CurrentVisibilityState);
+		return true;
+	}
+
+	return false;
+}
+
+bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
+{
+	if (ProgramSettings)
+	{
+		ProgramSettings->ConditionalBeginDestroy();
+		ProgramSettings = nullptr;
+	}
+
+	// First try to set from a load class
+	ProgramSettings = UYetiOS_ProgramSettings::LoadSettings(this);
+	if (ProgramSettings)
+	{
+		printlog_display(FString::Printf(TEXT("Loading saved settings for %s."), *ProgramName.ToString()));
+		K2_OnSettingsLoad();
+		return true;
+	}
+
+	// Program settings was invalid. So create and assign one.
+	if (SettingsClass)
+	{
+		ProgramSettings = UYetiOS_ProgramSettings::CreateSettings(this, SettingsClass);
+		printlog_display(FString::Printf(TEXT("Created new settings class for %s."), *ProgramName.ToString()));
 		return true;
 	}
 

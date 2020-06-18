@@ -39,7 +39,7 @@ const bool UYetiOS_TerminalProgram::StartProgram(FYetiOsError& OutErrorMessage)
 	return Super::StartProgram(OutErrorMessage);
 }
 
-void UYetiOS_TerminalProgram::CloseProgram(FYetiOsError& OutErrorMessage)
+void UYetiOS_TerminalProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown /*= false*/)
 {
 	if (IsTerminalBusy())
 	{

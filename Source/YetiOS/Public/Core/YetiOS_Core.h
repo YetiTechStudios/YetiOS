@@ -135,6 +135,16 @@ public:
 	static UYetiOS_Core* CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage);
 
 	/**
+	* public static UYetiOS_Core::GetTimeAsText
+	* Converts a passed in date & time to a text, formatted as a time using an invariant timezone. This will use the given date & time as-is, so it's assumed to already be in the correct timezone.
+	* Returns time in short style. Example: 1:00 PM
+	* @param InDateTime [const FDateTime&] Time to convert.
+	* @return [const FText] Time as text. Example: 1:00 PM
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	static const FText GetTimeAsText(const FDateTime& InDateTime);
+
+	/**
 	* public UYetiOS_Core::CreateOsNotification
 	* Creates an OS notification and add it to the notification manager.
 	* @param InNewNotification [const FYetiOsNotification] Notification to add.

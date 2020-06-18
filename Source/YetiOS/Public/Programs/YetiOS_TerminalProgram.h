@@ -67,7 +67,7 @@ public:
 	static const FText GetRootCommandName();
 
 	virtual const bool StartProgram(FYetiOsError& OutErrorMessage) override;
-	virtual void CloseProgram(FYetiOsError& OutErrorMessage) override;
+	virtual void CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown = false) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Terminal")
 	void CheckUserPrompt(const bool bIsYes);
