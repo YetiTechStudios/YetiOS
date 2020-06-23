@@ -22,6 +22,8 @@ UYetiOS_WebBrowser::UYetiOS_WebBrowser(const FObjectInitializer& ObjectInitializ
 	InitialURL = FString("https://google.com");	
 	bSupportsTransparency = false;
 	bShowWhitelistOnly = false;
+	bAllowURLMasking = false;
+	bUrlMaskIsPersistent = true;
 	bOnlyHTTPS = true;
 	bEnableHistory = true;
 	bSupportBrowserURLs = true;
@@ -33,6 +35,7 @@ const bool UYetiOS_WebBrowser::LoadURL(const FText& URL)
 	if (URL.IsEmptyOrWhitespace() == false)
 	{
 		FString NewURL = URL.ToString();
+		LastLoadedURL = NewURL;
 
 		if (bShowWhitelistOnly)
 		{
@@ -68,6 +71,12 @@ const bool UYetiOS_WebBrowser::LoadURL(const FText& URL)
 		const bool bIsValidURL = Internal_IsURLValid(NewURL);
 		if (bIsValidURL)
 		{
+			FString MaskedURL = "";
+			if (Internal_FindMaskedURL(URL, MaskedURL))
+			{
+				NewURL = MaskedURL;
+			}
+
 			if (NewURL.StartsWith("http") == false)
 			{
 				NewURL = "https://" + NewURL;
@@ -276,7 +285,36 @@ void UYetiOS_WebBrowser::HandleOnLoadComplete()
 	{
 		if (Addressbar)
 		{
-			Addressbar->SetText(WebBrowserWidget->GetAddressBarUrlText());
+			FText AddressbarURL = WebBrowserWidget->GetAddressBarUrlText();
+
+			FString MaskedURL = "";
+			if (Internal_FindMaskedURL(FText::FromString(LastLoadedURL), MaskedURL))
+			{
+				FString AddressbarUrlString = AddressbarURL.ToString();
+				FString MaskedDomainName = "";
+				bool bDomainNameFound = false;
+				for (const auto& It : MaskedDomains)
+				{
+					for (const auto& ItDomainName : It.Key.CustomDomainNames)
+					{
+						if (ItDomainName.Equals(LastLoadedURL))
+						{
+							bDomainNameFound = true;
+							MaskedDomainName = ItDomainName;
+							break;
+						}
+					}
+
+					if (bDomainNameFound)
+					{
+						break;
+					}
+				}
+
+				AddressbarURL = FText::FromString(AddressbarUrlString.Replace((TEXT("%s"), *MaskedURL), (TEXT("%s"), *MaskedDomainName)));
+			}
+
+			Addressbar->SetText(AddressbarURL);
 		}
 
 		if (bEnableHistory)
@@ -357,6 +395,30 @@ const bool UYetiOS_WebBrowser::Internal_IsURLValid(const FString& InURL) const
 const bool UYetiOS_WebBrowser::Internal_IsBrowserURL(const FString& InURL) const
 {
 	return bSupportBrowserURLs && InURL.StartsWith(GetBrowserProtocolLink());
+}
+
+const bool UYetiOS_WebBrowser::Internal_FindMaskedURL(const FText& InURL, FString& OutMaskedURL) const
+{
+	if (MaskedDomains.Num() > 0)
+	{
+		const FString UrlText = InURL.ToLower().ToString();
+		bool bCustomURLFound = false;
+		for (const auto& It : MaskedDomains)
+		{
+			for (const auto& ItString : It.Key.CustomDomainNames)
+			{
+				if (UrlText.Contains(ItString, ESearchCase::IgnoreCase))
+				{
+					bCustomURLFound = true;
+					OutMaskedURL = It.Value;
+					return true;
+				}
+			}
+		}
+	}
+
+	OutMaskedURL.Empty();
+	return false;
 }
 
 #undef LOCTEXT_NAMESPACE
