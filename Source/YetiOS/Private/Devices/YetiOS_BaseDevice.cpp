@@ -30,6 +30,12 @@ DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
 #define printlog_error(Param1)			UE_LOG(LogYetiOsBaseDevice, Error, TEXT("%s"), *FString(Param1))
 #define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsBaseDevice, VeryVerbose, TEXT("%s"), *FString(Param1))
 
+#define CREATE_PHYSICAL_DIR(Func)\
+{\
+	const FString Local_Path = Func;\
+	ensureMsgf(Internal_CreatePhysicalDirectory(Local_Path), TEXT("Failed to create directory %s"), *Local_Path);\
+}
+
 #define LOCTEXT_NAMESPACE "YetiOS"
 
 UYetiOS_BaseDevice::UYetiOS_BaseDevice()
@@ -155,7 +161,12 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 		}
 	}
 	
-	Internal_CreateRequiredPhysicalDirectories();
+	CREATE_PHYSICAL_DIR(Internal_GetBasePath());
+	CREATE_PHYSICAL_DIR(Internal_GetSavePath(this));
+	CREATE_PHYSICAL_DIR(Internal_GetLoginWallpapersPath(this));
+	CREATE_PHYSICAL_DIR(Internal_GetDesktopWallpapersPath(this));
+	CREATE_PHYSICAL_DIR(Internal_UserIconsPath(this));
+
 	UpdateDeviceState(EYetiOsDeviceState::STATE_Starting);
 
 #if WITH_GAMEANALYTICS
@@ -483,15 +494,6 @@ const bool UYetiOS_BaseDevice::Internal_CreatePhysicalDirectory(const FString& I
 	return false;
 }
 
-void UYetiOS_BaseDevice::Internal_CreateRequiredPhysicalDirectories()
-{
-	Internal_CreatePhysicalDirectory(Internal_GetBasePath());
-	Internal_CreatePhysicalDirectory(Internal_GetSavePath(this));
-	Internal_CreatePhysicalDirectory(Internal_GetLoginWallpapersPath(this));
-	Internal_CreatePhysicalDirectory(Internal_GetDesktopWallpapersPath(this));
-	Internal_CreatePhysicalDirectory(Internal_UserIconsPath(this));
-}
-
 void UYetiOS_BaseDevice::LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance)
 {
 	if (InLoadGameInstance)
@@ -575,4 +577,6 @@ UTexture2D* UYetiOS_BaseDevice::CreateTextureFromPath(const FString& InImagePath
 #undef printlog_warn
 #undef printlog_error
 #undef printlog_veryverbose
+#undef CREATE_PHYSICAL_DIR
+
 #undef LOCTEXT_NAMESPACE

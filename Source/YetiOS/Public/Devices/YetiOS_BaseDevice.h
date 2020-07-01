@@ -235,12 +235,6 @@ private:
 	**/
 	static const bool Internal_CreatePhysicalDirectory(const FString& InPath);
 
-	/**
-	* private UYetiOS_BaseDevice::Internal_CreateRequiredPhysicalDirectories
-	* Creates some physical directories required by this plugin. These directories are then used to load custom images.
-	**/
-	void Internal_CreateRequiredPhysicalDirectories();
-
 protected:
 
 	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance);
