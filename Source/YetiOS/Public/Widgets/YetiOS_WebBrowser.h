@@ -54,6 +54,28 @@ struct FWebHistory
 	}
 };
 
+// We use struct because TMaps don't support TArrays.
+USTRUCT(BlueprintType)
+struct FCustomMaskedDomains
+{
+	GENERATED_USTRUCT_BODY();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FString> CustomDomainNames;
+
+	bool operator==(const FCustomMaskedDomains& Other)
+	{
+		return Other.CustomDomainNames == CustomDomainNames;
+	}
+
+	friend uint32 GetTypeHash(const FCustomMaskedDomains& Other)
+	{
+		return GetTypeHash(1);
+	}
+
+	FCustomMaskedDomains() {}
+};
+
 UCLASS()
 class YETIOS_API UYetiOS_WebBrowser : public UWidget
 {
@@ -71,6 +93,14 @@ private:
 	/* If enabled, web browser widget will only load websites provided in WhitelistWebsites array. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Web Browser", meta = (AllowPrivateAccess = "true"))
 	uint8 bShowWhitelistOnly : 1;
+
+	/* If enabled, you can mask real domain names with custom names. @See Masked Domains property. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Web Browser", meta = (AllowPrivateAccess = "true"))
+	uint8 bAllowURLMasking : 1;
+
+	/* If enabled, real web site name is always masked out even when you browse sub pages. @See Masked Domains property. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Web Browser", meta = (EditCondition = "bAllowURLMasking", AllowPrivateAccess = "true"))
+	uint8 bUrlMaskIsPersistent : 1;
 
 	/* If enabled, web browser will add visited websites to History. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Web Browser", meta = (AllowPrivateAccess = "true"))
@@ -92,6 +122,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Web Browser", meta = (EditCondition = "bShowWhitelistOnly", AllowPrivateAccess = "true"))
 	TArray<FString> WhitelistWebsites;
 
+	/* Allows masking real website urls with custom urls. 
+	* For example, in FCustomMaskedDomains you can add multiple custom domains like myworldnews.com, somenewsname.com etc. and for value you can set https://www.google.com/search?q=google+news
+	* This will make sure that if you navigate to myworldnews.com or somenewsname.com you will end up in https://www.google.com/search?q=google+news
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Web Browser", meta = (EditCondition = "bAllowURLMasking", AllowPrivateAccess = "true"))
+	TMap<FCustomMaskedDomains, FString> MaskedDomains;
+
 	/* An array containing all web pages the user has visited. */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Debug, meta = (AllowPrivateAccess = "true"))
 	TArray<FWebHistory> History;
@@ -109,6 +146,9 @@ private:
 	class UEditableTextBox* Addressbar;
 
 	TSharedPtr<class SWebBrowser> WebBrowserWidget;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	FString LastLoadedURL;
 	
 public:
 
@@ -271,4 +311,6 @@ private:
 
 	const bool Internal_IsURLValid(const FString& InURL) const;
 	const bool Internal_IsBrowserURL(const FString& InURL) const;
+
+	const bool Internal_FindMaskedURL(const FText& InURL, FString& OutMaskedURL) const;
 };
