@@ -449,13 +449,14 @@ const TArray<FString> UYetiOS_BaseDevice::Internal_GetFiles(const FString& InPat
 const bool UYetiOS_BaseDevice::Internal_CreatePhysicalDirectory(const FString& InPath)
 {
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-	const bool bDirectoryExists = PlatformFile.DirectoryExists(*InPath);
-	if (bDirectoryExists == false)
+	
+	if (PlatformFile.DirectoryExists(*InPath))
 	{
-		printlog_veryverbose(FString::Printf(TEXT("New physical directory created: %s"), *InPath));
-		return PlatformFile.CreateDirectory(*InPath);
+		return true;
 	}
-	return false;
+	
+	printlog_veryverbose(FString::Printf(TEXT("New physical directory created: %s"), *InPath));
+	return PlatformFile.CreateDirectory(*InPath);
 }
 
 void UYetiOS_BaseDevice::LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance)
