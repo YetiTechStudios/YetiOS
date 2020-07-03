@@ -24,61 +24,104 @@ UYetiOS_DraggableWindowWidget::UYetiOS_DraggableWindowWidget(const FObjectInitia
 	ResizeMinHeight = 400.f;
 	ResizeMaxHeight = 0.f;
 
-	bHasMouseCapture = false;
-	bResizeEnabled = true;
+	bEnableDrag = bEnableResizing = true;
+
+	bIsMouseButtonDown = false;
+	bIsDragging = false;
 	bIsResizing = false;
+	bIsAlignmentAccountedFor = false;
+
+	LastMousePosition = PreResizeAlignment = PreResizeOffset = PreDragSize = FVector2D::ZeroVector;
+	bIsFocusable = true;
 }
 
 void UYetiOS_DraggableWindowWidget::NativeConstruct()
 {
-	Super::NativeConstruct();
-	
-	HandledEvent.NativeReply = FReply::Handled();
-
 	OwningOS = OwningProgram->GetOwningOS();
 	ParentSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(this);
 
-	WindowTitleBorderWidget->OnMouseMoveEvent.BindUFunction(this, FName("OnMouseMove_WindowTitleBorder"));
 	WindowTitleBorderWidget->OnMouseButtonUpEvent.BindUFunction(this, FName("OnMouseButtonUp_WindowTitleBorder"));
 	WindowTitleBorderWidget->OnMouseButtonDownEvent.BindUFunction(this, FName("OnMouseButtonDown_WindowTitleBorder"));
 
-	if (ResizeAreaWidget)
+	if (bEnableResizing && ResizeAreaWidget)
 	{
-		ResizeAreaWidget->OnMouseButtonUpEvent.BindUFunction(this, FName("OnMouseButtonUp_ResizeArea"));
 		ResizeAreaWidget->OnMouseButtonDownEvent.BindUFunction(this, FName("OnMouseButtonDown_ResizeArea"));
 	}
+
+	Super::NativeConstruct();
 }
 
 FReply UYetiOS_DraggableWindowWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	FReply Local_Reply = Super::NativeOnMouseMove(InGeometry, InMouseEvent);
-	if (bIsResizing)
+	Super::NativeOnMouseMove(InGeometry, InMouseEvent);
+	if (bIsMouseButtonDown)
 	{
-		if (bIsAlignmentAccountedFor)
+		FVector2D OutPixelPosition, OutViewportPosition;
+		USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, OutViewportPosition);
+		const FVector2D ViewportSize = UWidgetLayoutLibrary::GetViewportSize(this);
+		const bool bIsMouseOffScreen = OutPixelPosition.X < 5.f || OutPixelPosition.Y < 5.f || OutPixelPosition.X > (ViewportSize.X - 5.f) || OutPixelPosition.Y >(ViewportSize.Y - 5.f);
+		if (bIsMouseOffScreen)
 		{
-			FVector2D DummyPixelPosition;
-			FVector2D OutViewportPosition;
-			USlateBlueprintLibrary::AbsoluteToViewport(this, UKismetInputLibrary::PointerEvent_GetScreenSpacePosition(InMouseEvent), DummyPixelPosition, OutViewportPosition);
-			const FVector2D NewSize = Internal_DetermineNewSize(OutViewportPosition - LastMousePosition);
-			ParentSlot->SetSize(NewSize);
-			LastMousePosition = OutViewportPosition;
+			Internal_OnMouseButtonUpEvent();
+			return FReply::Handled();
+		}
+
+		USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, OutViewportPosition);
+		FVector2D MouseDelta = OutViewportPosition - LastMousePosition;
+		FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
+		if (bIsDragging)
+		{
+			ParentSlot->SetPosition(ParentSlot->GetPosition() + MouseDelta);
+		}
+		else if (bIsResizing)
+		{
+			if (bIsAlignmentAccountedFor)
+			{
+				const FVector2D RequestedSize = Internal_DetermineNewSize(MouseDelta);
+				ParentSlot->SetSize(RequestedSize);
+			}
+			else
+			{
+				ParentSlot->SetAlignment(FVector2D::ZeroVector);
+				ParentSlot->SetPosition(ParentSlot->GetPosition() - PreResizeOffset);
+				bIsAlignmentAccountedFor = true;
+				return FReply::Handled();
+			}
 		}
 		else
 		{
-			ParentSlot->SetAlignment(FVector2D::ZeroVector);
-			ParentSlot->SetPosition(ParentSlot->GetPosition() - PreResizeOffset);
-			bIsAlignmentAccountedFor = true;
+			return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this).NativeReply;
 		}
-	}
 
-	return Local_Reply;
+		USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, LastMousePosition);
+		return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this).NativeReply;
+	}
+	
+	return FReply::Handled();
 }
 
 FReply UYetiOS_DraggableWindowWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
+	Internal_OnMouseButtonUpEvent();
+	FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
+	return UWidgetBlueprintLibrary::ReleaseMouseCapture(EventReply).NativeReply;
+}
+
+void UYetiOS_DraggableWindowWidget::Internal_OnMouseButtonUpEvent()
+{
+	if (bIsResizing && bIsAlignmentAccountedFor)
+	{
+		const FVector2D SizeDifference = ParentSlot->GetSize() - PreDragSize;
+		const FVector2D NewPosition = (SizeDifference * PreResizeAlignment) + PreResizeOffset + (ParentSlot->GetPosition());
+		ParentSlot->SetPosition(NewPosition);
+		ParentSlot->SetAlignment(PreResizeAlignment);
+	}
+
+	bIsAlignmentAccountedFor = false;
+	bIsMouseButtonDown = false;
+	bIsDragging = false;
 	bIsResizing = false;
-	UWidgetBlueprintLibrary::ReleaseMouseCapture(HandledEvent);
-	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
 }
 
 const FVector2D UYetiOS_DraggableWindowWidget::Internal_DetermineNewSize(const FVector2D& InDelta) const
@@ -115,56 +158,44 @@ const FVector2D UYetiOS_DraggableWindowWidget::Internal_DetermineNewSize(const F
 	return FVector2D(TempWidth, TempHeight);
 }
 
-FEventReply UYetiOS_DraggableWindowWidget::OnMouseMove_WindowTitleBorder(FGeometry InGeometry, const FPointerEvent& InMouseEvent)
-{
-	FEventReply EventReply = HandledEvent;
-	if (bHasMouseCapture)
-	{
-		FVector2D MousePosition = OwningOS->GetOsWidget()->K2_GetMousePositionOnViewport(InMouseEvent);
-		UCanvasPanelSlot* SlotPanel = UWidgetLayoutLibrary::SlotAsCanvasSlot(this);
-		SlotPanel->SetPosition(MousePosition - Offset);
-		FEventReply Reply = HandledEvent;
-		EventReply = UWidgetBlueprintLibrary::CaptureMouse(Reply, nullptr);
-	}
-
-	return EventReply;
-}
-
 FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonUp_WindowTitleBorder(FGeometry InGeometry, const FPointerEvent& InMouseEvent)
 {
-	bHasMouseCapture = false;
-	return HandledEvent;
+	FEventReply EventReply = FEventReply();
+	EventReply.NativeReply = NativeOnMouseButtonUp(InGeometry, InMouseEvent);
+	return EventReply;
 }
 
 FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonDown_WindowTitleBorder(FGeometry InGeometry, const FPointerEvent& InMouseEvent)
 {
-	Offset = USlateBlueprintLibrary::AbsoluteToLocal(InGeometry, UKismetInputLibrary::PointerEvent_GetScreenSpacePosition(InMouseEvent));
-	bHasMouseCapture = (Offset.Y <= WindowTitleBorderWidget->GetDesiredSize().Y); 
-	UCanvasPanelSlot* SlotPanel = UWidgetLayoutLibrary::SlotAsCanvasSlot(this);
-	SlotPanel->SetZOrder(OwningOS->GetOsWidget()->GetRaisedZ_Order());
-	return HandledEvent;
-}
+	if (bEnableDrag)
+	{
+		OnMouseButtonUp_WindowTitleBorder(InGeometry, InMouseEvent);
+		bIsMouseButtonDown = true;
+		bIsDragging = true;
 
-FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonUp_ResizeArea(FGeometry InGeometry, const FPointerEvent& InMouseEvent)
-{
-	bIsResizing = false;
-	return HandledEvent;
+		FVector2D OutPixelPosition;
+		USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, LastMousePosition);
+		FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
+		K2_OnDragStart(InMouseEvent);
+		return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this);
+	}
+
+	return FEventReply();
 }
 
 FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonDown_ResizeArea(FGeometry InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (bResizeEnabled)
-	{
-		bIsResizing = true;
-		FVector2D DummyPixelPosition;
-		USlateBlueprintLibrary::AbsoluteToViewport(this, UKismetInputLibrary::PointerEvent_GetScreenSpacePosition(InMouseEvent), DummyPixelPosition, LastMousePosition);
-		PreResizeAlignment = ParentSlot->GetAlignment();
-		PreDragSize = ParentSlot->GetSize();
-		PreResizeOffset = FVector2D(PreDragSize.X * PreResizeAlignment.X, PreDragSize.Y * PreResizeAlignment.Y);
-		return K2_OnResizeStart(InMouseEvent);
-	}
+	bIsMouseButtonDown = true;
+	bIsResizing = true;
 
-	return HandledEvent;
+	FVector2D OutPixelPosition;
+	USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, LastMousePosition);
+	PreResizeAlignment = ParentSlot->GetAlignment();
+	PreDragSize = ParentSlot->GetSize();
+	PreResizeOffset = PreDragSize * PreResizeAlignment;
+	FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
+	K2_OnResizeStart(InMouseEvent);
+	return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this);
 }
 
 FText UYetiOS_DraggableWindowWidget::GetWindowText() const
