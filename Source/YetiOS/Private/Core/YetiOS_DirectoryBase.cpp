@@ -75,16 +75,15 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetDirectoryFromPath(const FString
 {
 	if (InPath.IsEmpty() == false)
 	{
-		UYetiOS_Core* MyOS = AYetiOS_DeviceManagerActor::GetCurrentDevice(this)->GetOperatingSystem();
-		if (MyOS->GetRootDirectory()->GetDirectoryName().ToString().ToLower() == InPath.ToLower() || InPath == UYetiOS_Core::PATH_DELIMITER)
+		if (OwningOS->GetRootDirectory()->GetDirectoryName().ToString().ToLower() == InPath.ToLower() || InPath == UYetiOS_Core::PATH_DELIMITER)
 		{
-			return MyOS->GetRootDirectory();
+			return OwningOS->GetRootDirectory();
 		}
 
 		if (InPath.StartsWith(UYetiOS_Core::PATH_DELIMITER))
 		{
 			UYetiOS_DirectoryBase* ReturnResult = nullptr;
-			if (MyOS->DirectoryExists(InPath, ReturnResult))
+			if (OwningOS->DirectoryExists(InPath, ReturnResult))
 			{
 				return ReturnResult;
 			}
@@ -98,13 +97,13 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetDirectoryFromPath(const FString
 	return nullptr;
 }
 
-UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::CreateChildDirectory(TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass, FYetiOsError& OutErrorMessage, const FText& InDirectoryName, const bool bCreateHidden /*= false*/, const bool bForceCreate /*= false*/)
+UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::CreateChildDirectory(class UYetiOS_Core* InOwningOS, TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass, FYetiOsError& OutErrorMessage, const FText& InDirectoryName, const bool bCreateHidden /*= false*/, const bool bForceCreate /*= false*/)
 {
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> TargetArray;
 	TargetArray.Add(InDirectoryClass);
 	
 	UYetiOS_DirectoryBase* ReturnResult = nullptr;
-	TArray<UYetiOS_DirectoryBase*> ReturnArray = Internal_CreateChildDirectories(TargetArray, OutErrorMessage, bForceCreate, false, InDirectoryName);
+	TArray<UYetiOS_DirectoryBase*> ReturnArray = Internal_CreateChildDirectories(InOwningOS, TargetArray, OutErrorMessage, bForceCreate, false, InDirectoryName);
 	if (ReturnArray.IsValidIndex(0))
 	{
 		if (OutErrorMessage.ErrorCode.IsEmptyOrWhitespace() == false)
@@ -120,14 +119,23 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::CreateChildDirectory(TSubclassOf<U
 	return ReturnResult;
 }
 
-TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateChildDirectories(const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /* = false */)
+TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /* = false */)
 {
-	return Internal_CreateChildDirectories(InDirectoryClasses, OutErrorMessage, bForceCreate, false);
+	return Internal_CreateChildDirectories(InOwningOS, InDirectoryClasses, OutErrorMessage, bForceCreate, false);
 }
 
-TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateNativeChildDirectories(FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/)
+TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateNativeChildDirectories(class UYetiOS_Core* InOwningOS, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/)
 {
-	return Internal_CreateChildDirectories(ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories);
+	return Internal_CreateChildDirectories(InOwningOS, ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories);
+}
+
+void UYetiOS_DirectoryBase::EnsureOS(const class UYetiOS_Core* InOS)
+{
+	check(InOS);
+	if (OwningOS == nullptr)
+	{
+		OwningOS = const_cast<UYetiOS_Core*>(InOS);
+	}
 }
 
 const bool UYetiOS_DirectoryBase::CreateNewFile(FFileProperties InNewFile, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/)
@@ -172,10 +180,10 @@ const bool UYetiOS_DirectoryBase::CreateNewFile(FFileProperties InNewFile, FYeti
 	return false;
 }
 
-TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(const TArray<TSubclassOf<class UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/)
+TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/)
 {
+	EnsureOS(InOwningOS);
 	TArray<UYetiOS_DirectoryBase*> ReturnResult;
-
 	bool bLocal_CanCreateNewDir = bCanCreateNewFolder;
 
 	if (bForceCreate)
@@ -205,12 +213,11 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 				}
 				ChildDirectories.Add(ChildDirectory);
 				ReturnResult.Add(ChildDirectory);
-				UYetiOS_Core* MyOS = AYetiOS_DeviceManagerActor::GetCurrentDevice(this)->GetOperatingSystem();
-				MyOS->AddToCreatedDirectories(ChildDirectory);
+				OwningOS->AddToCreatedDirectories(ChildDirectory);
 				printlog_veryverbose(FString::Printf(TEXT("Created child directory [%s] in %s."), *ChildDirectory->DirectoryName.ToString(), *DirectoryName.ToString()));
 				if (bCreateGrandChildDirectories)
 				{
-					ChildDirectory->Internal_CreateChildDirectories(ChildDirectory->ChildDirectoryClasses, OutErrorMessage, bForceCreate);
+					ChildDirectory->Internal_CreateChildDirectories(InOwningOS, ChildDirectory->ChildDirectoryClasses, OutErrorMessage, bForceCreate);
 				}
 			}
 		}
@@ -240,9 +247,8 @@ void UYetiOS_DirectoryBase::DestroyDirectory()
 
 inline const FString UYetiOS_DirectoryBase::GetFullPath() const
 {
-	UYetiOS_DirectoryBase* CurrentDirectory = const_cast<UYetiOS_DirectoryBase*>(this);	
-	UYetiOS_Core* MyOS = AYetiOS_DeviceManagerActor::GetCurrentDevice(this)->GetOperatingSystem();
-	UYetiOS_DirectoryRoot* MyRootDirectory = MyOS->GetRootDirectory();
+	UYetiOS_DirectoryBase* CurrentDirectory = const_cast<UYetiOS_DirectoryBase*>(this);
+	UYetiOS_DirectoryRoot* MyRootDirectory = OwningOS->GetRootDirectory();
 
 	if (MyRootDirectory == Cast<UYetiOS_DirectoryRoot>(CurrentDirectory))
 	{

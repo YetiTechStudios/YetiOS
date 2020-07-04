@@ -20,7 +20,7 @@ UYetiOS_AppIconWidget::UYetiOS_AppIconWidget(const FObjectInitializer& ObjectIni
 
 UYetiOS_AppIconWidget* UYetiOS_AppIconWidget::CreateProgramIconWidget(const UObject* WorldContextObject, class UYetiOS_BaseProgram* InCreatedProgram, FYetiOsError& OutErrorMessage)
 {
-	const UYetiOS_BaseDevice* MyDevice = AYetiOS_DeviceManagerActor::GetCurrentDevice(WorldContextObject);
+	const UYetiOS_BaseDevice* MyDevice = InCreatedProgram->GetOwningOS()->GetOwningDevice();
 	UYetiOS_Core* MyOS = MyDevice->GetOperatingSystem();
 	if (MyOS && !MyOS->IsPendingKill())
 	{

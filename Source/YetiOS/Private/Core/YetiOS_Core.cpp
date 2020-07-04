@@ -106,7 +106,7 @@ const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIf
 	OutErrorMessage.ErrorDetailedException = DetailedException;
 	if (bShowBsodIfInstallationFails)
 	{		
-		AYetiOS_DeviceManagerActor::ShowBSOD(this, Code, Exception, DetailedException);
+		AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, Code, Exception, DetailedException);
 	}
 
 	return false;
@@ -564,7 +564,7 @@ UYetiOS_DirectoryRoot* UYetiOS_Core::GetRootDirectory()
 		RootDirectory = NewObject<UYetiOS_DirectoryRoot>(this, Device->GetRootDirectoryClass());
 		AddToCreatedDirectories(RootDirectory);
 		FYetiOsError OutError;
-		RootDirectory->CreateNativeChildDirectories(OutError, true);
+		RootDirectory->CreateNativeChildDirectories(this, OutError, true);
 	}
 
 	return RootDirectory;
@@ -619,7 +619,7 @@ UYetiOS_DirectoryBase* UYetiOS_Core::CreateDirectoryInPath(const FString& InDire
 		UYetiOS_DirectoryBase* ExistingDir = MyCurrentDirectory->GetChildDirectoryByName(FName(*OutPathArray[i]), false);
 		if (ExistingDir == nullptr)
 		{			
-			ExistingDir = MyCurrentDirectory->CreateChildDirectory(TemplateDirectory, OutErrorMessage, InDirName, bHidden, true);
+			ExistingDir = MyCurrentDirectory->CreateChildDirectory(this, TemplateDirectory, OutErrorMessage, InDirName, bHidden, true);
 			if (ExistingDir)
 			{
 				FString LeftS, RightS;

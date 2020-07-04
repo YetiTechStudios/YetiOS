@@ -50,7 +50,16 @@ public:
 	* Returns the first device manager found in world.	
 	* @return [AYetiOS_DeviceManagerActor*] Reference to the device manager that was found.
 	**/
+	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
 	static AYetiOS_DeviceManagerActor* GetDeviceManager(const UObject* WorldContextObject);
+
+	/**
+	* public static AYetiOS_DeviceManagerActor::GetCurrentDevice
+	* Returns the current device from GetDeviceManager() method.
+	* @return [class UYetiOS_BaseDevice*] Reference to the device.
+	**/
+	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
+	static class UYetiOS_BaseDevice* GetCurrentDevice(const UObject* WorldContextObject);
 
 	/**
 	* public static AYetiOS_DeviceManagerActor::ShowBSOD
@@ -60,14 +69,7 @@ public:
 	* @param InDetailedException [const FText] Detailed exception name (if any).
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti Device Manager", meta = (WorldContext = "WorldContextObject"))	
-	static void ShowBSOD(const UObject* WorldContextObject, const FText InFaultingModuleName = FText::GetEmpty(), const FText InExceptionName = FText::GetEmpty(), const FText InDetailedException = FText::GetEmpty());
-
-	/**
-	* public static AYetiOS_DeviceManagerActor::GetCurrentDevice
-	* Returns the current device from GetDeviceManager() method.	
-	* @return [class UYetiOS_BaseDevice*] Reference to the device.
-	**/
-	static class UYetiOS_BaseDevice* GetCurrentDevice(const UObject* WorldContextObject);
+	static void ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName = FText::GetEmpty(), const FText InExceptionName = FText::GetEmpty(), const FText InDetailedException = FText::GetEmpty());
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -96,6 +98,18 @@ protected:
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti Device Manager")	
 	void CreateDevice(FYetiOsError& OutErrorMessage);
+
+public:
+
+	/**
+	* public AYetiOS_DeviceManagerActor::GetDevice const
+	* Returns the device that was created by this manager.
+	* @return [class UYetiOS_BaseDevice*] Current Device.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Device Manager")	
+	class UYetiOS_BaseDevice* GetDevice() const { return CurrentDevice; }
+
+protected:
 		
 	/**
 	* protected AYetiOS_DeviceManagerActor::K2_OnWidgetChanged

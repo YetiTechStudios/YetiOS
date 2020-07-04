@@ -34,37 +34,24 @@ AYetiOS_DeviceManagerActor::AYetiOS_DeviceManagerActor()
 
 AYetiOS_DeviceManagerActor* AYetiOS_DeviceManagerActor::GetDeviceManager(const UObject* WorldContextObject)
 {
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(WorldContextObject, AYetiOS_DeviceManagerActor::StaticClass(), OutActors);
-	return Cast<AYetiOS_DeviceManagerActor>(OutActors[0]);
-}
-
-void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
-{
-	GetDeviceManager(WorldContextObject)->CurrentDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);
+	ensureAlwaysMsgf(false, TEXT("GetDeviceManager has been deprecated. This function will only return null."));
+	return nullptr;
 }
 
 class UYetiOS_BaseDevice* AYetiOS_DeviceManagerActor::GetCurrentDevice(const UObject* WorldContextObject)
 {
-	return GetDeviceManager(WorldContextObject)->CurrentDevice;
+	ensureAlwaysMsgf(false, TEXT("GetCurrentDevice has been deprecated. This function will only return null."));
+	return nullptr;
+}
+
+void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
+{
+	InDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);
 }
 
 void AYetiOS_DeviceManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-#if WITH_EDITOR
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(this, AYetiOS_DeviceManagerActor::StaticClass(), OutActors);
-
-	if (OutActors.IsValidIndex(1))
-	{
-		FOnMsgDlgResult OnDialogClosed;
-		OpenMsgDlgInt_NonModal(EAppMsgType::Ok, FText::FromString("You can only have 1 Device Manager in world."), FText::FromString("Multiple Device Managers Found"), OnDialogClosed)->ShowWindow();
-		UKismetSystemLibrary::ExecuteConsoleCommand(this, "exit");
-		return;
-	}
-#endif
 
 	if (bCreateDeviceOnBeginPlay)
 	{
