@@ -26,9 +26,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program")
 	class UObjectLibrary* CommandLibrary;
 
+	/* If true, enables command history and user can navigate previous commands using up or down keys. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program")
+	uint8 bEnableCommandHistory : 1;
+
 	/* If enabled, terminal can run multiple commands. Example: command1 && command2 && command3. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program", AdvancedDisplay)
 	uint8 bSupportRunningMultiCommands : 1;
+
+	/* If false, all commands from terminal (whether its valid or not) will be added to history for navigation using up or down arrow keys */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program", AdvancedDisplay, meta = (EditCondition = "bEnableCommandHistory"))
+	uint8 bAllowAllCommandsInHistory : 1;
 
 	/* True if this user is changed to root user. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
@@ -53,6 +61,12 @@ private:
 	/* Current user. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	FYetiOsUser CurrentUser;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	TArray<FString> CommandHistory;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	int32 CommandHistoryIndex;
 	
 public:
 
@@ -143,6 +157,15 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal")	
 	TArray<class UYetiOS_TerminalCommand*> GetAllCommands() const;
+
+	/**
+	* public UYetiOS_TerminalProgram::GetEachCommandFromHistory
+	* Gets each command from the history.
+	* @param bFromStart [const bool] Get command from the beginning of history. If false, get from the end of history.
+	* @return [const FString] Return command from history.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal")
+	const FString GetEachCommandFromHistory(const bool bFromStart = true);
 
 	/**
 	* public UYetiOS_TerminalProgram::ReceiveMessageFromCommand

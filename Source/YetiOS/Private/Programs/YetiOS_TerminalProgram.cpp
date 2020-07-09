@@ -24,6 +24,10 @@ UYetiOS_TerminalProgram::UYetiOS_TerminalProgram()
 	ActiveCommandObject = nullptr;
 	CurrentDirectory = nullptr;
 	CurrentDirectoryPath = "";
+
+	bEnableCommandHistory = true;
+	bAllowAllCommandsInHistory = true;
+	CommandHistoryIndex = INDEX_NONE;
 }
 
 const FText UYetiOS_TerminalProgram::GetRootCommandName()
@@ -41,6 +45,7 @@ const bool UYetiOS_TerminalProgram::StartProgram(FYetiOsError& OutErrorMessage)
 
 void UYetiOS_TerminalProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown /*= false*/)
 {
+	CommandHistory.Empty();
 	if (IsTerminalBusy())
 	{
 		ActiveCommandObject->Internal_TerminateCommand();
@@ -119,6 +124,40 @@ TArray<class UYetiOS_TerminalCommand*> UYetiOS_TerminalProgram::GetAllCommands()
 	return ReturnResult;
 }
 
+const FString UYetiOS_TerminalProgram::GetEachCommandFromHistory(const bool bFromStart /*= true*/)
+{
+	if (CommandHistory.Num() > 0)
+	{
+		if (bFromStart)
+		{
+			CommandHistoryIndex++;
+		}
+		else
+		{
+			if (CommandHistoryIndex == INDEX_NONE)
+			{
+				CommandHistoryIndex = CommandHistory.Num() - 1;
+			}
+			else
+			{
+				CommandHistoryIndex--;
+			}
+		}
+
+		if (CommandHistory.IsValidIndex(CommandHistoryIndex) == false)
+		{
+			CommandHistoryIndex = bFromStart ? 0 : CommandHistory.Num() - 1;
+		}
+			
+		
+		printlog_veryverbose(FString::Printf(TEXT("%s (%i)"), *CommandHistory[CommandHistoryIndex], CommandHistoryIndex));
+		return CommandHistory[CommandHistoryIndex];
+	}
+
+	printlog_veryverbose(FString::Printf(TEXT("No command found. Empty array probably. (%i)"), CommandHistoryIndex));
+	return FString("");	
+}
+
 void UYetiOS_TerminalProgram::ReceiveMessageFromCommand(const FText& InMessage, EYetiOsTerminalMessageLevel InMessageType)
 {
 	K2_OnMessageReceivedFromCommand(InMessage, InMessageType);
@@ -151,12 +190,13 @@ void UYetiOS_TerminalProgram::PromptRootPassword()
 }
 
 const bool UYetiOS_TerminalProgram::ProcessCommand(FString InCommand)
-{
+{	
 	if (IsTerminalBusy() == false)
 	{
-		ActiveCommandObject = Internal_GetTerminalCommandObject(InCommand);
+		const FString RawCommand = InCommand;
+		ActiveCommandObject = Internal_GetTerminalCommandObject(RawCommand);
 		if (ActiveCommandObject)
-		{
+		{			
 			if (bSupportRunningMultiCommands && InCommand.Contains(" && "))
 			{
 				QueuedCommands.Empty();
@@ -169,7 +209,19 @@ const bool UYetiOS_TerminalProgram::ProcessCommand(FString InCommand)
 				}
 			}
 
+			if (bEnableCommandHistory)
+			{
+				CommandHistoryIndex = INDEX_NONE;
+				CommandHistory.Add(RawCommand);
+			}
+
 			return ActiveCommandObject->Internal_ProcessCommand(this, InCommand.ToLower());
+		}
+
+		if (bEnableCommandHistory && bAllowAllCommandsInHistory)
+		{
+			CommandHistoryIndex = INDEX_NONE;
+			CommandHistory.Add(RawCommand);
 		}
 	}
 
