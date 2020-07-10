@@ -43,6 +43,7 @@ public:
 
 	void BeginLoadOS();
 	void BeginShutdownOS();
+	void BeginRestartOS();
 
 	void OnBatteryLevelChanged(const float& CurrentBatteryLevel);
 	void OnLowBatteryWarningReceived(const bool bIsLowBattery);
@@ -72,6 +73,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginShuttingdownOS")
 	void K2_OnBeginShuttingdownOS();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginRestartingOS")
+	void K2_OnBeginRestartingOS();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnWindowChangeFromTaskbar")
 	void K2_OnWindowChangeFromTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget, const bool bAddedToTaskbar);

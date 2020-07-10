@@ -130,6 +130,19 @@ void UYetiOS_Core::ShutdownOS()
 	OsWidget->BeginShutdownOS();
 }
 
+void UYetiOS_Core::RestartOS()
+{
+	TArray<UYetiOS_BaseProgram*> ProgramsArray;
+	RunningPrograms.GenerateValueArray(ProgramsArray);
+	for (const auto& It : ProgramsArray)
+	{
+		FYetiOsError OutError;
+		It->CloseProgram(OutError, true);
+	}
+
+	OsWidget->BeginRestartOS();
+}
+
 bool UYetiOS_Core::AddNewUser(FYetiOsUser InNewUser, FYetiOsError& OutErrorMessage)
 {
 	if (InNewUser.UserName.EqualToCaseIgnored(UYetiOS_Core::ROOT_USER_NAME))

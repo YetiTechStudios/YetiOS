@@ -193,6 +193,18 @@ void UYetiOS_BaseDevice::ShutdownYetiDevice()
 	printlog_display(FString::Printf(TEXT("%s shuts down in %f seconds."), *DeviceName.ToString(), TimeToShutdown));
 }
 
+void UYetiOS_BaseDevice::RestartYetiDevice()
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	const bool bSaveSuccess = UYetiOS_SaveGame::SaveGame(this);
+	printlog_display(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
+	OperatingSystem->RestartOS();
+	const float TimeToRestart = UKismetMathLibrary::MapRangeClamped(GetDeviceScore(true), 0.f, 1.f, 6.f, 3.f);
+	FTimerHandle TimerHandle_Dummy;
+	GetOuter()->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, this, &UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart, TimeToRestart, false);
+	printlog_display(FString::Printf(TEXT("%s restarts in %f seconds."), *DeviceName.ToString(), TimeToRestart));
+}
+
 void UYetiOS_BaseDevice::ShowBSOD(const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
 {
 	bBsodHappened = true;
@@ -254,6 +266,23 @@ void UYetiOS_BaseDevice::DestroyYetiDevice()
 	printlog_veryverbose(FString::Printf(TEXT("Destroyed device '%s'"), *DeviceName.ToString()));
 	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());	
 	OwningDeviceManager->OnCurrentDeviceDestroyed();
+	ConditionalBeginDestroy();
+}
+
+void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
+{
+	if (OperatingSystem)
+	{
+		OperatingSystem->DestroyOS();
+		OperatingSystem = nullptr;
+	}
+
+	DeviceWidget = nullptr;
+	BsodWidget = nullptr;
+	ChangeOnScreenWidget();
+	printlog_veryverbose(FString::Printf(TEXT("Destroyed device '%s'"), *DeviceName.ToString()));
+	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());
+	OwningDeviceManager->RestartDevice(this);
 	ConditionalBeginDestroy();
 }
 

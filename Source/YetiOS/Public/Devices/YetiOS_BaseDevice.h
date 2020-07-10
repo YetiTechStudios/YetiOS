@@ -111,6 +111,13 @@ public:
 	virtual void ShutdownYetiDevice();
 
 	/**
+	* virtual public UYetiOS_BaseDevice::RestartYetiDevice
+	* Restarts this device.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device", DisplayName = "Restart Device")	
+	virtual void RestartYetiDevice();
+
+	/**
 	* public UYetiOS_BaseDevice::ShowBSOD
 	* Shows the Blue Screen widget.	
 	* @param InFaultingModuleName [const FText] A fake module name. Can be error code also (if any).
@@ -182,6 +189,8 @@ public:
 	* @See: AYetiOS_DeviceManagerActor::EndPlay
 	**/
 	virtual void DestroyYetiDevice();
+
+	virtual void DestroyYetiDeviceAndRestart();
 
 private:
 	/**

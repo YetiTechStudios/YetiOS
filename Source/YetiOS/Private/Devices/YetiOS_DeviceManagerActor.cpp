@@ -119,6 +119,19 @@ void AYetiOS_DeviceManagerActor::OnCurrentDeviceDestroyed()
 	}
 }
 
+void AYetiOS_DeviceManagerActor::RestartDevice(class UYetiOS_BaseDevice* InDevice)
+{
+	check(InDevice == CurrentDevice);
+	CurrentDevice = nullptr;
+
+	FTimerDelegate CreateDeviceDelegate;
+	FTimerHandle TimerHandle_Dummy;
+
+	FYetiOsError ErrorMessage;
+	CreateDeviceDelegate.BindUFunction(this, FName("CreateDevice"), ErrorMessage);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, CreateDeviceDelegate, 1.f, false);
+}
+
 void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)
 {
 	if (CurrentDevice == nullptr && ensureMsgf(DeviceClass != nullptr, TEXT("Device class cannot be null")))

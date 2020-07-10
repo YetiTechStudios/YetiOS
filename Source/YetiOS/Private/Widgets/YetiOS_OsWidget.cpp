@@ -42,6 +42,11 @@ void UYetiOS_OsWidget::BeginShutdownOS()
 	K2_OnBeginShuttingdownOS();
 }
 
+void UYetiOS_OsWidget::BeginRestartOS()
+{
+	K2_OnBeginRestartingOS();
+}
+
 void UYetiOS_OsWidget::OnBatteryLevelChanged(const float& CurrentBatteryLevel)
 {
 	K2_OnBatteryLevelChanged(CurrentBatteryLevel);

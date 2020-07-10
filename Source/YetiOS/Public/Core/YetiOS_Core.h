@@ -174,6 +174,12 @@ public:
 	void ShutdownOS();
 
 	/**
+	* public UYetiOS_Core::RestartOS
+	* Restarts the operating system. Closes all running programs and begin restart in OsWidget.
+	**/
+	void RestartOS();
+
+	/**
 	* public UYetiOS_Core::AddNewUser
 	* Add a new user to the operating system.
 	* @WARNING You cannot add root user.
