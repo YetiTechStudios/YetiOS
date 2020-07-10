@@ -93,11 +93,17 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
 	FText GetWindowText() const;
 
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
+	EYetiOsProgramVisibilityState GetCurrentVisibilityState() const;
+
 public:
 
 	void CloseWindow();
 
 protected:
+
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
+	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
 
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Draggable Window")
 	void AddProgramWidget(class UYetiOS_AppWidget* InWidget);
@@ -112,5 +118,8 @@ protected:
 	/* Event called when resizing is started. Only called if Enable Resizing is true. */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Resize Start")
 	void K2_OnResizeStart(const FPointerEvent& InMouseEvent);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Visibility State Changed")
+	void K2_OnChangeVisibilityState(const EYetiOsProgramVisibilityState NewState);
 
 };

@@ -37,7 +37,6 @@ UYetiOS_DraggableWindowWidget::UYetiOS_DraggableWindowWidget(const FObjectInitia
 
 void UYetiOS_DraggableWindowWidget::NativeConstruct()
 {
-	OwningOS = OwningProgram->GetOwningOS();
 	ParentSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(this);
 
 	WindowTitleBorderWidget->OnMouseButtonUpEvent.BindUFunction(this, FName("OnMouseButtonUp_WindowTitleBorder"));
@@ -203,15 +202,34 @@ FText UYetiOS_DraggableWindowWidget::GetWindowText() const
 	return OwningProgram->GetProgramName();
 }
 
+EYetiOsProgramVisibilityState UYetiOS_DraggableWindowWidget::GetCurrentVisibilityState() const
+{
+	return OwningProgram->GetCurrentVisibilityState();
+}
+
 void UYetiOS_DraggableWindowWidget::CloseWindow()
 {
+	OwningOS->GetOsWidget()->RemoveTaskbarButton(this);
 	ProgramCanvas->ClearChildren();
 	RemoveFromParent();
 }
 
+bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
+{
+	if (OwningProgram->ChangeVisibilityState(InNewState))
+	{
+		K2_OnChangeVisibilityState(InNewState);
+		return true;
+	}
+
+	return false;	
+}
+
 void UYetiOS_DraggableWindowWidget::AddProgramWidget(class UYetiOS_AppWidget* InWidget)
 {
+	OwningOS = OwningProgram->GetOwningOS();
 	ProgramCanvas->AddChildToCanvas(InWidget);
 	InWidget->SetWindow(this);
 	K2_OnProgramAdded(InWidget);
+	OwningOS->GetOsWidget()->AddTaskbarButton(this);
 }

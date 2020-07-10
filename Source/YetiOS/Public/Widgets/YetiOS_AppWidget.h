@@ -42,6 +42,8 @@ public:
 	inline class UYetiOS_DraggableWindowWidget* GetOwningWindow() const { return OwningWindow; }
 
 protected:
+
+	/* Event called when program changes its visibility state. */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS App Widget", DisplayName = "OnChangeVisibilityState")
 	void K2_OnChangeVisibilityState(const EYetiOsProgramVisibilityState NewState);
 	

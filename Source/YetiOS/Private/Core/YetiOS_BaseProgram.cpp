@@ -93,6 +93,18 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 	return false;
 }
 
+bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
+{
+	if (CurrentVisibilityState != InNewState)
+	{
+		CurrentVisibilityState = InNewState;
+		ProgramWidget->Internal_OnChangeVisibilityState(CurrentVisibilityState);
+		return true;
+	}
+
+	return false;
+}
+
 void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown /*= false*/)
 {
 	if (bCanCallOnClose)
@@ -142,18 +154,6 @@ bool UYetiOS_BaseProgram::SaveSettings()
 		}
 
 		return bSaveSuccess;
-	}
-
-	return false;
-}
-
-bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
-{
-	if (CurrentVisibilityState != InNewState)
-	{
-		CurrentVisibilityState = InNewState;
-		ProgramWidget->Internal_OnChangeVisibilityState(CurrentVisibilityState);
-		return true;
 	}
 
 	return false;
