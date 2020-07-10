@@ -52,6 +52,16 @@ void UYetiOS_OsWidget::OnLowBatteryWarningReceived(const bool bIsLowBattery)
 	K2_OnLowBatteryWarningReceived(bIsLowBattery);
 }
 
+void UYetiOS_OsWidget::AddTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
+{
+	K2_OnWindowChangeFromTaskbar(InWindowWidget, true);
+}
+
+void UYetiOS_OsWidget::RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
+{
+	K2_OnWindowChangeFromTaskbar(InWindowWidget, false);
+}
+
 const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)
 {
 	if (OwningOS)
