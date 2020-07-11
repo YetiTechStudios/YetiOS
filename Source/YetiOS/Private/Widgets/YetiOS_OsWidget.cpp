@@ -67,6 +67,11 @@ void UYetiOS_OsWidget::RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* 
 	K2_OnWindowChangeFromTaskbar(InWindowWidget, false);
 }
 
+void UYetiOS_OsWidget::ReceiveNotification(const FYetiOsNotification InNotification)
+{
+	K2_OnReceivedNotification(InNotification);
+}
+
 const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)
 {
 	if (OwningOS)

@@ -51,6 +51,8 @@ public:
 	void AddTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget);
 	void RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget);
 
+	void ReceiveNotification(const FYetiOsNotification InNotification);
+
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
 	const float GetDelayTime(const float InMin = 0.01, const float InMax = 0.2) const;
 
@@ -79,6 +81,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnWindowChangeFromTaskbar")
 	void K2_OnWindowChangeFromTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget, const bool bAddedToTaskbar);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnReceivedNotification")
+	void K2_OnReceivedNotification(const FYetiOsNotification NewNotification);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget|Portable", DisplayName = "OnBatteryLevelChanged")
 	void K2_OnBatteryLevelChanged(const float& CurrentBatteryLevel);

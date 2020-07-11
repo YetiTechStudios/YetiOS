@@ -75,7 +75,7 @@ const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
 
 void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotification)
 {
-	// #TERMINALPLUGIN TODO Show notification on os. Like notifications (action manager) in Windows.
+	OsWidget->ReceiveNotification(InNewNotification);
 	NotificationManager->LogNotification(InNewNotification);
 }
 
