@@ -147,10 +147,11 @@ bool UYetiOS_Core::AddNewUser(FYetiOsUser InNewUser, FYetiOsError& OutErrorMessa
 {
 	if (InNewUser.UserName.EqualToCaseIgnored(UYetiOS_Core::ROOT_USER_NAME))
 	{
+		const FText Title = LOCTEXT("YetiOS_InvalidUsernameErrorText", "Restricted Username");
 		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_InvalidUsernameError", "ERR_INVALID_USERNAME");
 		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "You cannot use '{0}' as your username."), UYetiOS_Core::ROOT_USER_NAME);
 		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "'{0}' is a system reserved username. Please try again with another name."), UYetiOS_Core::ROOT_USER_NAME);
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 		return false;
 	}
@@ -167,7 +168,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_InstallProgramBsodError", "Cannot install {0}."), MyProgramName);
 		static const FText Description = LOCTEXT("YetiOS_InstallProgramBsodErrorDescription", "Cannot install program. System unstable.");		
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 
 		OutErrorMessage.ErrorCode = INSTALL_ERROR_CODE;
@@ -184,7 +185,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		{
 			const FText Title = FText::Format(LOCTEXT("YetiOS_InstallProgramError", "{0} already installed."), MyProgramName);
 			const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramErrorDescription", "{0} is already installed. Uninstall the existing app to install {0} again."), MyProgramName);			
-			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE);
+			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 			CreateOsNotification(NewNotification);
 
 			OutErrorMessage.ErrorCode = INSTALL_ERROR_CODE;
@@ -200,7 +201,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_InstallProgramNoSpaceError", "Not enough space for {0}."), MyProgramName);
 		const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramNoSpaceErrorDescription", "Not enough space to install {0}. Free up space by uninstalling existing apps or expand your storage."), MyProgramName);		
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 
 		OutErrorMessage.ErrorCode = INSTALL_ERROR_CODE;
@@ -224,7 +225,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 	
 	const FText Title = FText::Format(LOCTEXT("YetiOS_InstallProgramUnknownError", "Cannot install {0}."), MyProgramName);
 	const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramUnknownErrorDescription", "{0} cannot be installed. Null program."), MyProgramName);	
-	const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE);
+	const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 	CreateOsNotification(NewNotification);
 
 	OutErrorMessage.ErrorCode = INSTALL_ERROR_CODE;
@@ -247,6 +248,8 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgramFromPackage(const FString& InPr
 
 	const FText Title = FText::Format(LOCTEXT("YetiOS_InstallProgramPackageError", "Failed to find package {0}"), FText::FromString(InProgramIdentifier));
 	const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramPackageErrorDescription", "Cannot install program {0}. Not found in repo."), FText::FromString(InProgramIdentifier));
+	const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, INSTALL_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
+	CreateOsNotification(NewNotification);
 	
 	OutErrorMessage.ErrorCode = INSTALL_ERROR_CODE;
 	OutErrorMessage.ErrorException = Title;
@@ -298,7 +301,7 @@ int32 UYetiOS_Core::AddRunningProgram(const class UYetiOS_BaseProgram* InNewProg
 	{
 		static const FText Title = LOCTEXT("YetiOS_RunProgramError", "No program to add.");
 		static const FText Description = LOCTEXT("YetiOS_RunProgramErrorDescription", "Cannot add a null program to list of running programs.");
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 
 		OutErrorMessage.ErrorCode = RUN_ERROR_CODE;
@@ -313,7 +316,7 @@ int32 UYetiOS_Core::AddRunningProgram(const class UYetiOS_BaseProgram* InNewProg
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_RunProgramBsodError", "Cannot change {0} state."), MyProgramName);
 		static const FText Description = LOCTEXT("YetiOS_RunProgramBsodErrorDescription", "Cannot run program. System unstable.");
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 
 		OutErrorMessage.ErrorCode = RUN_ERROR_CODE;
@@ -328,7 +331,7 @@ int32 UYetiOS_Core::AddRunningProgram(const class UYetiOS_BaseProgram* InNewProg
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_RunProgramInstanceError", "{0} already running."), MyProgramName);
 		const FText Description = FText::Format(LOCTEXT("YetiOS_RunProgramInstanceErrorDescription", "{0} is already running and {0} does not support running more than one instance."), MyProgramName);		
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 
 		OutErrorMessage.ErrorCode = RUN_ERROR_CODE;
@@ -374,7 +377,7 @@ void UYetiOS_Core::CloseRunningProgram(class UYetiOS_BaseProgram* InProgram, FYe
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_CloseProgramBsodError", "Cannot change {0} state."), MyProgramName);
 		static const FText Description = LOCTEXT("YetiOS_CloseProgramBsodErrorDescription", "Cannot close program. System unstable.");
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, CLOSE_ERROR_CODE);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, CLOSE_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 
 		OutErrorMessage.ErrorCode = CLOSE_ERROR_CODE;
@@ -391,7 +394,7 @@ void UYetiOS_Core::CloseRunningProgram(class UYetiOS_BaseProgram* InProgram, FYe
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_CloseProgramBsodError", "Cannot change {0} state."), MyProgramName);
 		static const FText Description = LOCTEXT("YetiOS_CloseProgramBsodErrorDescription", "Cannot close program that is not running.");		
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, CLOSE_ERROR_CODE);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, CLOSE_ERROR_CODE, EYetiOsNotificationType::TYPE_Warning);
 		CreateOsNotification(NewNotification);
 
 		OutErrorMessage.ErrorCode = CLOSE_ERROR_CODE;
