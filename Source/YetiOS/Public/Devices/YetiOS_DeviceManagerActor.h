@@ -46,17 +46,17 @@ public:
 	AYetiOS_DeviceManagerActor();
 
 	/**
-	* public static AYetiOS_DeviceManagerActor::GetDeviceManager
+	* [DEPRECATED] public static AYetiOS_DeviceManagerActor::GetDeviceManager
 	* Returns the first device manager found in world.	
-	* @return [AYetiOS_DeviceManagerActor*] Reference to the device manager that was found.
+	* @return nullptr.
 	**/
 	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
 	static AYetiOS_DeviceManagerActor* GetDeviceManager(const UObject* WorldContextObject);
 
 	/**
-	* public static AYetiOS_DeviceManagerActor::GetCurrentDevice
+	* [DEPRECATED] public static AYetiOS_DeviceManagerActor::GetCurrentDevice
 	* Returns the current device from GetDeviceManager() method.
-	* @return [class UYetiOS_BaseDevice*] Reference to the device.
+	* @return nullptr.
 	**/
 	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
 	static class UYetiOS_BaseDevice* GetCurrentDevice(const UObject* WorldContextObject);
