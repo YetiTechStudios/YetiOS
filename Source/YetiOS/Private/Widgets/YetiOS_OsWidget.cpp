@@ -42,6 +42,11 @@ void UYetiOS_OsWidget::BeginShutdownOS()
 	K2_OnBeginShuttingdownOS();
 }
 
+void UYetiOS_OsWidget::BeginRestartOS()
+{
+	K2_OnBeginRestartingOS();
+}
+
 void UYetiOS_OsWidget::OnBatteryLevelChanged(const float& CurrentBatteryLevel)
 {
 	K2_OnBatteryLevelChanged(CurrentBatteryLevel);
@@ -50,6 +55,21 @@ void UYetiOS_OsWidget::OnBatteryLevelChanged(const float& CurrentBatteryLevel)
 void UYetiOS_OsWidget::OnLowBatteryWarningReceived(const bool bIsLowBattery)
 {
 	K2_OnLowBatteryWarningReceived(bIsLowBattery);
+}
+
+void UYetiOS_OsWidget::AddTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
+{
+	K2_OnWindowChangeFromTaskbar(InWindowWidget, true);
+}
+
+void UYetiOS_OsWidget::RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
+{
+	K2_OnWindowChangeFromTaskbar(InWindowWidget, false);
+}
+
+void UYetiOS_OsWidget::ReceiveNotification(const FYetiOsNotification InNotification)
+{
+	K2_OnReceivedNotification(InNotification);
 }
 
 const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)

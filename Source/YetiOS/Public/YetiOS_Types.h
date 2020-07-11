@@ -1018,30 +1018,30 @@ struct FYetiOsNotification
 {
 	GENERATED_USTRUCT_BODY()
 
-	#define DEFAULT_DURATION 5.f
+	static const int32 DEFAULT_DURATION = 5;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText Title;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText Description;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText Code;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText TimeStamp;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	class UTexture2D* Icon;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	EYetiOsNotificationType Level;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	EYetiOsNotificationCategory Category;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	float Duration;
 
 public:
@@ -1177,6 +1177,20 @@ public:
 		Title = InTitle;
 		Description = InDesciption;
 		Code = FText::GetEmpty();
+		Icon = nullptr;
+		Level = InLevel;
+		Category = InCategory;
+		Duration = DEFAULT_DURATION;
+
+		FDateTime Now = FDateTime::Now();
+		TimeStamp = FText::AsCultureInvariant(Now.ToString());
+	}
+
+	FYetiOsNotification(EYetiOsNotificationCategory InCategory, FText InTitle, FText InDesciption, FText InCode, EYetiOsNotificationType InLevel)
+	{
+		Title = InTitle;
+		Description = InDesciption;
+		Code = InCode;
 		Icon = nullptr;
 		Level = InLevel;
 		Category = InCategory;

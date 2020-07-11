@@ -136,6 +136,14 @@ public:
 	virtual const bool StartProgram(FYetiOsError& OutErrorMessage);
 
 	/**
+	* virtual public UYetiOS_BaseProgram::ChangeVisibilityState
+	* Changes visibility state of this program. Used to minimize, maximize etc.
+	* @param InNewState [const EYetiOsProgramVisibilityState] New state to switch to.
+	* @return [bool] True if the state was changed successfully.
+	**/
+	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
+
+	/**
 	* virtual public UYetiOS_BaseProgram::CloseProgram
 	* Close this program.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
@@ -150,10 +158,6 @@ public:
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")	
 	virtual bool SaveSettings();
-
-	// #TERMINALPLUGIN TODO Not implemented yet
-	//UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program") 
-	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
 
 	/**
 	* public UYetiOS_BaseProgram::GetProgramWidget const
@@ -222,4 +226,5 @@ public:
 	FORCEINLINE const FName GetProgramIdentifierName() const { return ProgramIdentifier; }
 	FORCEINLINE const bool IsSystemInstalledProgram() const { return bIsSystemInstalledProgram; }
 	FORCEINLINE const bool CanSaveSettings() const { return ProgramSettings != nullptr && SaveMethod != EProgramSaveMethod::DoNotSave; }
+	FORCEINLINE const EYetiOsProgramVisibilityState GetCurrentVisibilityState() const { return CurrentVisibilityState; }
 };

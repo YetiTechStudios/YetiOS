@@ -46,16 +46,23 @@ private:
 	UPROPERTY()
 	class UCanvasPanelSlot* ParentSlot;
 
-	uint8 bHasMouseCapture : 1;
-	uint8 bResizeEnabled : 1;
+	/* Allows you to drag this window in OS. */
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Draggable Window Widget")
+	uint8 bEnableDrag : 1;
+
+	/* Allows you to resize this window in OS. */
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Draggable Window Widget")
+	uint8 bEnableResizing : 1;
+
+	uint8 bIsMouseButtonDown : 1;
+	uint8 bIsDragging : 1;
 	uint8 bIsResizing : 1;
 	uint8 bIsAlignmentAccountedFor : 1;
-	FVector2D Offset;
+	
 	FVector2D LastMousePosition;
 	FVector2D PreResizeAlignment;
 	FVector2D PreResizeOffset;
 	FVector2D PreDragSize;
-	FEventReply HandledEvent;
 
 public:
 
@@ -69,12 +76,10 @@ protected:
 
 private:
 
+	void Internal_OnMouseButtonUpEvent();
 	const FVector2D Internal_DetermineNewSize(const FVector2D& InDelta) const;
 
 protected:
-
-	UFUNCTION()
-	FEventReply OnMouseMove_WindowTitleBorder(FGeometry InGeometry, const FPointerEvent& InMouseEvent);
 
 	UFUNCTION()
 	FEventReply OnMouseButtonUp_WindowTitleBorder(FGeometry InGeometry, const FPointerEvent& InMouseEvent);
@@ -83,13 +88,13 @@ protected:
 	FEventReply OnMouseButtonDown_WindowTitleBorder(FGeometry InGeometry, const FPointerEvent& InMouseEvent);
 
 	UFUNCTION()
-	FEventReply OnMouseButtonUp_ResizeArea(FGeometry InGeometry, const FPointerEvent& InMouseEvent);
-
-	UFUNCTION()
 	FEventReply OnMouseButtonDown_ResizeArea(FGeometry InGeometry, const FPointerEvent& InMouseEvent);
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
 	FText GetWindowText() const;
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
+	EYetiOsProgramVisibilityState GetCurrentVisibilityState() const;
 
 public:
 
@@ -97,13 +102,24 @@ public:
 
 protected:
 
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
+	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
+
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Draggable Window")
 	void AddProgramWidget(class UYetiOS_AppWidget* InWidget);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "OnProgramAdded")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Program Added")
 	void K2_OnProgramAdded(const UUserWidget* AddedUserWidget);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "OnResizeStart")
-	FEventReply K2_OnResizeStart(const FPointerEvent& InMouseEvent);
+	/* Event called when resizing is started. Only called if Enable Drag is true. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Drag Start")
+	void K2_OnDragStart(const FPointerEvent& InMouseEvent);
+
+	/* Event called when resizing is started. Only called if Enable Resizing is true. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Resize Start")
+	void K2_OnResizeStart(const FPointerEvent& InMouseEvent);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Visibility State Changed")
+	void K2_OnChangeVisibilityState(const EYetiOsProgramVisibilityState NewState);
 
 };

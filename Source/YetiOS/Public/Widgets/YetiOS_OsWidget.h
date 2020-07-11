@@ -43,9 +43,15 @@ public:
 
 	void BeginLoadOS();
 	void BeginShutdownOS();
+	void BeginRestartOS();
 
 	void OnBatteryLevelChanged(const float& CurrentBatteryLevel);
 	void OnLowBatteryWarningReceived(const bool bIsLowBattery);
+
+	void AddTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget);
+	void RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget);
+
+	void ReceiveNotification(const FYetiOsNotification InNotification);
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
 	const float GetDelayTime(const float InMin = 0.01, const float InMax = 0.2) const;
@@ -69,6 +75,15 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginShuttingdownOS")
 	void K2_OnBeginShuttingdownOS();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginRestartingOS")
+	void K2_OnBeginRestartingOS();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnWindowChangeFromTaskbar")
+	void K2_OnWindowChangeFromTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget, const bool bAddedToTaskbar);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnReceivedNotification")
+	void K2_OnReceivedNotification(const FYetiOsNotification NewNotification);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget|Portable", DisplayName = "OnBatteryLevelChanged")
 	void K2_OnBatteryLevelChanged(const float& CurrentBatteryLevel);

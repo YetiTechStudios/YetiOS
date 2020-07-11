@@ -47,7 +47,7 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 			OutErrorMessage.ErrorCode = FText::AsCultureInvariant("ERR_INCOMPATIBLE_DEVICE");
 			OutErrorMessage.ErrorException = LOCTEXT("YetiOS_InCompatibleDeviceErrorException", "Incompatible device.");
 			OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InCompatibleDeviceErrorDetailedException", "{0} is not compatible with this device."), ProxyProgram->ProgramName);
-			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode);
+			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, EYetiOsNotificationType::TYPE_Error);
 			InOS->CreateOsNotification(NewNotification);
 			return nullptr;
 		}
@@ -87,6 +87,18 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 		}
 
 		Internal_LoadProgramSettings();
+		return true;
+	}
+
+	return false;
+}
+
+bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
+{
+	if (CurrentVisibilityState != InNewState)
+	{
+		CurrentVisibilityState = InNewState;
+		ProgramWidget->Internal_OnChangeVisibilityState(CurrentVisibilityState);
 		return true;
 	}
 
@@ -142,18 +154,6 @@ bool UYetiOS_BaseProgram::SaveSettings()
 		}
 
 		return bSaveSuccess;
-	}
-
-	return false;
-}
-
-bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
-{
-	if (CurrentVisibilityState != InNewState)
-	{
-		CurrentVisibilityState = InNewState;
-		ProgramWidget->Internal_OnChangeVisibilityState(CurrentVisibilityState);
-		return true;
 	}
 
 	return false;

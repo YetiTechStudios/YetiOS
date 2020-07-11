@@ -12,10 +12,6 @@
 #include "Components/SceneComponent.h"
 #endif
 
-#if WITH_GAMEANALYTICS
-#include "GameAnalytics.h"
-#endif
-
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDeviceManager, All, All)
 
 #define printlog_display(Param1)		UE_LOG(LogYetiOsDeviceManager, Display, TEXT("%s"), *FString(Param1))
@@ -38,41 +34,24 @@ AYetiOS_DeviceManagerActor::AYetiOS_DeviceManagerActor()
 
 AYetiOS_DeviceManagerActor* AYetiOS_DeviceManagerActor::GetDeviceManager(const UObject* WorldContextObject)
 {
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(WorldContextObject, AYetiOS_DeviceManagerActor::StaticClass(), OutActors);
-	return Cast<AYetiOS_DeviceManagerActor>(OutActors[0]);
-}
-
-void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
-{
-	GetDeviceManager(WorldContextObject)->CurrentDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);
+	ensureAlwaysMsgf(false, TEXT("GetDeviceManager has been deprecated. This function will only return null."));
+	return nullptr;
 }
 
 class UYetiOS_BaseDevice* AYetiOS_DeviceManagerActor::GetCurrentDevice(const UObject* WorldContextObject)
 {
-	return GetDeviceManager(WorldContextObject)->CurrentDevice;
+	ensureAlwaysMsgf(false, TEXT("GetCurrentDevice has been deprecated. This function will only return null."));
+	return nullptr;
+}
+
+void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
+{
+	InDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);
 }
 
 void AYetiOS_DeviceManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-#if WITH_EDITOR
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(this, AYetiOS_DeviceManagerActor::StaticClass(), OutActors);
-
-	if (OutActors.IsValidIndex(1))
-	{
-		FOnMsgDlgResult OnDialogClosed;
-		OpenMsgDlgInt_NonModal(EAppMsgType::Ok, FText::FromString("You can only have 1 Device Manager in world."), FText::FromString("Multiple Device Managers Found"), OnDialogClosed)->ShowWindow();
-		UKismetSystemLibrary::ExecuteConsoleCommand(this, "exit");
-		return;
-	}
-#endif
-
-#if WITH_GAMEANALYTICS
-	UGameAnalytics::initialize("f70e2be1dad08f5a17450af415a40f46", "f6066f073675e6bf2cb850aac72a3cb080d962ff");
-#endif
 
 	if (bCreateDeviceOnBeginPlay)
 	{
@@ -83,10 +62,6 @@ void AYetiOS_DeviceManagerActor::BeginPlay()
 
 void AYetiOS_DeviceManagerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-#if WITH_GAMEANALYTICS
-	UGameAnalytics::OnQuit();
-#endif
-
 	Super::EndPlay(EndPlayReason);
 
 	FString EndReasonString = "Unknown";
@@ -142,6 +117,19 @@ void AYetiOS_DeviceManagerActor::OnCurrentDeviceDestroyed()
 		FGenericPlatformMisc::RequestExit(false);
 #endif
 	}
+}
+
+void AYetiOS_DeviceManagerActor::RestartDevice(class UYetiOS_BaseDevice* InDevice)
+{
+	check(InDevice == CurrentDevice);
+	CurrentDevice = nullptr;
+
+	FTimerDelegate CreateDeviceDelegate;
+	FTimerHandle TimerHandle_Dummy;
+
+	FYetiOsError ErrorMessage;
+	CreateDeviceDelegate.BindUFunction(this, FName("CreateDevice"), ErrorMessage);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, CreateDeviceDelegate, 1.f, false);
 }
 
 void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)

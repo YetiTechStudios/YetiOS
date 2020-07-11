@@ -24,6 +24,10 @@ UYetiOS_TerminalProgram::UYetiOS_TerminalProgram()
 	ActiveCommandObject = nullptr;
 	CurrentDirectory = nullptr;
 	CurrentDirectoryPath = "";
+
+	bEnableCommandHistory = true;
+	bAllowAllCommandsInHistory = true;
+	CommandHistoryIndex = INDEX_NONE;
 }
 
 const FText UYetiOS_TerminalProgram::GetRootCommandName()
@@ -41,6 +45,7 @@ const bool UYetiOS_TerminalProgram::StartProgram(FYetiOsError& OutErrorMessage)
 
 void UYetiOS_TerminalProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown /*= false*/)
 {
+	CommandHistory.Empty();
 	if (IsTerminalBusy())
 	{
 		ActiveCommandObject->Internal_TerminateCommand();
@@ -62,9 +67,9 @@ void UYetiOS_TerminalProgram::PromptForUserContinueInput()
 
 const bool UYetiOS_TerminalProgram::CheckRootPassword(const FText& InPasswordToCheck, const bool bCaseSensitive /*= true*/)
 {	
-	if (OwningOS && OwningOS->GetRootUser().UserName.IsEmptyOrWhitespace() == false)
+	if (OwningOS && OwningOS->GetCurrentUser().UserName.IsEmptyOrWhitespace() == false)
 	{
-		const bool bPasswordMatch = bCaseSensitive ? OwningOS->GetRootUser().Password.EqualTo(InPasswordToCheck) : OwningOS->GetRootUser().Password.EqualToCaseIgnored(InPasswordToCheck);
+		const bool bPasswordMatch = bCaseSensitive ? OwningOS->GetCurrentUser().Password.EqualTo(InPasswordToCheck) : OwningOS->GetCurrentUser().Password.EqualToCaseIgnored(InPasswordToCheck);
 		if (bPasswordMatch)
 		{
 			ActiveCommandObject->Internal_ProcessCommandAsRoot();
@@ -87,6 +92,7 @@ const bool UYetiOS_TerminalProgram::ChangeCurrentPath(const FString& NewPath)
 	if (NewDirectory)
 	{
 		CurrentDirectory = NewDirectory;
+		CurrentDirectory->EnsureOS(OwningOS);
 		CurrentDirectoryPath = CurrentDirectory->GetFullPath();
 		return true;
 	}
@@ -116,6 +122,40 @@ TArray<class UYetiOS_TerminalCommand*> UYetiOS_TerminalProgram::GetAllCommands()
 	}
 
 	return ReturnResult;
+}
+
+const FString UYetiOS_TerminalProgram::GetEachCommandFromHistory(const bool bFromStart /*= true*/)
+{
+	if (CommandHistory.Num() > 0)
+	{
+		if (bFromStart)
+		{
+			CommandHistoryIndex++;
+		}
+		else
+		{
+			if (CommandHistoryIndex == INDEX_NONE)
+			{
+				CommandHistoryIndex = CommandHistory.Num() - 1;
+			}
+			else
+			{
+				CommandHistoryIndex--;
+			}
+		}
+
+		if (CommandHistory.IsValidIndex(CommandHistoryIndex) == false)
+		{
+			CommandHistoryIndex = bFromStart ? 0 : CommandHistory.Num() - 1;
+		}
+			
+		
+		printlog_veryverbose(FString::Printf(TEXT("%s (%i)"), *CommandHistory[CommandHistoryIndex], CommandHistoryIndex));
+		return CommandHistory[CommandHistoryIndex];
+	}
+
+	printlog_veryverbose(FString::Printf(TEXT("No command found. Empty array probably. (%i)"), CommandHistoryIndex));
+	return FString("");	
 }
 
 void UYetiOS_TerminalProgram::ReceiveMessageFromCommand(const FText& InMessage, EYetiOsTerminalMessageLevel InMessageType)
@@ -150,12 +190,13 @@ void UYetiOS_TerminalProgram::PromptRootPassword()
 }
 
 const bool UYetiOS_TerminalProgram::ProcessCommand(FString InCommand)
-{
+{	
 	if (IsTerminalBusy() == false)
 	{
-		ActiveCommandObject = Internal_GetTerminalCommandObject(InCommand);
+		const FString RawCommand = InCommand;
+		ActiveCommandObject = Internal_GetTerminalCommandObject(RawCommand);
 		if (ActiveCommandObject)
-		{
+		{			
 			if (bSupportRunningMultiCommands && InCommand.Contains(" && "))
 			{
 				QueuedCommands.Empty();
@@ -168,7 +209,19 @@ const bool UYetiOS_TerminalProgram::ProcessCommand(FString InCommand)
 				}
 			}
 
+			if (bEnableCommandHistory)
+			{
+				CommandHistoryIndex = INDEX_NONE;
+				CommandHistory.Add(RawCommand);
+			}
+
 			return ActiveCommandObject->Internal_ProcessCommand(this, InCommand.ToLower());
+		}
+
+		if (bEnableCommandHistory && bAllowAllCommandsInHistory)
+		{
+			CommandHistoryIndex = INDEX_NONE;
+			CommandHistory.Add(RawCommand);
 		}
 	}
 

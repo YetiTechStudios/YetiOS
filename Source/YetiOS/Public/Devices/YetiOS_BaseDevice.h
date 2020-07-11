@@ -26,9 +26,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	FText DeviceName;
 
-	UPROPERTY(meta = (DeprecatedProperty, DeprecationMessage = "This property is deprecated. Access the motherboard from respective child class. This property will be removed in the next Unreal Engine release."))
-	FYetiOsMotherBoard MotherBoard_DEPRECATED;
-
 	//UPROPERTY(EditDefaultsOnly)
 	//TArray<FYetiOsWiFi> WifiConnections;
 
@@ -111,6 +108,13 @@ public:
 	virtual void ShutdownYetiDevice();
 
 	/**
+	* virtual public UYetiOS_BaseDevice::RestartYetiDevice
+	* Restarts this device.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device", DisplayName = "Restart Device")	
+	virtual void RestartYetiDevice();
+
+	/**
 	* public UYetiOS_BaseDevice::ShowBSOD
 	* Shows the Blue Screen widget.	
 	* @param InFaultingModuleName [const FText] A fake module name. Can be error code also (if any).
@@ -152,15 +156,6 @@ public:
 	inline FText GetDeviceName() const { return DeviceName; }
 
 	/**
-	* public UYetiOS_BaseDevice::GetMotherBoard const
-	* Gets device mother board.
-	* @return [FYetiOsMotherBoard] Returns MotherBoard.
-	**/
-	UE_DEPRECATED(4.23, "Cast to the respective child class and access motherboard variable. This function will be removed in the next Unreal Engine release.")
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device", meta = (DeprecatedFunction, DeprecationMessage = "Cast to the respective child class and access motherboard variable. This function will be removed in the next Unreal Engine release."))
-	inline FYetiOsMotherBoard GetMotherBoard() const { return MotherBoard_DEPRECATED; }
-
-	/**
 	* public UYetiOS_BaseDevice::UpdateDeviceState
 	* Updates current device state to new state.
 	* @param InNewState [EYetiOsDeviceState] State to change to.
@@ -182,6 +177,13 @@ public:
 	* @See: AYetiOS_DeviceManagerActor::EndPlay
 	**/
 	virtual void DestroyYetiDevice();
+
+	/**
+	* virtual public UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart
+	* Destroys this device and restart.
+	* @See: UYetiOS_BaseDevice::RestartYetiDevice()
+	**/
+	virtual void DestroyYetiDeviceAndRestart();
 
 private:
 	/**
