@@ -1020,28 +1020,28 @@ struct FYetiOsNotification
 
 	#define DEFAULT_DURATION 5.f
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText Title;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText Description;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText Code;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	FText TimeStamp;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	class UTexture2D* Icon;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	EYetiOsNotificationType Level;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	EYetiOsNotificationCategory Category;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Notification")
+	UPROPERTY(BlueprintReadWrite, Category = "Yeti OS Notification")
 	float Duration;
 
 public:
