@@ -67,9 +67,9 @@ void UYetiOS_TerminalProgram::PromptForUserContinueInput()
 
 const bool UYetiOS_TerminalProgram::CheckRootPassword(const FText& InPasswordToCheck, const bool bCaseSensitive /*= true*/)
 {	
-	if (OwningOS && OwningOS->GetRootUser().UserName.IsEmptyOrWhitespace() == false)
+	if (OwningOS && OwningOS->GetCurrentUser().UserName.IsEmptyOrWhitespace() == false)
 	{
-		const bool bPasswordMatch = bCaseSensitive ? OwningOS->GetRootUser().Password.EqualTo(InPasswordToCheck) : OwningOS->GetRootUser().Password.EqualToCaseIgnored(InPasswordToCheck);
+		const bool bPasswordMatch = bCaseSensitive ? OwningOS->GetCurrentUser().Password.EqualTo(InPasswordToCheck) : OwningOS->GetCurrentUser().Password.EqualToCaseIgnored(InPasswordToCheck);
 		if (bPasswordMatch)
 		{
 			ActiveCommandObject->Internal_ProcessCommandAsRoot();
