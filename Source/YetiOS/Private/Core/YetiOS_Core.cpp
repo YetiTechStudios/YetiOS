@@ -654,6 +654,13 @@ UYetiOS_DirectoryBase* UYetiOS_Core::CreateDirectoryInPath(const FString& InDire
 	return nullptr;
 }
 
+TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetRunningPrograms() const
+{
+	TArray<UYetiOS_BaseProgram*> OutArray;
+	RunningPrograms.GenerateValueArray(OutArray);
+	return OutArray;
+}
+
 class UYetiOS_BaseProgram* UYetiOS_Core::FindRunningProgramByIdentifier(const FName& InIdentifier) const
 {
 	return GetRunningProgramByIdentifier(InIdentifier);

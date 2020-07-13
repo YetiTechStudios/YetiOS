@@ -503,12 +503,19 @@ public:
 	const EYetiOsOperatingSystemReleaseState GetReleaseState() const { return ReleaseState; }
 
 	/**
-	* public UYetiOS_Core::GetAllRunningPrograms const
-	* Gets a TMap containing all running programs with their process ID's as keys.
-	* @return [TMap<int32, class UYetiOS_BaseProgram*>] TMap with running programs and process ID's.
+	* [DEPRECATED] Use 'GetRunningPrograms' instead.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	UE_DEPRECATED(4.25, "Use 'GetRunningPrograms' instead.")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Get Running Programs' instead."))
 	inline TMap<int32, class UYetiOS_BaseProgram*> GetAllRunningPrograms() const { return RunningPrograms; }
+
+	/**
+	* public UYetiOS_Core::GetRunningPrograms const
+	* Gets all running programs.
+	* @return [TArray<class UYetiOS_BaseProgram*>] An array of running programs.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	inline TArray<class UYetiOS_BaseProgram*> GetRunningPrograms() const;
 
 	/**
 	* [DEPRECATED] Use 'GetRunningProgramByIdentifier' instead.
