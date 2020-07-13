@@ -395,14 +395,14 @@ public:
 	void NotifyLowBattery(const bool bIsLowBattery);
 
 	/**
-	* public UYetiOS_Core::IsProgramInstalled
+	* public UYetiOS_Core::IsProgramInstalled const
 	* Checks if the given program (by identifier) is installed in this Operating System.
 	* @param InProgramIdentifier [const FName&] Program identifier reference.
 	* @param OutFoundProgram [UYetiOS_BaseProgram*&] If the return is true, then this will point to the installed program.
 	* @param OutErrorMessage [FYetiOsError&] Outputs any error message.
 	* @return [const bool] True if the given program is installed.
 	**/
-	const bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage);
+	const bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage) const;
 	
 	/**
 	* public UYetiOS_Core::AddToCreatedDirectories

@@ -536,7 +536,7 @@ void UYetiOS_Core::NotifyLowBattery(const bool bIsLowBattery)
 	}
 }
 
-const bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage)
+const bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage) const
 {
 	OutFoundProgram = nullptr;
 	
