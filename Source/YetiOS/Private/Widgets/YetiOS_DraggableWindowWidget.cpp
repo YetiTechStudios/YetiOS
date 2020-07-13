@@ -197,8 +197,13 @@ FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonDown_ResizeArea(FGeometr
 	return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this);
 }
 
-FText UYetiOS_DraggableWindowWidget::GetWindowText() const
+FText UYetiOS_DraggableWindowWidget::GetWindowText(const bool bWithProcessID /*= false*/) const
 {
+	if (bWithProcessID)
+	{
+		return FText::FromString(FString::Printf(TEXT("[%i] %s"), OwningProgram->GetProcessID(), *OwningProgram->GetProgramName().ToString()));
+	}
+
 	return OwningProgram->GetProgramName();
 }
 

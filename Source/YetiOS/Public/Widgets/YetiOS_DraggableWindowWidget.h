@@ -91,7 +91,7 @@ protected:
 	FEventReply OnMouseButtonDown_ResizeArea(FGeometry InGeometry, const FPointerEvent& InMouseEvent);
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
-	FText GetWindowText() const;
+	FText GetWindowText(const bool bWithProcessID = false) const;
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
 	EYetiOsProgramVisibilityState GetCurrentVisibilityState() const;
