@@ -511,10 +511,7 @@ public:
 	inline TMap<int32, class UYetiOS_BaseProgram*> GetAllRunningPrograms() const { return RunningPrograms; }
 
 	/**
-	* [DEPRECATED] public UYetiOS_Core::FindRunningProgramByIdentifier const
-	* Finds a program that is running by its unique identifier.
-	* @param InIdentifier [const FName&] Identifier to look for.
-	* @return [class UYetiOS_BaseProgram*] Program that is running or nullptr.
+	* [DEPRECATED] Use 'GetRunningProgramByIdentifier' instead.
 	**/
 	UE_DEPRECATED(4.25, "Use 'GetRunningProgramByIdentifier' instead.")
 	UFUNCTION(BlueprintPure, Category = "Yeti OS", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Get Running Program By Identifier' instead."))	
