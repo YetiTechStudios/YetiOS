@@ -536,7 +536,7 @@ void UYetiOS_Core::NotifyLowBattery(const bool bIsLowBattery)
 	}
 }
 
-const bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage)
+const bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage) const
 {
 	OutFoundProgram = nullptr;
 	
@@ -654,17 +654,34 @@ UYetiOS_DirectoryBase* UYetiOS_Core::CreateDirectoryInPath(const FString& InDire
 	return nullptr;
 }
 
+TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetRunningPrograms() const
+{
+	TArray<UYetiOS_BaseProgram*> OutArray;
+	RunningPrograms.GenerateValueArray(OutArray);
+	return OutArray;
+}
+
 class UYetiOS_BaseProgram* UYetiOS_Core::FindRunningProgramByIdentifier(const FName& InIdentifier) const
 {
-	for (const auto& It : RunningPrograms)
+	return GetRunningProgramByIdentifier(InIdentifier);
+}
+
+class UYetiOS_BaseProgram* UYetiOS_Core::GetRunningProgramByIdentifier(const FName& InIdentifier) const
+{
+	TArray<UYetiOS_BaseProgram*> OutArray;
+	RunningPrograms.GenerateValueArray(OutArray);
+	UYetiOS_BaseProgram** FoundDevice = nullptr;
+	FoundDevice = OutArray.FindByPredicate([InIdentifier](const UYetiOS_BaseProgram* InProgram)
 	{
-		if (It.Value->GetProgramIdentifierName().IsEqual(InIdentifier))
-		{
-			return It.Value;
-		}
+		return InProgram->GetProgramIdentifierName().IsEqual(InIdentifier);
+	});
+
+	if (FoundDevice == nullptr)
+	{
+		return nullptr;
 	}
 
-	return nullptr;
+	return *FoundDevice;
 }
 
 #undef printlog_display

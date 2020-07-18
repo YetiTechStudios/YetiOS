@@ -78,15 +78,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	uint8 bCanRunOnPortableDevice : 1;
 
-	/* If true, then C++ can call K2_OnCreate function. */
+	/* If true, then C++ can call K2_OnCreate function. Implement OnCreate event in Blueprint Graph */
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	uint8 bCanCallOnCreate : 1;
 
-	/* If true, then C++ can call K2_OnStart function. */
+	/* If true, then C++ can call K2_OnStart function. Implement OnStart event in Blueprint Graph. */
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	uint8 bCanCallOnStart : 1;
 
-	/* If true, then C++ can call K2_OnClose function. */
+	/* If true, then C++ can call K2_OnClose function. Implement OnClose event in Blueprint Graph. */
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	uint8 bCanCallOnClose : 1;
 

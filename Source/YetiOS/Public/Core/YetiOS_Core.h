@@ -395,14 +395,14 @@ public:
 	void NotifyLowBattery(const bool bIsLowBattery);
 
 	/**
-	* public UYetiOS_Core::IsProgramInstalled
+	* public UYetiOS_Core::IsProgramInstalled const
 	* Checks if the given program (by identifier) is installed in this Operating System.
 	* @param InProgramIdentifier [const FName&] Program identifier reference.
 	* @param OutFoundProgram [UYetiOS_BaseProgram*&] If the return is true, then this will point to the installed program.
 	* @param OutErrorMessage [FYetiOsError&] Outputs any error message.
 	* @return [const bool] True if the given program is installed.
 	**/
-	const bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage);
+	const bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage) const;
 	
 	/**
 	* public UYetiOS_Core::AddToCreatedDirectories
@@ -503,21 +503,35 @@ public:
 	const EYetiOsOperatingSystemReleaseState GetReleaseState() const { return ReleaseState; }
 
 	/**
-	* public UYetiOS_Core::GetAllRunningPrograms const
-	* Gets a TMap containing all running programs with their process ID's as keys.
-	* @return [TMap<int32, class UYetiOS_BaseProgram*>] TMap with running programs and process ID's.
+	* [DEPRECATED] Use 'GetRunningPrograms' instead.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	UE_DEPRECATED(4.25, "Use 'GetRunningPrograms' instead.")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Get Running Programs' instead."))
 	inline TMap<int32, class UYetiOS_BaseProgram*> GetAllRunningPrograms() const { return RunningPrograms; }
 
 	/**
-	* public UYetiOS_Core::FindRunningProgramByIdentifier const
+	* public UYetiOS_Core::GetRunningPrograms const
+	* Gets all running programs.
+	* @return [TArray<class UYetiOS_BaseProgram*>] An array of running programs.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	TArray<class UYetiOS_BaseProgram*> GetRunningPrograms() const;
+
+	/**
+	* [DEPRECATED] Use 'GetRunningProgramByIdentifier' instead.
+	**/
+	UE_DEPRECATED(4.25, "Use 'GetRunningProgramByIdentifier' instead.")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Get Running Program By Identifier' instead."))	
+	class UYetiOS_BaseProgram* FindRunningProgramByIdentifier(const FName& InIdentifier) const;
+
+	/**
+	* public UYetiOS_Core::GetRunningProgramByIdentifier const
 	* Finds a program that is running by its unique identifier.
 	* @param InIdentifier [const FName&] Identifier to look for.
 	* @return [class UYetiOS_BaseProgram*] Program that is running or nullptr.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
-	class UYetiOS_BaseProgram* FindRunningProgramByIdentifier(const FName& InIdentifier) const;
+	class UYetiOS_BaseProgram* GetRunningProgramByIdentifier(const FName& InIdentifier) const;
 
 protected:
 
