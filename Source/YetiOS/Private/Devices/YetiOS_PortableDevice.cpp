@@ -31,7 +31,7 @@ EYetiOsDeviceStartResult UYetiOS_PortableDevice::StartDevice(FYetiOsError& OutEr
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_ConsumeBattery, this, &UYetiOS_PortableDevice::Internal_ConsumeBattery, BatteryConsumeTimerDelay, true);
 		Internal_ConsumeBattery();
 
-		printlog_display(FString::Printf(TEXT("Current battery charge: %f%. Battery health: %f%"), BatteryLevel * 100.f, GetBatteryHealth(false)));
+		printlog_display(FString::Printf(TEXT("Current battery charge: %f%s. Battery health: %f%s"), BatteryLevel * 100.f, *FString("%"), GetBatteryHealth(false), *FString("%")));
 	}
 
 	return Local_StartResult;
@@ -55,7 +55,7 @@ void UYetiOS_PortableDevice::StopBatteryCharge()
 		GetOperatingSystem()->NotifyLowBattery(true);
 	}
 
-	printlog_display(FString::Printf(TEXT("Stopped battery charging for device %s. Current battery level: %f%."), *GetDeviceName().ToString(), BatteryLevel * 100.f));
+	printlog_display(FString::Printf(TEXT("Stopped battery charging for device %s. Current battery level: %f%s."), *GetDeviceName().ToString(), BatteryLevel * 100.f, *FString("%")));
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_ConsumeBattery, this, &UYetiOS_PortableDevice::Internal_ConsumeBattery, BatteryConsumeTimerDelay, true);
 }
 
@@ -76,7 +76,7 @@ void UYetiOS_PortableDevice::Internal_ConsumeBattery()
 
 	K2_OnBatteryLevelChanged(true);
 	GetOperatingSystem()->NotifyBatteryLevelChange(BatteryLevel);
-	printlog_display(FString::Printf(TEXT("%s consumed battery. Remaining %f%"), *GetDeviceName().ToString(), BatteryLevel * 100.f));
+	printlog_display(FString::Printf(TEXT("%s consumed battery. Remaining %f%s"), *GetDeviceName().ToString(), BatteryLevel * 100.f, *FString("%")));
 	if (BatteryLevel <= 0.f)
 	{
 		BatteryLevel = 0.f;
@@ -99,7 +99,7 @@ void UYetiOS_PortableDevice::Internal_ChargeBattery()
 		}
 		else
 		{
-			printlog_display(FString::Printf(TEXT("Battery charged for device %s. Current battery level: %f%."), *GetDeviceName().ToString(), BatteryLevel * 100.f));
+			printlog_display(FString::Printf(TEXT("Battery charged for device %s. Current battery level: %f%s."), *GetDeviceName().ToString(), BatteryLevel * 100.f, *FString("%")));
 		}
 
 		K2_OnBatteryLevelChanged(false);

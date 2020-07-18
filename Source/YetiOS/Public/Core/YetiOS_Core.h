@@ -515,7 +515,7 @@ public:
 	* @return [TArray<class UYetiOS_BaseProgram*>] An array of running programs.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
-	inline TArray<class UYetiOS_BaseProgram*> GetRunningPrograms() const;
+	TArray<class UYetiOS_BaseProgram*> GetRunningPrograms() const;
 
 	/**
 	* [DEPRECATED] Use 'GetRunningProgramByIdentifier' instead.
