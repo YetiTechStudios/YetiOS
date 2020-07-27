@@ -218,7 +218,15 @@ private:
 public:
 
 	void DestroyDirectory();
-	inline const FString GetFullPath() const;
+
+	/**
+	* public UYetiOS_DirectoryBase::GetFullPath const
+	* Gets the full path to this directory. Eg: Dir/AnotherDir/Directory and so on.
+	* @return [FString] Full path to this directory.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")	
+	inline FString GetFullPath(const bool bDoNoIncludeHome = true) const;
+
 	inline const bool HasChildDirectory(const FText& InDirectoryName, UYetiOS_DirectoryBase*& OutFoundDirectory, const bool bIgnoreCase = true) const;
 
 	FORCEINLINE const bool CanCreateNewFile() const { return bCanCreateNewFile; }

@@ -93,7 +93,7 @@ const bool UYetiOS_TerminalProgram::ChangeCurrentPath(const FString& NewPath)
 	{
 		CurrentDirectory = NewDirectory;
 		CurrentDirectory->EnsureOS(OwningOS);
-		CurrentDirectoryPath = CurrentDirectory->GetFullPath();
+		CurrentDirectoryPath = CurrentDirectory->GetFullPath(false);
 		return true;
 	}
 

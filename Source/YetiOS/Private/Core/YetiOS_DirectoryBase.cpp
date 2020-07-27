@@ -245,7 +245,7 @@ void UYetiOS_DirectoryBase::DestroyDirectory()
 	ConditionalBeginDestroy();
 }
 
-inline const FString UYetiOS_DirectoryBase::GetFullPath() const
+inline FString UYetiOS_DirectoryBase::GetFullPath(const bool bDoNoIncludeHome /*= true*/) const
 {
 	UYetiOS_DirectoryBase* CurrentDirectory = const_cast<UYetiOS_DirectoryBase*>(this);
 	UYetiOS_DirectoryRoot* MyRootDirectory = OwningOS->GetRootDirectory();
@@ -274,6 +274,15 @@ inline const FString UYetiOS_DirectoryBase::GetFullPath() const
 		if (It.ToString() != MyRootDirectory->DirectoryName.ToString())
 		{
 			FullPath += (It.ToString() + UYetiOS_Core::PATH_DELIMITER);
+		}
+	}
+
+	if (bDoNoIncludeHome)
+	{
+		static const FString HomePathName = "home/";
+		if (FullPath.StartsWith(HomePathName))
+		{
+			FullPath.RemoveFromStart(HomePathName);
 		}
 	}
 
