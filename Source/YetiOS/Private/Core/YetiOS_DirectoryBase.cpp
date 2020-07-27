@@ -245,7 +245,12 @@ void UYetiOS_DirectoryBase::DestroyDirectory()
 	ConditionalBeginDestroy();
 }
 
-inline FString UYetiOS_DirectoryBase::GetFullPath(const bool bDoNoIncludeHome /*= true*/) const
+FText UYetiOS_DirectoryBase::GetDirectoryPath() const
+{
+	return FText::FromString(GetFullPath(true));
+}
+
+inline FString UYetiOS_DirectoryBase::GetFullPath(const bool bDoNoIncludeHome /*= false*/) const
 {
 	UYetiOS_DirectoryBase* CurrentDirectory = const_cast<UYetiOS_DirectoryBase*>(this);
 	UYetiOS_DirectoryRoot* MyRootDirectory = OwningOS->GetRootDirectory();
