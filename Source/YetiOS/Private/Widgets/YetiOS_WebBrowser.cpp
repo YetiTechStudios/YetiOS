@@ -14,6 +14,7 @@
 #include <regex>
 
 static const FString BROWSER_IDENTIFIER_FAILSAFE = "browser";
+static const FString DEFAULT_URL = "about:blank";
 
 #define LOCTEXT_NAMESPACE "YetiOS"
 
@@ -42,7 +43,7 @@ const bool UYetiOS_WebBrowser::LoadURL(const FText& URL)
 			bool bDenyAccess = true;
 			for (const FString& It : WhitelistWebsites)
 			{
-				if (It.Contains(NewURL))
+				if (NewURL.Contains(It))
 				{
 					bDenyAccess = false;
 					break;
@@ -52,6 +53,7 @@ const bool UYetiOS_WebBrowser::LoadURL(const FText& URL)
 			if (bDenyAccess)
 			{
 				OnAccessDenied.Broadcast();
+				Addressbar->SetText(URL);
 				return false;
 			}
 		}
@@ -185,7 +187,7 @@ const TArray<FWebHistory> UYetiOS_WebBrowser::GetHistory() const
 	return History;
 }
 
-void UYetiOS_WebBrowser::AssignDelegates()
+void UYetiOS_WebBrowser::InitializeWebBrowser()
 {
 	if (ReloadButton)
 	{
@@ -213,6 +215,8 @@ void UYetiOS_WebBrowser::AssignDelegates()
 
 		ForwardButton->OnClicked.AddDynamic(this, &UYetiOS_WebBrowser::Internal_GoForward);
 	}
+
+	LoadURL(FText::FromString(InitialURL));
 }
 
 TSharedRef<SWidget> UYetiOS_WebBrowser::RebuildWidget()
@@ -229,7 +233,7 @@ TSharedRef<SWidget> UYetiOS_WebBrowser::RebuildWidget()
 	}
 	
 	WebBrowserWidget = SNew(SWebBrowser)
-		.InitialURL(InitialURL)
+		.InitialURL(DEFAULT_URL)
 		.ShowControls(false)
 		.SupportsTransparency(bSupportsTransparency)
 		.OnUrlChanged(BIND_UOBJECT_DELEGATE(FOnTextChanged, HandleOnUrlChanged))
@@ -272,6 +276,25 @@ void UYetiOS_WebBrowser::ReloadWebPage()
 void UYetiOS_WebBrowser::HandleOnUrlChanged(const FText& Text)
 {
 	OnUrlChanged.Broadcast(Text);
+	if (bShowWhitelistOnly)
+	{
+		FString NewURL = Text.ToString();
+		if (NewURL.Contains(InitialURL) || NewURL.Equals(DEFAULT_URL, ESearchCase::IgnoreCase))
+		{
+			return;
+		}
+
+		for (const FString& It : WhitelistWebsites)
+		{
+			if (NewURL.Contains(It))
+			{
+				return;
+			}
+		}
+
+		OnAccessDenied.Broadcast();
+		Addressbar->SetText(Text);
+	}
 }
 
 void UYetiOS_WebBrowser::HandleOnLoadStart()
