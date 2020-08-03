@@ -11,10 +11,14 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "YetiOS_Types.h"
+#include "WebBrowserModule.h"
+#include "Runtime\WebBrowser\Public\IWebBrowserCookieManager.h"
 #include <regex>
 
 static const FString BROWSER_IDENTIFIER_FAILSAFE = "browser";
 static const FString DEFAULT_URL = "about:blank";
+
+typedef struct FWebBrowserCookie FCookie;
 
 #define LOCTEXT_NAMESPACE "YetiOS"
 
@@ -113,6 +117,52 @@ void UYetiOS_WebBrowser::ExecuteJavascript(const FString& ScriptText)
 	{
 		WebBrowserWidget->ExecuteJavascript(ScriptText);
 	}
+}
+
+
+void UYetiOS_WebBrowser::SetCookie(const FString& URL, const FBrowserCookie& InCookie, FOnCookieSetComplete Delegate)
+{
+	IWebBrowserSingleton* BrowserSingleton = IWebBrowserModule::Get().GetSingleton();
+	TSharedPtr<class IWebBrowserCookieManager> BrowserCookie = BrowserSingleton->GetCookieManager();
+	
+	FCookie NewCookie;
+	NewCookie.bHasExpires = InCookie.bExpires;
+	NewCookie.bHttpOnly = InCookie.bHttpRequestOnly;
+	NewCookie.bSecure = InCookie.bHttpsRequestsOnly;
+	NewCookie.Domain = InCookie.Domain;
+	NewCookie.Expires = InCookie.ExpireTime;
+	NewCookie.Name = InCookie.Name;
+	NewCookie.Path = InCookie.Path;
+	NewCookie.Value = InCookie.Value;
+
+	TFunction<void(bool)> OnSetFunc = [&](bool bSuccess)
+	{ 
+		Delegate.ExecuteIfBound(bSuccess); 
+	};
+
+	BrowserCookie->SetCookie(URL, NewCookie, OnSetFunc);
+}
+
+void UYetiOS_WebBrowser::SetCookieForAll(const FBrowserCookie& InCookie, FOnCookieSetComplete Delegate)
+{
+	SetCookie("", InCookie, Delegate);
+}
+
+void UYetiOS_WebBrowser::DeleteCookie(const FString& URL, const FString& CookieName, FOnCookieDeleteComplete Delegate)
+{
+	IWebBrowserSingleton* BrowserSingleton = IWebBrowserModule::Get().GetSingleton();
+	TSharedPtr<class IWebBrowserCookieManager> BrowserCookie = BrowserSingleton->GetCookieManager();
+
+	TFunction<void(int)> OnDeleteFunc = [&](int Total)
+	{
+		Delegate.ExecuteIfBound(Total);
+	};
+	BrowserCookie->DeleteCookies(URL, CookieName, OnDeleteFunc);
+}
+
+void UYetiOS_WebBrowser::DeleteAllCookies(FOnCookieDeleteComplete Delegate)
+{
+	DeleteCookie("","", Delegate);
 }
 
 const FText UYetiOS_WebBrowser::GetTitleText() const
