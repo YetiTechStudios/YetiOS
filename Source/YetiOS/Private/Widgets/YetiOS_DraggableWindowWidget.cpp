@@ -38,6 +38,7 @@ UYetiOS_DraggableWindowWidget::UYetiOS_DraggableWindowWidget(const FObjectInitia
 void UYetiOS_DraggableWindowWidget::NativeConstruct()
 {
 	ParentSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(this);
+	BringWindowToFront();
 
 	WindowTitleBorderWidget->OnMouseButtonUpEvent.BindUFunction(this, FName("OnMouseButtonUp_WindowTitleBorder"));
 	WindowTitleBorderWidget->OnMouseButtonDownEvent.BindUFunction(this, FName("OnMouseButtonDown_WindowTitleBorder"));
@@ -166,6 +167,7 @@ FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonUp_WindowTitleBorder(FGe
 
 FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonDown_WindowTitleBorder(FGeometry InGeometry, const FPointerEvent& InMouseEvent)
 {
+	BringWindowToFront();
 	if (bEnableDrag)
 	{
 		OnMouseButtonUp_WindowTitleBorder(InGeometry, InMouseEvent);
@@ -217,6 +219,14 @@ void UYetiOS_DraggableWindowWidget::CloseWindow()
 	OwningOS->GetOsWidget()->RemoveTaskbarButton(this);
 	ProgramCanvas->ClearChildren();
 	RemoveFromParent();
+}
+
+void UYetiOS_DraggableWindowWidget::BringWindowToFront()
+{
+	if (OwningOS)
+	{
+		OwningOS->UpdateWindowZOrder(this);
+	}
 }
 
 bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)

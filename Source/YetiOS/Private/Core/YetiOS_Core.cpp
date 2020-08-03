@@ -10,9 +10,12 @@
 #include "Devices/YetiOS_DeviceManagerActor.h"
 #include "Widgets/YetiOS_OsWidget.h"
 #include "Widgets/YetiOS_AppIconWidget.h"
+#include "Widgets/YetiOS_DraggableWindowWidget.h"
 #include "Engine/ObjectLibrary.h"
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Engine/Public/TimerManager.h"
+#include "Runtime/UMG/Public/Components/CanvasPanelSlot.h"
+#include "Runtime/UMG/Public/Blueprint/WidgetLayoutLibrary.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
@@ -44,6 +47,8 @@ UYetiOS_Core::UYetiOS_Core()
 	ReleaseState = EYetiOsOperatingSystemReleaseState::STATE_FullRelease;
 	MinInstallationTime = 10.f;
 	MaxInstallationTime = 60.f;
+
+	CurrentZOrder = INDEX_NONE;
 
 	RootUser = FYetiOsUser(UYetiOS_Core::ROOT_USER_NAME.ToString());
 }
@@ -430,6 +435,16 @@ void UYetiOS_Core::DestroyOS()
 	OsWorld = nullptr;
 	printlog_veryverbose(FString::Printf(TEXT("Destroyed operating system '%s'"), *OsName.ToString()));
 	ConditionalBeginDestroy();
+}
+
+void UYetiOS_Core::UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow)
+{
+	if (InWindow)
+	{
+		CurrentZOrder++;
+		UCanvasPanelSlot* Slot = UWidgetLayoutLibrary::SlotAsCanvasSlot(InWindow);
+		Slot->SetZOrder(CurrentZOrder);
+	}
 }
 
 const FYetiOsCpu UYetiOS_Core::GetMainCpu() const

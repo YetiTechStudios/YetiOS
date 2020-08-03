@@ -116,6 +116,8 @@ private:
 
 	class FYetiOsNotificationManager* NotificationManager;
 
+	int32 CurrentZOrder;
+
 public:
 
 	UYetiOS_Core();
@@ -269,6 +271,8 @@ public:
 	* @See: UYetiOS_BaseDevice::DestroyYetiDevice();
 	**/
 	void DestroyOS();
+
+	void UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow);
 
 	/**
 	* public UYetiOS_Core::GetInstallablePrograms const

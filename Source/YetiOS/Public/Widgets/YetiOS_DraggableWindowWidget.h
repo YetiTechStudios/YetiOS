@@ -103,6 +103,9 @@ public:
 protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
+	void BringWindowToFront();
+
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
 	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
 
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Draggable Window")
