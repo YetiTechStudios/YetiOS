@@ -305,3 +305,5 @@ inline const bool UYetiOS_TerminalCommand::CommandEqualTo(const FString InTestCo
 
 	return false;
 }
+
+#undef printlog_error
