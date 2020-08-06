@@ -15,6 +15,11 @@
 #include "Runtime\WebBrowser\Public\IWebBrowserCookieManager.h"
 #include <regex>
 
+DEFINE_LOG_CATEGORY_STATIC(LogYetiOsWebBrowser, All, All)
+
+#define printlog_vv(Param1)				UE_LOG(LogYetiOsWebBrowser, VeryVerbose, TEXT("%s"), *FString(Param1))
+#define printlog_error(Param1)			UE_LOG(LogYetiOsWebBrowser, Error, TEXT("%s"), *FString(Param1))
+
 static const FString BROWSER_IDENTIFIER_FAILSAFE = "browser";
 static const FString DEFAULT_URL = "about:blank";
 
@@ -137,6 +142,7 @@ void UYetiOS_WebBrowser::SetCookie(const FString& URL, const FBrowserCookie& InC
 
 	TFunction<void(bool)> OnSetFunc = [&](bool bSuccess)
 	{ 
+		printlog_vv(FString::Printf(TEXT("Set cookie (%s) %s on %s."), *NewCookie.Name, bSuccess ? *FString("success") : *FString("failed"), URL == "" ? *FString("all urls") : *URL));
 		Delegate.ExecuteIfBound(bSuccess); 
 	};
 
@@ -155,6 +161,7 @@ void UYetiOS_WebBrowser::DeleteCookie(const FString& URL, const FString& CookieN
 
 	TFunction<void(int)> OnDeleteFunc = [&](int Total)
 	{
+		printlog_vv(FString::Printf(TEXT("Delete Cookie [%s]: Total (%i). URL(s): ."), *CookieName, Total, URL == "" ? *FString("all urls") : *URL));
 		Delegate.ExecuteIfBound(Total);
 	};
 	BrowserCookie->DeleteCookies(URL, CookieName, OnDeleteFunc);
@@ -248,8 +255,12 @@ void UYetiOS_WebBrowser::InitializeWebBrowser()
 
 		ReloadButton->OnClicked.AddDynamic(this, &UYetiOS_WebBrowser::ReloadWebPage);
 	}
+	else
+	{
+		printlog_error("Reload button was not found. Make sure you have a button in UMG designer with variable name set to ReloadButton and Is Variable is true.");
+	}
 
-	if (BackButton && ForwardButton)
+	if (BackButton)
 	{
 		if (BackButton->OnClicked.IsBound())
 		{
@@ -257,13 +268,29 @@ void UYetiOS_WebBrowser::InitializeWebBrowser()
 		}
 
 		BackButton->OnClicked.AddDynamic(this, &UYetiOS_WebBrowser::Internal_GoBack);
+	}
+	else
+	{
+		printlog_error("Back button was not found. Make sure you have a button in UMG designer with variable name set to BackButton and Is Variable is true.");
+	}
 
+	if (ForwardButton)
+	{
 		if (ForwardButton->OnClicked.IsBound())
 		{
 			ForwardButton->OnClicked.Clear();
 		}
 
 		ForwardButton->OnClicked.AddDynamic(this, &UYetiOS_WebBrowser::Internal_GoForward);
+	}
+	else
+	{
+		printlog_error("Forward button was not found. Make sure you have a button in UMG designer with variable name set to ForwardButton and Is Variable is true.");
+	}
+
+	if (Addressbar == nullptr)
+	{
+		printlog_error("Address bar was not found. Make sure you have an Editable Textbox in UMG designer with variable name set to Addressbar and Is Variable is true.");
 	}
 
 	LoadURL(FText::FromString(InitialURL));
@@ -493,5 +520,8 @@ const bool UYetiOS_WebBrowser::Internal_FindMaskedURL(const FText& InURL, FStrin
 	OutMaskedURL.Empty();
 	return false;
 }
+
+#undef printlog_vv
+#undef printlog_error
 
 #undef LOCTEXT_NAMESPACE
