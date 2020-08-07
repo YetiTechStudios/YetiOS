@@ -60,7 +60,7 @@ struct FCustomMaskedDomains
 {
 	GENERATED_USTRUCT_BODY();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Masked Domain")
 	TArray<FString> CustomDomainNames;
 
 	bool operator==(const FCustomMaskedDomains& Other)
