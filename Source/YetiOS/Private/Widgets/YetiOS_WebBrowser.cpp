@@ -12,7 +12,7 @@
 #include "Components/EditableTextBox.h"
 #include "YetiOS_Types.h"
 #include "WebBrowserModule.h"
-#include "Runtime\WebBrowser\Public\IWebBrowserCookieManager.h"
+#include "IWebBrowserCookieManager.h"
 #include <regex>
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsWebBrowser, All, All)
