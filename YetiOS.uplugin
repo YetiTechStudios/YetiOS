@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.8",
+	"VersionName": "2.0",
 	"FriendlyName": "Terminal Operating System",
 	"Description": "Terminal and Operating System simulator.",
 	"Category": "YetiTech Studios",
@@ -21,10 +21,10 @@
 			"LoadingPhase": "PreDefault",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Linux",
 				"Android",
-				"Mac"
+				"Mac",
+				"IOS"
 			]
 		}
 	],
