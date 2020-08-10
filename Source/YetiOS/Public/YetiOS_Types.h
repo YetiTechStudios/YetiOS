@@ -15,44 +15,44 @@ class UYetiOS_BaseProgram;
 UENUM(BlueprintType)
 enum class EYetiOsNotificationType : uint8
 {
-	TYPE_Info					UMETA(DisplayName = "Info"),
-	TYPE_Warning				UMETA(DisplayName = "Warning"),
-	TYPE_Error					UMETA(DisplayName = "Error")
+	TYPE_Info							UMETA(DisplayName = "Info"),
+	TYPE_Warning						UMETA(DisplayName = "Warning"),
+	TYPE_Error							UMETA(DisplayName = "Error")
 };
 
 UENUM(BlueprintType)
 enum class EYetiOsNotificationCategory : uint8
 {
-	CATEGORY_Device				UMETA(DisplayName = "Device"),
-	CATEGORY_OS					UMETA(DisplayName = "OS"),
-	CATEGORY_App				UMETA(DisplayName = "App")
+	CATEGORY_Device						UMETA(DisplayName = "Device"),
+	CATEGORY_OS							UMETA(DisplayName = "OS"),
+	CATEGORY_App						UMETA(DisplayName = "App")
 };
 
 UENUM(BlueprintType)
 enum class EYetiOsTerminalMessageLevel : uint8
 {
-	LEVEL_Normal				UMETA(DisplayName = "Normal"),
-	LEVEL_Warning				UMETA(DisplayName = "Warning"),
-	LEVEL_Error					UMETA(DisplayName = "Error")
+	LEVEL_Normal						UMETA(DisplayName = "Normal"),
+	LEVEL_Warning						UMETA(DisplayName = "Warning"),
+	LEVEL_Error							UMETA(DisplayName = "Error")
 };
 
 UENUM(BlueprintType)
 enum class EYetiOsDeviceState : uint8
 {	
 	/* Device is starting. */
-	STATE_Starting				UMETA(DisplayName = "Starting"),
+	STATE_Starting						UMETA(DisplayName = "Starting"),
 	
 	/* Device is actively running. */
-	STATE_Running				UMETA(DisplayName = "Running"),
+	STATE_Running						UMETA(DisplayName = "Running"),
 	
 	/* Device is shutting down. */
-	STATE_PowerOff				UMETA(DisplayName = "Power Off"),
+	STATE_PowerOff						UMETA(DisplayName = "Power Off"),
 	
 	/* Device is restarting. */
-	STATE_Restart				UMETA(DisplayName = "Restart"),
+	STATE_Restart						UMETA(DisplayName = "Restart"),
 	
 	/* Invalid state. */
-	STATE_None					UMETA(Hidden)
+	STATE_None							UMETA(Hidden)
 };
 
 /* @See: UYetiOS_BaseDevice::StartDevice */
@@ -60,46 +60,56 @@ UENUM(BlueprintType)
 enum class EYetiOsDeviceStartResult : uint8
 {	
 	/* Hardware failure could mean that required hardware was not found or 0 durability. */
-	DEVICESTART_HardwareFail	UMETA(DisplayName = "Hardware Failure"),
+	DEVICESTART_HardwareFail			UMETA(DisplayName = "Hardware Failure"),
 
 	/* An operating system is required to boot so if no OS then this is the result. */
-	DEVICESTART_NoOs			UMETA(DisplayName = "No Operating System"),
+	DEVICESTART_NoOs					UMETA(DisplayName = "No Operating System"),
 
 	/* Device cannot start because of no battery power. Only applicable if owning device is portable. */
-	DEVICESTART_NoBattery		UMETA(DisplayName = "No battery power"),
+	DEVICESTART_NoBattery				UMETA(DisplayName = "No battery power"),
 
 	/* Device was able to start but one or more hardware is having low durability. */
-	DEVICESTART_PartialSuccess	UMETA(DisplayName = "Partial Success"),
+	DEVICESTART_PartialSuccess			UMETA(DisplayName = "Partial Success"),
 
 	/* Device started successfully with no issues. Yay! */
-	DEVICESTART_Success			UMETA(DisplayName = "Success")
+	DEVICESTART_Success					UMETA(DisplayName = "Success")
+};
+
+UENUM(BlueprintType)
+enum class EYetiOsHardwareInstallResult : uint8
+{
+	HWINSTALL_IncompatibleDevice		UMETA(DisplayName = "Device Unsupported"),
+	HWINSTALL_DeviceRunning				UMETA(DisplayName = "Device Running"),
+	HWINSTALL_NoDevice					UMETA(DisplayName = "No Device"),
+	HWINSTALL_AlreadyInstalled			UMETA(DisplayName = "Already Installed"),
+	HWINSTALL_Success					UMETA(DisplayName = "Success")
 };
 
 UENUM(BlueprintType)
 enum class EYetiOsProgramVisibilityState : uint8
 {
-	STATE_Normal				UMETA(DisplayName = "Normal"),
-	STATE_Minimize				UMETA(DisplayName = "Minimize"),
-	STATE_Maximize				UMETA(DisplayName = "Maximize")
+	STATE_Normal						UMETA(DisplayName = "Normal"),
+	STATE_Minimize						UMETA(DisplayName = "Minimize"),
+	STATE_Maximize						UMETA(DisplayName = "Maximize")
 };
 
 UENUM(BlueprintType)
 enum class EYetiOsOperatingSystemReleaseState : uint8
 {
-	STATE_Beta					UMETA(DisplayName = "Beta"),
-	STATE_TechnicalPreview		UMETA(DisplayName = "Technical Preview"),
-	STATE_FullRelease			UMETA(DisplayName = "Final Release")
+	STATE_Beta							UMETA(DisplayName = "Beta"),
+	STATE_TechnicalPreview				UMETA(DisplayName = "Technical Preview"),
+	STATE_FullRelease					UMETA(DisplayName = "Final Release")
 };
 
 /* https://en.wikipedia.org/wiki/CPU_socket#List_of_CPU_sockets_and_slots */
 UENUM(BlueprintType)
 enum class EYetiOsSocketType : uint8
 {
-	SOCKET_1155					UMETA(DisplayName = "LGA 1155"),
-	SOCKET_2011					UMETA(DisplayName = "LGA 2011"),
-	SOCKET_1150					UMETA(DisplayName = "LGA 1150"),
-	SOCKET_1151					UMETA(DisplayName = "LGA 1151"),
-	SOCKET_2066					UMETA(DisplayName = "LGA 2066")
+	SOCKET_1155							UMETA(DisplayName = "LGA 1155"),
+	SOCKET_2011							UMETA(DisplayName = "LGA 2011"),
+	SOCKET_1150							UMETA(DisplayName = "LGA 1150"),
+	SOCKET_1151							UMETA(DisplayName = "LGA 1151"),
+	SOCKET_2066							UMETA(DisplayName = "LGA 2066")
 };
 
 /* Device memory. */
@@ -244,7 +254,7 @@ struct FYetiOsPortableBattery
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery", DisplayName = "Charge Rate (mA)", meta = (UIMin = "1000", ClampMin = "1000", UIMax = "5000"))
 	float ChargeRate;
 
-	/* Simulates energy loss while charging. Higher loss means more time to charge. This can also be consideredn as battery health. Higher loss means less healthy.
+	/* Simulates energy loss while charging. Higher loss means more time to charge. This can also be considered as battery health. Higher loss means less healthy.
 	 * For example: A battery with 3200 mAh and charge rate of 1000 mA will take 3.2 hours to fully charge without energy loss. With 40% energy loss it would take 4.5 hours to fully charge.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery")
@@ -306,6 +316,31 @@ struct FYetiOsPortableBattery
 		ChargeRate = 2000.f;
 		LowBatteryWarningLevel = 0.2;
 		EfficiencyLoss = EYetiOsPortableBatteryEfficiencyLoss::LOSS_NoLoss;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOSTemperature
+{
+	GENERATED_USTRUCT_BODY();
+	
+	/* Enable temperature settings? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Temperature")
+	uint8 bEnableTemperature : 1;
+	
+	/* Maximum temperature this hardware can withstand before destroying. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Temperature", meta = (EditCondition = "bEnableTemperature"))
+	uint8 MaxTemperature;
+
+	/* Notify the player when this temperature is reached. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Temperature", meta = (EditCondition = "bEnableTemperature"))
+	uint8 TemperatureWarningLevel;
+	
+	FYetiOSTemperature()
+	{
+		bEnableTemperature = true;
+		MaxTemperature = 100;
+		TemperatureWarningLevel = 80;
 	}
 };
 
