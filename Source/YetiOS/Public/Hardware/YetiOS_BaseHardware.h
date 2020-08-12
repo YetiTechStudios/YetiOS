@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
 	uint8 bCanInstallIfDeviceIsRunning : 1;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	uint8 bFatalIfForceRemoved : 1;
+
 	/* Does this hardware has wattage settings. */
 	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
 	uint8 bHasWattage : 1;
@@ -61,6 +64,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Hardware")
 	EYetiOsHardwareInstallResult InstallToDevice(class UYetiOS_BaseDevice* ToDevice, const bool bRemoveIfInstalled = false);
 
+	UFUNCTION(BlueprintCallable, Category = "Hardware")
+	void RemoveFromDevice();
+
 	/**
 	* public UYetiOS_BaseHardware::IsInstalled const
 	* Checks if this hardware is installed or not.
@@ -76,4 +82,8 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Hardware")	
 	class UYetiOS_BaseDevice* GetInstalledDevice() const;
+
+public:
+
+	FORCEINLINE const bool IsFatalIfForceRemoved() const { return bFatalIfForceRemoved; }
 };

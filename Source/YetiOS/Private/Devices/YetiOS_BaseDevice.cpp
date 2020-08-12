@@ -286,6 +286,26 @@ void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
 	ConditionalBeginDestroy();
 }
 
+void UYetiOS_BaseDevice::InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved)
+{
+	if (ensure(InstalledHardwares.Contains(InHardware) == false))
+	{
+		InstalledHardwares.Add(InHardware);
+	}
+
+	K2_OnHardwareInstalled(InHardware);
+}
+
+void UYetiOS_BaseDevice::RemoveHardware(class UYetiOS_BaseHardware* InHardware)
+{
+	if (ensure(InstalledHardwares.Contains(InHardware)))
+	{
+		InstalledHardwares.RemoveSwap(InHardware);
+	}
+
+	K2_OnHardwareRemoved(InHardware);
+}
+
 void UYetiOS_BaseDevice::Internal_CalculateDeviceScore()
 {	
 	MaxDeviceScore = 0.f;

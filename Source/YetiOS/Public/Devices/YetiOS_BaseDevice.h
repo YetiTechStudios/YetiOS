@@ -65,6 +65,9 @@ private:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UUserWidget* OnScreenWidget;
 
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	TArray<class UYetiOS_BaseHardware*> InstalledHardwares;
+
 public:
 
 	UYetiOS_BaseDevice();
@@ -185,6 +188,10 @@ public:
 	**/
 	virtual void DestroyYetiDeviceAndRestart();
 
+	void InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved);
+
+	void RemoveHardware(class UYetiOS_BaseHardware* InHardware);
+
 private:
 	/**
 	* private UYetiOS_BaseDevice::Internal_CalculateDeviceScore
@@ -303,6 +310,26 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	static UTexture2D* CreateTextureFromPath(const FString& InImagePath, UTexture2D* DefaultTextureIfNull);
+
+protected:
+
+	/**
+	* protected UYetiOS_BaseDevice::K2_OnHardwareInstalled
+	* Event called when a hardware is installed.
+	* @param InstalledHardware [class UYetiOS_BaseHardware*] Newly installed hardware.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Device", DisplayName = "On Hardware Installed")	
+	void K2_OnHardwareInstalled(class UYetiOS_BaseHardware* InstalledHardware);
+
+	/**
+	* protected UYetiOS_BaseDevice::K2_OnHardwareRemoved
+	* Event called when a hardware is removed.
+	* @param RemovedHardware [class UYetiOS_BaseHardware*] Removed hardware.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Device", DisplayName = "On Hardware Removed")	
+	void K2_OnHardwareRemoved(class UYetiOS_BaseHardware* RemovedHardware);
+
+public:
 
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
 	FORCEINLINE const bool IsInBsodState() const { return bBsodHappened; }
