@@ -227,6 +227,9 @@ public:
 
 	UYetiOS_WebBrowser(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser")
+	static const bool DeleteWebBrowserCache(const bool bPrintToLog = true);
+
 	/**
 	* public UYetiOS_WebBrowser::LoadURL
 	* Loads the given URL with support for internal browser URLs.

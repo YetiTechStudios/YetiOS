@@ -13,10 +13,13 @@
 #include "YetiOS_Types.h"
 #include "WebBrowserModule.h"
 #include "IWebBrowserCookieManager.h"
+#include "Misc/Paths.h"
+#include "HAL/FileManagerGeneric.h"
 #include <regex>
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsWebBrowser, All, All)
 
+#define printlog(Param1)				UE_LOG(LogYetiOsWebBrowser, Log, TEXT("%s"), *FString(Param1))
 #define printlog_vv(Param1)				UE_LOG(LogYetiOsWebBrowser, VeryVerbose, TEXT("%s"), *FString(Param1))
 #define printlog_error(Param1)			UE_LOG(LogYetiOsWebBrowser, Error, TEXT("%s"), *FString(Param1))
 
@@ -38,6 +41,34 @@ UYetiOS_WebBrowser::UYetiOS_WebBrowser(const FObjectInitializer& ObjectInitializ
 	bEnableHistory = true;
 	bSupportBrowserURLs = true;
 	BrowserIdentifier = "yetibrowser";
+}
+
+const bool UYetiOS_WebBrowser::DeleteWebBrowserCache(const bool bPrintToLog /*= true*/)
+{
+	bool bSuccess = false;
+	const FString CacheDirPath = FPaths::Combine(FPaths::ProjectSavedDir(), *FString("webcache"));
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	if (PlatformFile.DirectoryExists(*CacheDirPath))
+	{
+		bSuccess = PlatformFile.DeleteDirectoryRecursively(*CacheDirPath);
+		if (bPrintToLog)
+		{
+			if (bSuccess)
+			{
+				printlog(FString::Printf(TEXT("Delete webcache folder: %s"), *CacheDirPath));
+			}
+			else
+			{
+				printlog_error(FString::Printf(TEXT("Failed to delete webcache folder: %s"), *CacheDirPath));
+			}
+		}
+	}
+	else
+	{
+		printlog_error(FString::Printf(TEXT("webcache does not exist: %s"), *CacheDirPath));
+	}
+
+	return bSuccess;
 }
 
 const bool UYetiOS_WebBrowser::LoadURL(const FText& URL)
@@ -521,6 +552,7 @@ const bool UYetiOS_WebBrowser::Internal_FindMaskedURL(const FText& InURL, FStrin
 	return false;
 }
 
+#undef printlog
 #undef printlog_vv
 #undef printlog_error
 
