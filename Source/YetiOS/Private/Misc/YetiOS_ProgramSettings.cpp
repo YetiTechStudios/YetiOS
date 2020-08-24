@@ -92,4 +92,5 @@ bool UYetiOS_ProgramSettings::K2_CanSave_Implementation() const
 	return false;
 }
 
+#undef printlog
 #undef printlog_error
