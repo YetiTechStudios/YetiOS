@@ -72,7 +72,11 @@ public:
 	template <class T>
 	T* GetCastedDevice() { return Cast<T>(this); }
 
-	virtual void OnCreateDevice(FYetiOsError& OutErrorMessage);
+	/**
+	* virtual public UYetiOS_BaseDevice::OnCreateDevice
+	* Called after the device is constructed.
+	**/
+	virtual void OnCreateDevice();
 
 	/**
 	* virtual public UYetiOS_BaseDevice::StartDevice

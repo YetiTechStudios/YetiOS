@@ -47,7 +47,7 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 	MaxDeviceScore = 0.f;
 }
 
-void UYetiOS_BaseDevice::OnCreateDevice(FYetiOsError& OutErrorMessage)
+void UYetiOS_BaseDevice::OnCreateDevice()
 {
 	bBsodHappened = false;
 	DeviceWidget = UYetiOS_DeviceWidget::Internal_CreateDeviceWidget(this);
