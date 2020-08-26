@@ -69,8 +69,17 @@ public:
 
 	UYetiOS_BaseDevice();
 
+	/**
+	* public UYetiOS_BaseDevice::GetCastedDevice
+	* Helper function to return a pointer casted to specific device. Usage example: GetCastedDevice<UYetiOS_PortableDevice>(MyDevice).
+	* @return [T*] Returns device casted to specific class.
+	**/
 	template <class T>
-	T* GetCastedDevice() { return Cast<T>(this); }
+	T* GetCastedDevice() 
+	{ 
+		static_assert(TIsDerivedFrom<T, UYetiOS_BaseDevice>::IsDerived, "GetCastedDevice() can only be used on classes derived from UYetiOS_BaseDevice.");
+		return Cast<T>(this);
+	}
 
 	/**
 	* virtual public UYetiOS_BaseDevice::OnCreateDevice
