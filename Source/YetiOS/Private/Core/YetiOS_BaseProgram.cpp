@@ -116,12 +116,12 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 	{
 		if (SaveMethod == EProgramSaveMethod::SaveOnOperatingSystemShutdown || SaveMethod == EProgramSaveMethod::SaveOnExit)
 		{
-			SaveSettings();
+			UYetiOS_ProgramSettings::SaveProgramSettings(this);
 		}
 	}
 	else if (SaveMethod == EProgramSaveMethod::SaveOnExit)
 	{
-		SaveSettings();
+		UYetiOS_ProgramSettings::SaveProgramSettings(this);
 	}
 
 	if (bIsOperatingSystemShuttingDown && ProgramSettings)
@@ -140,23 +140,7 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 
 bool UYetiOS_BaseProgram::SaveSettings()
 {
-	if (CanSaveSettings())
-	{
-		const bool bSaveSuccess = ProgramSettings->SaveSettings();
-
-		if (bSaveSuccess)
-		{
-			printlog_display(FString::Printf(TEXT("Settings successfully saved for %s. Save method: %s"), *ProgramName.ToString(), *ENUM_TO_STRING(EProgramSaveMethod, SaveMethod)));
-		}
-		else
-		{
-			printlog_error(FString::Printf(TEXT("Failed to save settings for %s. Save method: %"), *ProgramName.ToString(), *ENUM_TO_STRING(EProgramSaveMethod, SaveMethod)));
-		}
-
-		return bSaveSuccess;
-	}
-
-	return false;
+	return UYetiOS_ProgramSettings::SaveProgramSettings(this);
 }
 
 bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
