@@ -137,7 +137,7 @@ void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)
 	if (CurrentDevice == nullptr && ensureMsgf(DeviceClass != nullptr, TEXT("Device class cannot be null")))
 	{
 		CurrentDevice = NewObject<UYetiOS_BaseDevice>(this, DeviceClass);
-		CurrentDevice->OnCreateDevice(OutErrorMessage);
+		CurrentDevice->OnCreateDevice();
 		return;
 	}
 

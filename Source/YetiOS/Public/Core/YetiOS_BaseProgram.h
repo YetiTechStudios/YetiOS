@@ -152,11 +152,10 @@ public:
 	virtual void CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown = false);
 
 	/**
-	* virtual public UYetiOS_BaseProgram::SaveSettings
-	* Save settings manually. This function is automatically called if EProgramSaveMethod is set to save automatically.
-	* @return [bool] True if settings was saved successfully. Else false.
+	* @deprecated [DEPRECATED] Use static method from Program Settings class instead.
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")	
+	UE_DEPRECATED(4.25, "Use 'UYetiOS_ProgramSettings::SaveProgramSettings' static method instead.")
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Save Program Settings' static method from 'Program Settings class' instead."))
 	virtual bool SaveSettings();
 
 	/**
@@ -217,6 +216,7 @@ protected:
 	
 public:
 
+	FORCEINLINE UYetiOS_ProgramSettings* GetProgramSettings() const { return ProgramSettings; }
 	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.Get(); }
 	FORCEINLINE const bool IsSingleInstanceProgram() const { return bSingleInstanceOnly; }
 	FORCEINLINE const float GetProgramSpace() const { return ProgramSpace; }

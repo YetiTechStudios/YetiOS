@@ -51,7 +51,17 @@ UYetiOS_ProgramSettings* UYetiOS_ProgramSettings::LoadSettings(const class UYeti
 	return nullptr;
 }
 
-bool UYetiOS_ProgramSettings::SaveSettings()
+bool UYetiOS_ProgramSettings::SaveProgramSettings(class UYetiOS_BaseProgram* InProgram)
+{
+	if (InProgram && InProgram->CanSaveSettings())
+	{
+		return InProgram->GetProgramSettings()->Internal_SaveSettings();
+	}
+
+	return false;
+}
+
+bool UYetiOS_ProgramSettings::Internal_SaveSettings()
 {
 	if (K2_CanSave())
 	{
@@ -92,4 +102,5 @@ bool UYetiOS_ProgramSettings::K2_CanSave_Implementation() const
 	return false;
 }
 
+#undef printlog
 #undef printlog_error

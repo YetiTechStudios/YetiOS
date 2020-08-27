@@ -47,7 +47,7 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 	MaxDeviceScore = 0.f;
 }
 
-void UYetiOS_BaseDevice::OnCreateDevice(FYetiOsError& OutErrorMessage)
+void UYetiOS_BaseDevice::OnCreateDevice()
 {
 	bBsodHappened = false;
 	DeviceWidget = UYetiOS_DeviceWidget::Internal_CreateDeviceWidget(this);
@@ -495,6 +495,30 @@ const TArray<FString> UYetiOS_BaseDevice::Internal_GetFiles(const FString& InPat
 	return Output;
 }
 
+const TArray<FString> UYetiOS_BaseDevice::Internal_GetFiles(const FString& InPath, const TSet<FString>& InExtensions)
+{
+	TArray<FString> ReturnResult;
+	if (FPaths::DirectoryExists(InPath))
+	{
+		for (const auto& It : InExtensions)
+		{
+			const FString CheckPath = FString::Printf(TEXT("%s/%s"), *InPath, *It);
+			TArray<FString> Output;
+			FFileManagerGeneric::Get().FindFiles(Output, *CheckPath, true, false);
+			printlog_veryverbose(FString::Printf(TEXT("Found %i %s files in path: %s"), Output.Num(), *It, *InPath));
+			for (int i = 0; i < Output.Num(); ++i)
+			{
+				const FString Result = FString::Printf(TEXT("%s/%s"), *InPath, *Output[i]);
+				Output[i] = Result;
+				printlog_veryverbose(FString::Printf(TEXT("Found file: %s"), *Result.Replace(*Internal_GetBasePath(), TEXT("..."))));
+			}
+			ReturnResult.Append(Output);
+		}
+	}
+
+	return ReturnResult;
+}
+
 const bool UYetiOS_BaseDevice::Internal_CreatePhysicalDirectory(const FString& InPath)
 {
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
@@ -519,17 +543,17 @@ void UYetiOS_BaseDevice::LoadSavedData(const class UYetiOS_SaveGame* InLoadGameI
 
 TArray<FString> UYetiOS_BaseDevice::GetLoginWallpapers(const UYetiOS_BaseDevice* InDevice)
 {
-	return Internal_GetFiles(Internal_GetLoginWallpapersPath(InDevice));
+	return Internal_GetFiles(Internal_GetLoginWallpapersPath(InDevice), GetImageExtensions());
 }
 
 TArray<FString> UYetiOS_BaseDevice::GetDesktopWallpapers(const UYetiOS_BaseDevice* InDevice)
 {
-	return Internal_GetFiles(Internal_GetDesktopWallpapersPath(InDevice));
+	return Internal_GetFiles(Internal_GetDesktopWallpapersPath(InDevice), GetImageExtensions());
 }
 
 TArray<FString> UYetiOS_BaseDevice::GetUserIconImages(const UYetiOS_BaseDevice* InDevice)
 {
-	return Internal_GetFiles(Internal_UserIconsPath(InDevice));
+	return Internal_GetFiles(Internal_UserIconsPath(InDevice), GetImageExtensions());
 }
 
 UTexture2D* UYetiOS_BaseDevice::CreateTextureFromPath(const FString& InImagePath, UTexture2D* DefaultTextureIfNull)
@@ -549,8 +573,35 @@ UTexture2D* UYetiOS_BaseDevice::CreateTextureFromPath(const FString& InImagePath
 		return DefaultTextureIfNull;
 	}
 
+	EImageFormat ImageFormat = EImageFormat::Invalid;
+	const FString ImageExtension = FPaths::GetExtension(InImagePath).ToLower();
+	if (ImageExtension.IsEmpty())
+	{
+		printlog_error(FString::Printf(TEXT("Failed to load image: %s (No valid extension). Returning default texture..."), *InImagePath));
+		return DefaultTextureIfNull;
+	}
+
+	if (ImageExtension == "png")
+	{
+		ImageFormat = EImageFormat::PNG;
+	}
+	else if (ImageExtension == "jpg" || ImageExtension == "jpeg")
+	{
+		ImageFormat = EImageFormat::JPEG;
+	}
+	else if (ImageExtension == "bmp")
+	{
+		ImageFormat = EImageFormat::BMP;
+	}
+	
+	if (ImageFormat == EImageFormat::Invalid)
+	{
+		printlog_error(FString::Printf(TEXT("Failed to load image: %s (Not a valid texture. Supported types are png, jpeg and bmp). Returning default texture..."), *InImagePath));
+		return DefaultTextureIfNull;
+	}
+
 	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(ImageFormat);
 
 	if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(CompressedData.GetData(), CompressedData.Num()))
 	{

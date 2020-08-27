@@ -54,15 +54,21 @@ public:
 		return Cast<T>(LoadSettings(InParentProgram));
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Program Settings")
+	static bool SaveProgramSettings(class UYetiOS_BaseProgram* InProgram);
+
+private:
 	/**
-	* public UYetiOS_ProgramSettings::SaveSettings
-	* DO NOT CALL THIS DIRECTLY. Use SaveSettings from the device that owns this settings class.
+	* private UYetiOS_ProgramSettings::Internal_SaveSettings
+	* DO NOT CALL THIS DIRECTLY. Use SaveProgramSettings instead.
 	* Save settings to file. Make sure to implement Pre Save event. Calling this function will first call Can Save (K2_CanSave in C++) to make sure settings can be saved.
 	* @See Can Save - Native implementation checks if the owning program is allowed to save and for most cases it should be fine but you can override Can Save event to have any custom implementation.
 	* @See Pre Save - An event that you have to implement in Blueprint to collect whatever data you want to save.
 	* @return [bool] Returns if UGameplayStatics::SaveGameToSlot call was success or not.
 	**/
-	bool SaveSettings();
+	bool Internal_SaveSettings();
+
+public:
 
 	void Destroy();
 

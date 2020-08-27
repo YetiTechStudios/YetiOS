@@ -72,10 +72,23 @@ public:
 
 	UYetiOS_BaseDevice();
 
+	/**
+	* public UYetiOS_BaseDevice::GetCastedDevice
+	* Helper function to return a pointer casted to specific device. Usage example: GetCastedDevice<UYetiOS_PortableDevice>(MyDevice).
+	* @return [T*] Returns device casted to specific class.
+	**/
 	template <class T>
-	T* GetCastedDevice() { return Cast<T>(this); }
+	T* GetCastedDevice() 
+	{ 
+		static_assert(TIsDerivedFrom<T, UYetiOS_BaseDevice>::IsDerived, "GetCastedDevice() can only be used on classes derived from UYetiOS_BaseDevice.");
+		return Cast<T>(this);
+	}
 
-	virtual void OnCreateDevice(FYetiOsError& OutErrorMessage);
+	/**
+	* virtual public UYetiOS_BaseDevice::OnCreateDevice
+	* Called after the device is constructed.
+	**/
+	virtual void OnCreateDevice();
 
 	/**
 	* virtual public UYetiOS_BaseDevice::StartDevice
@@ -237,6 +250,15 @@ private:
 	static const TArray<FString> Internal_GetFiles(const FString& InPath, const FString& InExtension = "*.png");
 
 	/**
+	* private static UYetiOS_BaseDevice::Internal_GetFiles
+	* Gets an array of physical paths of given file type extensions.
+	* @param InPath [const FString&] Physical path to search.
+	* @param InExtensions [const TSet<FString>&] Array of Extensions to search for. Example *.png, *.jpg etc. @See GetImageExtensions method.
+	* @return [const TArray<FString>] Array of files.
+	**/
+	static const TArray<FString> Internal_GetFiles(const FString& InPath, const TSet<FString>& InExtensions);
+
+	/**
 	* private static UYetiOS_BaseDevice::Internal_CreatePhysicalDirectory
 	* Creates a real physical directory in your system.
 	* @param InPath [const FString&] Directory path to create.
@@ -336,4 +358,13 @@ public:
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
 	FORCEINLINE const float GetDeviceScore(const bool bNormalize = true) const { return bNormalize ? (DeviceScore / MaxDeviceScore) : DeviceScore; }
 	
+	static FORCEINLINE const TSet<FString> GetImageExtensions()
+	{
+		static TSet<FString> Output;
+		Output.Add("*.png");
+		Output.Add("*.jpg");
+		Output.Add("*.jpeg");
+		Output.Add("*.bmp");
+		return Output;
+	}
 };
