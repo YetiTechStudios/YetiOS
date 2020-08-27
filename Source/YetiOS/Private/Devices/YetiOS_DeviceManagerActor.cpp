@@ -32,18 +32,6 @@ AYetiOS_DeviceManagerActor::AYetiOS_DeviceManagerActor()
 	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
-AYetiOS_DeviceManagerActor* AYetiOS_DeviceManagerActor::GetDeviceManager(const UObject* WorldContextObject)
-{
-	ensureAlwaysMsgf(false, TEXT("GetDeviceManager has been deprecated. This function will only return null."));
-	return nullptr;
-}
-
-class UYetiOS_BaseDevice* AYetiOS_DeviceManagerActor::GetCurrentDevice(const UObject* WorldContextObject)
-{
-	ensureAlwaysMsgf(false, TEXT("GetCurrentDevice has been deprecated. This function will only return null."));
-	return nullptr;
-}
-
 void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
 {
 	InDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);

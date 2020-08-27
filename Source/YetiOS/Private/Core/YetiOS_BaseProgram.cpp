@@ -138,11 +138,6 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 	printlog_display(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
 }
 
-bool UYetiOS_BaseProgram::SaveSettings()
-{
-	return UYetiOS_ProgramSettings::SaveProgramSettings(this);
-}
-
 bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
 {
 	if (ProgramSettings)

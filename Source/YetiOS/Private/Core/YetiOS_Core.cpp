@@ -676,11 +676,6 @@ TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetRunningPrograms() const
 	return OutArray;
 }
 
-class UYetiOS_BaseProgram* UYetiOS_Core::FindRunningProgramByIdentifier(const FName& InIdentifier) const
-{
-	return GetRunningProgramByIdentifier(InIdentifier);
-}
-
 class UYetiOS_BaseProgram* UYetiOS_Core::GetRunningProgramByIdentifier(const FName& InIdentifier) const
 {
 	TArray<UYetiOS_BaseProgram*> OutArray;

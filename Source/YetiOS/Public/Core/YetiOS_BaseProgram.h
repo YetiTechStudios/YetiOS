@@ -152,13 +152,6 @@ public:
 	virtual void CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown = false);
 
 	/**
-	* @deprecated [DEPRECATED] Use static method from Program Settings class instead.
-	**/
-	UE_DEPRECATED(4.25, "Use 'UYetiOS_ProgramSettings::SaveProgramSettings' static method instead.")
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Save Program Settings' static method from 'Program Settings class' instead."))
-	virtual bool SaveSettings();
-
-	/**
 	* public UYetiOS_BaseProgram::GetProgramWidget const
 	* Returns the widget that was created using Program Widget Class.
 	* @return [class UYetiOS_AppWidget*] Reference to program widget.

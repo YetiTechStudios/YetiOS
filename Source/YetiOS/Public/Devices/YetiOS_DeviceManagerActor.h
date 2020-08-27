@@ -46,22 +46,6 @@ public:
 	AYetiOS_DeviceManagerActor();
 
 	/**
-	* [DEPRECATED] public static AYetiOS_DeviceManagerActor::GetDeviceManager
-	* Returns the first device manager found in world.	
-	* @return nullptr.
-	**/
-	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
-	static AYetiOS_DeviceManagerActor* GetDeviceManager(const UObject* WorldContextObject);
-
-	/**
-	* [DEPRECATED] public static AYetiOS_DeviceManagerActor::GetCurrentDevice
-	* Returns the current device from GetDeviceManager() method.
-	* @return nullptr.
-	**/
-	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
-	static class UYetiOS_BaseDevice* GetCurrentDevice(const UObject* WorldContextObject);
-
-	/**
 	* public static AYetiOS_DeviceManagerActor::ShowBSOD
 	* Shows the Blue Screen widget.	
 	* @param InFaultingModuleName [const FText] A fake module name. Can be error code also (if any).

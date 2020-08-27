@@ -377,14 +377,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Web Browser")
 	const TArray<FWebHistory> GetHistory() const;
 
-	/**
-	* public UYetiOS_WebBrowser::AssignDelegates
-	* Assign delegates to back, forward, reload buttons and address bar. Make sure you assign them first.
-	**/
-	UE_DEPRECATED(4.25, "Use InitializeWebBrowser instead.")
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser", meta = (DeprecatedFunction, DeprecationMessage = "Use Initialize Web Browser instead."))
-	void AssignDelegates() { InitializeWebBrowser(); }
-
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser")
 	void InitializeWebBrowser();
 		

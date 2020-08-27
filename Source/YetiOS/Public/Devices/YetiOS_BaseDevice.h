@@ -26,9 +26,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	FText DeviceName;
 
-	//UPROPERTY(EditDefaultsOnly)
-	//TArray<FYetiOsWiFi> WifiConnections;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_Core> OperatingSystemClass;
 
