@@ -26,6 +26,18 @@
 				"Mac",
 				"IOS"
 			]
+		},
+		{
+			"Name": "YetiWebBrowser",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Linux",
+				"Android",
+				"Mac",
+				"IOS"
+			]
 		}
 	],
 	"Plugins": [
