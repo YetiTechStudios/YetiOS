@@ -286,7 +286,7 @@ void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
 	ConditionalBeginDestroy();
 }
 
-void UYetiOS_BaseDevice::InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved)
+void UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved)
 {
 	if (ensure(InstalledHardwares.Contains(InHardware) == false))
 	{
@@ -296,7 +296,7 @@ void UYetiOS_BaseDevice::InstallHardware(class UYetiOS_BaseHardware* InHardware,
 	K2_OnHardwareInstalled(InHardware);
 }
 
-void UYetiOS_BaseDevice::RemoveHardware(class UYetiOS_BaseHardware* InHardware)
+void UYetiOS_BaseDevice::Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware)
 {
 	if (ensure(InstalledHardwares.Contains(InHardware)))
 	{

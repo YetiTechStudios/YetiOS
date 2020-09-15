@@ -20,6 +20,7 @@ class YETIOS_API UYetiOS_BaseDevice : public UObject
 	GENERATED_BODY()
 
 	friend class UYetiOS_Core;
+	friend class UYetiOS_BaseHardware;
 
 private:
 
@@ -198,11 +199,11 @@ public:
 	**/
 	virtual void DestroyYetiDeviceAndRestart();
 
-	void InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved);
-
-	void RemoveHardware(class UYetiOS_BaseHardware* InHardware);
-
 private:
+
+	void Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved);
+	void Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware);
+
 	/**
 	* private UYetiOS_BaseDevice::Internal_CalculateDeviceScore
 	* Calculates the device score. Device Score can be used to check if the device is faster or slower. Higher the number faster the device is.
