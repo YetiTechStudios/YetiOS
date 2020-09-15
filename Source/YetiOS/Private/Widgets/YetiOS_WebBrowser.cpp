@@ -519,7 +519,7 @@ void UYetiOS_WebBrowser::Internal_GoForward()
 
 const bool UYetiOS_WebBrowser::Internal_IsURLValid(const FString& InURL) const
 {
-	static const std::regex RegPattern("^((http|https):\\/\\/)?(www.)?(?!.*(http|https|www.))[a-zA-Z0-9_-]+(\\.[a-zA-Z]+)+((\\/)[\\w#]+)*(\\/\\w+\\?[a-zA-Z0-9_]+=\\w+(&[a-zA-Z0-9_]+=\\w+)*)?.+$");
+	static const std::regex RegPattern("^((http|https):\\/\\/)?(www.)?(?!.*(http|https|www.))[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9]+)+((\\/)[\\w#]+)*(\\/\\w+\\?[a-zA-Z0-9_]+=\\w+(&[a-zA-Z0-9_]+=\\w+)*)?.+$");
 	return std::regex_match(TCHAR_TO_UTF8(*InURL), RegPattern);
 }
 
