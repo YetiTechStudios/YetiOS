@@ -78,6 +78,7 @@ enum class EYetiOsDeviceStartResult : uint8
 UENUM(BlueprintType)
 enum class EYetiOsHardwareInstallResult : uint8
 {
+	HWINSTALL_DeviceConfigInvalid		UMETA(DisplayName = "Device Properties Missing"),
 	HWINSTALL_IncompatibleDevice		UMETA(DisplayName = "Device Unsupported"),
 	HWINSTALL_DeviceRunning				UMETA(DisplayName = "Device Running"),
 	HWINSTALL_NoDevice					UMETA(DisplayName = "No Device"),
