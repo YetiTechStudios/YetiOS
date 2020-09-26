@@ -26,6 +26,16 @@
 				"Mac",
 				"IOS"
 			]
+		},
+		{
+			"Name": "YetiOSEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Linux",
+				"Mac"
+			]
 		}
 	],
 	"Plugins": [
