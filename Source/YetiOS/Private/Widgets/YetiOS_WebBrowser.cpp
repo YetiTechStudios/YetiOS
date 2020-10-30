@@ -275,7 +275,7 @@ const TArray<FWebHistory> UYetiOS_WebBrowser::GetHistory() const
 	return History;
 }
 
-void UYetiOS_WebBrowser::InitializeWebBrowser()
+void UYetiOS_WebBrowser::InitializeWebBrowser(const FString InOverrideURL /*= ""*/)
 {
 	if (ReloadButton)
 	{
@@ -324,7 +324,7 @@ void UYetiOS_WebBrowser::InitializeWebBrowser()
 		printlog_error("Address bar was not found. Make sure you have an Editable Textbox in UMG designer with variable name set to Addressbar and Is Variable is true.");
 	}
 
-	LoadURL(FText::FromString(InitialURL));
+	LoadURL(FText::FromString(InOverrideURL.IsEmpty() ? InitialURL : InOverrideURL));
 }
 
 TSharedRef<SWidget> UYetiOS_WebBrowser::RebuildWidget()
