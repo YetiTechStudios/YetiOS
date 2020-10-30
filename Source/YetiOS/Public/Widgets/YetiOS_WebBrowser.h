@@ -385,8 +385,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser", meta = (DeprecatedFunction, DeprecationMessage = "Use Initialize Web Browser instead."))
 	void AssignDelegates() { InitializeWebBrowser(); }
 
+	/**
+	* public UYetiOS_WebBrowser::InitializeWebBrowser
+	* Assign delegates to back, forward, reload buttons and address bar. Make sure you assign them first.
+	* Load initial URL.
+	* @param InOverrideURL [const FText] Override initial URL with this one.
+	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser")
-	void InitializeWebBrowser();
+	void InitializeWebBrowser(const FString InOverrideURL = "");
 		
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
