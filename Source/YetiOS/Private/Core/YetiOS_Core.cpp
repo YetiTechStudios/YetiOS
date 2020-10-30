@@ -421,6 +421,30 @@ void UYetiOS_Core::SetActiveUser(FYetiOsUser InNewUser)
 	CurrentActiveUser = InNewUser;
 }
 
+bool UYetiOS_Core::ChangePassword(FYetiOsUser& InNewUser, FText InNewPassword)
+{
+	if (InNewUser.Password.EqualToCaseIgnored(InNewPassword) == false)
+	{
+		for (FYetiOsUser& It : OsUsers)
+		{
+			if (It == InNewUser)
+			{
+				InNewUser.Password = InNewPassword;
+				It.Password = InNewPassword;
+
+				const FText Title = FText::Format(LOCTEXT("YetiOS_UserPasswordChange", "{0} Password Change."), It.UserName);
+				static const FText Description = LOCTEXT("YetiOS_UserPasswordChangeDescription", "Password has been updated for this user.");
+				const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_OS, Title, Description, EYetiOsNotificationType::TYPE_Info);
+				CreateOsNotification(NewNotification);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 void UYetiOS_Core::DestroyOS()
 {
 	FYetiOsNotificationManager::Destroy(NotificationManager);
