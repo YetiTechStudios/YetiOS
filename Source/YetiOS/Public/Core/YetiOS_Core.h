@@ -266,6 +266,15 @@ public:
 	void SetActiveUser(FYetiOsUser InNewUser);
 
 	/**
+	* public UYetiOS_Core::ChangePassword
+	* Sets a new password. Returns true only if the password is different from previous one.
+	* @param InNewUser [FYetiOsUser] User to change password.
+	* @param InNewPassword [FText] New password to change to.
+	* @return [bool] True if password was changed.
+	**/
+	bool ChangePassword(UPARAM(ref) FYetiOsUser& InNewUser, FText InNewPassword);
+
+	/**
 	* public UYetiOS_Core::DestroyOS
 	* Destroys the Operating System.
 	* @See: UYetiOS_BaseDevice::DestroyYetiDevice();

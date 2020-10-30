@@ -59,8 +59,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
 	const int32 GetRaisedZ_Order() { return ZOrderCounter++; }
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Widget")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Widget")
 	const bool SetActiveUser(FYetiOsUser InNewUser);
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Widget")
+	bool ChangePassword(UPARAM(ref) FYetiOsUser& InNewUser, const FText InNewPassword);
 
 protected:
 

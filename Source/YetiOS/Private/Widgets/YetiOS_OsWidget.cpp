@@ -72,6 +72,16 @@ void UYetiOS_OsWidget::ReceiveNotification(const FYetiOsNotification InNotificat
 	K2_OnReceivedNotification(InNotification);
 }
 
+bool UYetiOS_OsWidget::ChangePassword(FYetiOsUser& InNewUser, const FText InNewPassword)
+{
+	if (OwningOS)
+	{
+		return OwningOS->ChangePassword(InNewUser, InNewPassword);
+	}
+
+	return false;
+}
+
 const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)
 {
 	if (OwningOS)
