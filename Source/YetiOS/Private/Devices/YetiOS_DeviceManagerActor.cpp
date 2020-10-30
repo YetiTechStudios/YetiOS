@@ -46,6 +46,7 @@ class UYetiOS_BaseDevice* AYetiOS_DeviceManagerActor::GetCurrentDevice(const UOb
 
 void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
 {
+	checkf(InDevice != nullptr, TEXT("Device cannot be null for BSOD."));
 	InDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);
 }
 
