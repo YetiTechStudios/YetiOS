@@ -419,6 +419,15 @@ public:
 	* @return [const bool] True if the given program is installed.
 	**/
 	const bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage) const;
+
+	/**
+	* public UYetiOS_Core::IsProgramInstalled const
+	* Checks if the given program (by identifier) is installed in this Operating System.
+	* @param InProgramIdentifier [const FName&] Program identifier reference.
+	* @return [bool] True if the given program is installed.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	bool IsProgramInstalled(const FName& InProgramIdentifier) const;
 	
 	/**
 	* public UYetiOS_Core::AddToCreatedDirectories

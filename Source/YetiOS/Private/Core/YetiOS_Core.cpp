@@ -602,6 +602,13 @@ const bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UY
 	return false;
 }
 
+bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier) const
+{
+	UYetiOS_BaseProgram* DummyProgram;
+	FYetiOsError DummyError;
+	return IsProgramInstalled(InProgramIdentifier, DummyProgram, DummyError);
+}
+
 void UYetiOS_Core::AddToCreatedDirectories(const UYetiOS_DirectoryBase* InDirectory)
 {
 	AllCreatedDirectories.AddUnique(InDirectory);
