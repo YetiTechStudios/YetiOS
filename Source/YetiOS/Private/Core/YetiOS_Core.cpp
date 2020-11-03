@@ -32,7 +32,6 @@ static const int32 MAX_PROCES_ID_TO_GENERATE = 99999;
 
 const FString UYetiOS_Core::PATH_DELIMITER = "/";
 const FText UYetiOS_Core::ROOT_USER_NAME = FText::AsCultureInvariant("root");
-const FText UYetiOS_Core::ROOT_COMMAND = FText::AsCultureInvariant("sudo ");
 
 static const FText INSTALL_ERROR_CODE = LOCTEXT("YetiOS_InstallProgramErrorCode", "ERR_INSTALL_FAIL");
 static const FText CLOSE_ERROR_CODE = LOCTEXT("YetiOS_CloseProgramErrorCode", "ERR_CLOSE_PROGRAM");
