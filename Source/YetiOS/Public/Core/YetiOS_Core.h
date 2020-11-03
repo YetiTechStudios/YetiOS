@@ -540,6 +540,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
 	const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms() const { return InstalledPrograms; }
 
+	/**
+	* public UYetiOS_Core::GetAllProgramsFromRepositoryLibrary const
+	* Outputs an array of programs from the repository package provided if this OS has a valid repository library assigned.
+	* @param OutPrograms [TArray<TSubclassOf<class UYetiOS_BaseProgram>>&] Array with all program classes from respoitory library. Valid ONLY if return value is true.
+	* @return [const bool] Returns true if a valid library was found.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS")
+	const bool GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<class UYetiOS_BaseProgram>>& OutPrograms);
+
 protected:
 
 	/**

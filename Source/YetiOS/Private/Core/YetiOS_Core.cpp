@@ -718,6 +718,29 @@ class UYetiOS_BaseProgram* UYetiOS_Core::GetRunningProgramByIdentifier(const FNa
 	return *FoundDevice;
 }
 
+const bool UYetiOS_Core::GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<class UYetiOS_BaseProgram>>& OutPrograms)
+{
+	if (HasRepositoryLibrary())
+	{
+		TArray<UBlueprintGeneratedClass*> OutBlueprintGeneratedClass;
+		RepositoryLibrary->GetObjects<UBlueprintGeneratedClass>(OutBlueprintGeneratedClass);
+
+		if (OutBlueprintGeneratedClass.Num() > 0)
+		{
+			for (const auto& It : OutBlueprintGeneratedClass)
+			{
+				UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It);
+				OutPrograms.Add(MyLoadedProgram->GetClass());
+			}
+		}
+
+		return true;
+	}
+
+	OutPrograms = TArray<TSubclassOf<class UYetiOS_BaseProgram>>();
+	return false;
+}
+
 #undef printlog_display
 #undef printlog_warn
 #undef printlog_error
