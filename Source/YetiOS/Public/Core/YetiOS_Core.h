@@ -532,6 +532,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
 	class UYetiOS_BaseProgram* GetRunningProgramByIdentifier(const FName& InIdentifier) const;
 
+	/**
+	* public UYetiOS_Core::GetInstalledPrograms const
+	* Returns an array of programs already installed on this device.
+	* @return [const TArray<class UYetiOS_BaseProgram*>] Array of programs installed on this device.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms() const { return InstalledPrograms; }
+
 protected:
 
 	/**
@@ -555,7 +563,6 @@ public:
 
 	FORCEINLINE const float GetRemainingSpace() const { return RemainingSpace; }
 	FORCEINLINE const TArray<const UYetiOS_DirectoryBase*> GetAllCreatedDirectories() const { return AllCreatedDirectories; }
-	FORCEINLINE const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms() const { return InstalledPrograms; }
 	
 };
 
