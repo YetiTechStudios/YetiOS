@@ -55,6 +55,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	FYetiOsUser RootUser;
 
+	/** Root command name. Defaults to sudo. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
+	FText RootCommand;
+
 	/* List of users for this OS. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	TArray<FYetiOsUser> OsUsers;
@@ -571,6 +575,7 @@ public:
 
 	FORCEINLINE const float GetRemainingSpace() const { return RemainingSpace; }
 	FORCEINLINE const TArray<const UYetiOS_DirectoryBase*> GetAllCreatedDirectories() const { return AllCreatedDirectories; }
+	FORCEINLINE const FText GetRootCommand() const { return RootCommand; }
 	
 };
 

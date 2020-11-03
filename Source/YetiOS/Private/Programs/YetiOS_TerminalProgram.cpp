@@ -66,6 +66,11 @@ void UYetiOS_TerminalProgram::PromptForUserContinueInput()
 	K2_OnPromptUserContinue();
 }
 
+FText UYetiOS_TerminalProgram::GetRootCommand() const
+{
+	return GetOwningOS()->GetRootCommand();
+}
+
 const bool UYetiOS_TerminalProgram::CheckRootPassword(const FText& InPasswordToCheck, const bool bCaseSensitive /*= true*/)
 {	
 	if (OwningOS && OwningOS->GetCurrentUser().UserName.IsEmptyOrWhitespace() == false)

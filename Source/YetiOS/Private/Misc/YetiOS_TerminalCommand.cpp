@@ -35,7 +35,7 @@ const bool UYetiOS_TerminalCommand::Internal_ProcessCommand(class UYetiOS_Termin
 
 	TerminalName = MyTerminalName.ToString();
 
-	if (InCommand.StartsWith(UYetiOS_Core::ROOT_COMMAND.ToString().ToLower()))
+	if (InCommand.StartsWith(InTerminal->GetRootCommand().ToString().ToLower()))
 	{
 		OwningTerminal->ChangeCurrentUser(OwningTerminal->GetOwningOS()->GetRootUser());
 	}
@@ -203,6 +203,11 @@ void UYetiOS_TerminalCommand::PromptRootPassword()
 	OwningTerminal->PromptRootPassword();
 }
 
+FText UYetiOS_TerminalCommand::GetRootCommand() const
+{
+	return OwningTerminal->GetRootCommand();
+}
+
 const TArray<FString> UYetiOS_TerminalCommand::GetFlagsFromCommand() const
 {
 	const FString MyCommand = CurrentFullCommand.ToLower();
@@ -252,7 +257,7 @@ const bool UYetiOS_TerminalCommand::HasFlag(const FString& InTestFlag) const
 inline const TArray<FString> UYetiOS_TerminalCommand::Internal_GetCommandParameters() const
 {
 	FString MyCommand = CurrentFullCommand.ToLower();
-	MyCommand = MyCommand.Replace(*UYetiOS_Core::ROOT_COMMAND.ToString(), TEXT(""));
+	MyCommand = MyCommand.Replace(*OwningTerminal->GetRootCommand().ToString(), TEXT(""));
 	TArray<FString> OutStrings;
 	MyCommand.ParseIntoArray(OutStrings, TEXT(" "), true);
 
@@ -271,7 +276,11 @@ inline const TArray<FString> UYetiOS_TerminalCommand::Internal_GetCommandParamet
 inline const bool UYetiOS_TerminalCommand::Internal_SetCurrentCommand(const FString& InTestCommand)
 {
 	FString MyCommand = InTestCommand.ToLower();
-	MyCommand = MyCommand.Replace(*UYetiOS_Core::ROOT_COMMAND.ToString(), TEXT(""));
+
+	// OwningTerminal variable is not yet valid here so trying to access it, will crash.
+	UYetiOS_TerminalProgram* MyTerminal = Cast<UYetiOS_TerminalProgram>(GetOuter());
+
+	MyCommand = MyCommand.Replace(*MyTerminal->GetRootCommand().ToString(), TEXT(""));
 	TArray<FString> OutStrings;
 	MyCommand.ParseIntoArray(OutStrings, TEXT(" "), true);
 

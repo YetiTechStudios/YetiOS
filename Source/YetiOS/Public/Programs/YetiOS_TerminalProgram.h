@@ -89,6 +89,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Terminal")
 	void PromptForUserContinueInput();
+
+	/**
+	* public UYetiOS_TerminalProgram::GetRootCommand const
+	* Returns the root command as defined in OS.
+	* @return [FText] Root command from OS.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal")	
+	FText GetRootCommand() const;
 	
 	/**
 	* public UYetiOS_TerminalProgram::ProcessCommand

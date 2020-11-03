@@ -218,6 +218,14 @@ protected:
 	const bool HasFlag(const FString& InTestFlag) const;
 
 	/**
+	* protected UYetiOS_TerminalCommand::GetRootCommand const
+	* Returns the root command as defined in OS.
+	* @return [FText] Root command from OS.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal Command")	
+	FText GetRootCommand() const;
+
+	/**
 	* protected UYetiOS_TerminalCommand::GetMainCommand const
 	* Returns the main command which you set in defaults.
 	* @return [FString] Returns main command.

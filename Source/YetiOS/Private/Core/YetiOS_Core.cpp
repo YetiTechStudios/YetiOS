@@ -50,6 +50,7 @@ UYetiOS_Core::UYetiOS_Core()
 	CurrentZOrder = INDEX_NONE;
 
 	RootUser = FYetiOsUser(UYetiOS_Core::ROOT_USER_NAME.ToString());
+	RootCommand = FText::AsCultureInvariant("sudo");
 }
 
 UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage)
