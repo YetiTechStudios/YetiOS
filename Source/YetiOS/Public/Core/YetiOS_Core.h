@@ -52,11 +52,11 @@ private:
 	TSubclassOf<class UYetiOS_OsWidget> OsWidgetClass;
 
 	/* A root user for this OS. Defaults to root. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	FYetiOsUser RootUser;
 
 	/* List of users for this OS. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	TArray<FYetiOsUser> OsUsers;
 
 	/* List of pre-defined programs to install when you install this OS. */
