@@ -4,6 +4,7 @@
 #include "Hardware/YetiOS_BaseHardware.h"
 #include "Devices/YetiOS_BaseDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
+#include "Core/YetiOS_Core.h"
 
 #define LOCTEXT_NAMESPACE "YetiOS"
 
@@ -46,6 +47,12 @@ void UYetiOS_BaseHardware::RemoveFromDevice()
 	static const FText LOCAL_ERR_CODE = LOCTEXT("YetiOS_HW_ERROR_CODE", "ERR_HW_INSTALL_FAIL");
 	static const FText LOCAL_EXCEPTION = LOCTEXT("YetiOS_HW_Exception", "FATAL ERROR: HARDWARE REMOVED.");
 	static const FText LOCAL_EXCEPTION_DETAIL = LOCTEXT("YetiOS_HW_ExceptionDetail", "Hardware being used by the OS was removed.");
+	UYetiOS_Core* InstalledOS = InstalledDevice->GetOperatingSystem();
+	if (InstalledOS)
+	{
+		FYetiOsNotification HardwareNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL, LOCAL_ERR_CODE, EYetiOsNotificationType::TYPE_Error);
+		InstalledOS->CreateOsNotification(HardwareNotification);
+	}
 	AYetiOS_DeviceManagerActor::ShowBSOD(this, InstalledDevice, LOCAL_ERR_CODE, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL);
 	InstalledDevice = nullptr;	
 }
