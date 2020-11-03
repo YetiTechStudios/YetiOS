@@ -32,7 +32,8 @@ UYetiOS_TerminalProgram::UYetiOS_TerminalProgram()
 
 const FText UYetiOS_TerminalProgram::GetRootCommandName()
 {
-	return UYetiOS_Core::ROOT_COMMAND;
+	ensureMsgf(false, TEXT("Usage of GetRootCommandName is deprecated and will always return Empty Text. Use GetRootCommand instead."));
+	return FText::GetEmpty();
 }
 
 const bool UYetiOS_TerminalProgram::StartProgram(FYetiOsError& OutErrorMessage)

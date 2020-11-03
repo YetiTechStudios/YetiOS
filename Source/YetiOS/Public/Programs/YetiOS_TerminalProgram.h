@@ -77,7 +77,8 @@ public:
 	* Returns the root command. By default in C++ this is defined as "sudo" inside YetiOS_Core file.
 	* @return [const FText] Returns the root command.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal")
+	UE_DEPRECATED(4.25, "Use GetRootCommand instead.")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal", meta = (DeprecatedFunction, DeprecationMessage = "Use GetRootCommand instead."))
 	static const FText GetRootCommandName();
 
 	virtual const bool StartProgram(FYetiOsError& OutErrorMessage) override;
