@@ -448,6 +448,7 @@ bool UYetiOS_Core::ChangePassword(FYetiOsUser& InNewUser, FText InNewPassword)
 void UYetiOS_Core::DestroyOS()
 {
 	FYetiOsNotificationManager::Destroy(NotificationManager);
+	NotificationManager = nullptr;
 	Device = nullptr;
 	OsWidget = nullptr;
 	AllCreatedDirectories.Empty();
