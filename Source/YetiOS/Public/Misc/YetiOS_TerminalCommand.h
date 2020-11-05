@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "YetiOS_Types.h"
 #include "YetiOS_TerminalCommand.generated.h"
 
 USTRUCT(BlueprintType)
