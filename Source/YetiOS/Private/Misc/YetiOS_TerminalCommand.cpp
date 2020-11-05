@@ -7,10 +7,6 @@
 #include "Widgets/YetiOS_DraggableWindowWidget.h"
 #include "Core/YetiOS_Core.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogYetiOsTerminalCommand, All, All)
-
-#define printlog_error(Param1)				UE_LOG(LogYetiOsTerminalCommand, VeryVerbose, TEXT("%s"), *FString(Param1))
-
 UYetiOS_TerminalCommand::UYetiOS_TerminalCommand()
 {
 	MainCommand = "";
@@ -314,5 +310,3 @@ inline const bool UYetiOS_TerminalCommand::CommandEqualTo(const FString InTestCo
 
 	return false;
 }
-
-#undef printlog_error
