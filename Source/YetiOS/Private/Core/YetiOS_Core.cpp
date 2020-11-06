@@ -16,6 +16,7 @@
 #include "Engine/Public/TimerManager.h"
 #include "Runtime/UMG/Public/Components/CanvasPanelSlot.h"
 #include "Runtime/UMG/Public/Blueprint/WidgetLayoutLibrary.h"
+#include "Misc/YetiOS_SystemSettings.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
@@ -60,6 +61,7 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 	{
 		ProxyOS->Device = InParentDevice;
 		ProxyOS->OsWorld = InParentDevice->GetWorld();
+		ProxyOS->SystemSettings = UYetiOS_SystemSettings::CreateSystemSettings(ProxyOS);
 		ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
 		ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
 		ProxyOS->InstalledPrograms.Empty();

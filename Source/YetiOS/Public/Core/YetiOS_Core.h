@@ -51,6 +51,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<class UYetiOS_OsWidget> OsWidgetClass;
 
+	/** Class that defines system settings. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	TSubclassOf<class UYetiOS_SystemSettings> SystemSettingsClass;
+
 	/* A root user for this OS. Defaults to root. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	FYetiOsUser RootUser;
@@ -93,7 +97,11 @@ private:
 
 	/* Reference to the OS widget. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	class UYetiOS_OsWidget* OsWidget;	
+	class UYetiOS_OsWidget* OsWidget;
+
+	/* Reference to the settings class. */
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	class UYetiOS_SystemSettings* SystemSettings;
 
 	/* List of actively running programs. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
@@ -549,8 +557,16 @@ public:
 	* Returns an array of programs already installed on this device.
 	* @return [const TArray<class UYetiOS_BaseProgram*>] Array of programs installed on this device.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
 	const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms() const { return InstalledPrograms; }
+
+	/**
+	* public UYetiOS_Core::GetSystemSettings const
+	* Returns the system settings. Only valid if SystemSettingsClass was set.
+	* @return [UYetiOS_SystemSettings*] Returns System Settings reference.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	UYetiOS_SystemSettings* GetSystemSettings() const { return SystemSettings; }
 
 	/**
 	* public UYetiOS_Core::GetAllProgramsFromRepositoryLibrary const
@@ -578,6 +594,9 @@ public:
 
 	/* Returns the UMG class for OS widget. */
 	FORCEINLINE TSubclassOf<class UYetiOS_OsWidget> GetOsWidgetClass() const { return OsWidgetClass; }
+
+	/** Returns the system settings class. */
+	FORCEINLINE TSubclassOf<class UYetiOS_SystemSettings> GetSystemSettingsClass() const { return SystemSettingsClass; }
 
 	/* Returns a reference to the Operating system widget created using OsWidgetClass. */
 	FORCEINLINE UYetiOS_OsWidget* GetOsWidget() const { return OsWidget; }	
