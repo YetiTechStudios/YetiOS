@@ -37,6 +37,14 @@ enum class EYetiOsTerminalMessageLevel : uint8
 };
 
 UENUM(BlueprintType)
+enum class EThemeMode : uint8
+{
+	Light,
+	Dark,
+	Custom
+};
+
+UENUM(BlueprintType)
 enum class EYetiOsDeviceState : uint8
 {	
 	/* Device is starting. */
