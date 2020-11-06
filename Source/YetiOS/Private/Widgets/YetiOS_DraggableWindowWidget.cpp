@@ -14,6 +14,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Input/Reply.h"
 #include "Components/CanvasPanel.h"
+#include "Misc/YetiOS_SystemSettings.h"
 
 
 UYetiOS_DraggableWindowWidget::UYetiOS_DraggableWindowWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -216,6 +217,15 @@ EYetiOsProgramVisibilityState UYetiOS_DraggableWindowWidget::GetCurrentVisibilit
 
 void UYetiOS_DraggableWindowWidget::CloseWindow()
 {
+	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+	if (OsSystemSettings)
+	{
+		OsSystemSettings->OnThemeModeChanged.Remove(OnThemeChangedDelegateHandle);
+		OnThemeChangedDelegateHandle.Reset();
+
+		OsSystemSettings->OnShowProgramIconChanged.Remove(OnShowProgramIconDelegateHandle);
+		OnShowProgramIconDelegateHandle.Reset();
+	}
 	OwningOS->GetOsWidget()->RemoveTaskbarButton(this);
 	ProgramCanvas->ClearChildren();
 	RemoveFromParent();
@@ -247,4 +257,12 @@ void UYetiOS_DraggableWindowWidget::AddProgramWidget(class UYetiOS_AppWidget* In
 	InWidget->SetWindow(this);
 	K2_OnProgramAdded(InWidget);
 	OwningOS->GetOsWidget()->AddTaskbarButton(this);
+	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+	if (OsSystemSettings)
+	{
+		K2_OnThemeChanged(OsSystemSettings->GetCurrentTheme());
+		K2_OnShowProgramIcon(OsSystemSettings->GetShowProgramIcon());
+		OnThemeChangedDelegateHandle = OsSystemSettings->OnThemeModeChanged.AddUFunction(this, FName("K2_OnThemeChanged"));
+		OnShowProgramIconDelegateHandle = OsSystemSettings->OnShowProgramIconChanged.AddUFunction(this, FName("K2_OnShowProgramIcon"));
+	}
 }

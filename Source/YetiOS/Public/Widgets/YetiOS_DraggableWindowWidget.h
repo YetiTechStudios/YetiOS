@@ -13,6 +13,9 @@ UCLASS(Abstract)
 class YETIOS_API UYetiOS_DraggableWindowWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+	FDelegateHandle OnThemeChangedDelegateHandle;
+	FDelegateHandle OnShowProgramIconDelegateHandle;
 	
 private:
 
@@ -34,7 +37,7 @@ private:
 	UPROPERTY()
 	class UYetiOS_Core* OwningOS;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Draggable Window Widget", meta = (BindWidget, AllowPrivateAccess = "true"))
 	class UBorder* WindowTitleBorderWidget;
 
 	UPROPERTY(meta = (BindWidget))
@@ -90,10 +93,10 @@ protected:
 	UFUNCTION()
 	FEventReply OnMouseButtonDown_ResizeArea(FGeometry InGeometry, const FPointerEvent& InMouseEvent);
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS Draggable Window")
 	FText GetWindowText(const bool bWithProcessID = false) const;
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Draggable Window")
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS Draggable Window")
 	EYetiOsProgramVisibilityState GetCurrentVisibilityState() const;
 
 public:
@@ -102,27 +105,33 @@ public:
 
 protected:
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Base Program")
 	void BringWindowToFront();
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Base Program")
 	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Draggable Window")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Draggable Window")
 	void AddProgramWidget(class UYetiOS_AppWidget* InWidget);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Program Added")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Program Added")
 	void K2_OnProgramAdded(const UUserWidget* AddedUserWidget);
 
 	/* Event called when resizing is started. Only called if Enable Drag is true. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Drag Start")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Drag Start")
 	void K2_OnDragStart(const FPointerEvent& InMouseEvent);
 
 	/* Event called when resizing is started. Only called if Enable Resizing is true. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Resize Start")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Resize Start")
 	void K2_OnResizeStart(const FPointerEvent& InMouseEvent);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Draggable Window", DisplayName = "On Visibility State Changed")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Visibility State Changed")
 	void K2_OnChangeVisibilityState(const EYetiOsProgramVisibilityState NewState);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Theme Changed")
+	void K2_OnThemeChanged(const EThemeMode InNewTheme);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Show Program Icon")
+	void K2_OnShowProgramIcon(const bool bShow);
 
 };
