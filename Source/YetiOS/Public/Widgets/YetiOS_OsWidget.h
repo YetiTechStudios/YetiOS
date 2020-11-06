@@ -16,6 +16,8 @@ class YETIOS_API UYetiOS_OsWidget : public UUserWidget
 	GENERATED_BODY()
 	
 	friend class UYetiOS_Core;
+
+	FDelegateHandle OnThemeChangedDelegateHandle;
 	
 private:
 
@@ -93,6 +95,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget|Portable", DisplayName = "OnLowBatteryWarningReceived")
 	void K2_OnLowBatteryWarningReceived(const bool bIsLowBattery);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "On Theme Changed")
+	void K2_OnThemeChanged(const EThemeMode InNewTheme);
 
 public:
 

@@ -6,6 +6,7 @@
 #include "Devices/YetiOS_BaseDevice.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Misc/YetiOS_SystemSettings.h"
 
 
 UYetiOS_OsWidget::UYetiOS_OsWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -34,11 +35,23 @@ void UYetiOS_OsWidget::FinishOsInstallation()
 
 void UYetiOS_OsWidget::BeginLoadOS()
 {
+	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+	if (OsSystemSettings)
+	{
+		K2_OnThemeChanged(OsSystemSettings->GetCurrentTheme());
+		OnThemeChangedDelegateHandle = OsSystemSettings->OnThemeModeChanged.AddUFunction(this, FName("K2_OnThemeChanged"));
+	}
 	K2_OnBeginLoadingOS();
 }
 
 void UYetiOS_OsWidget::BeginShutdownOS()
 {
+	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+	if (OsSystemSettings)
+	{
+		OsSystemSettings->OnThemeModeChanged.Remove(OnThemeChangedDelegateHandle);
+		OnThemeChangedDelegateHandle.Reset();
+	}
 	K2_OnBeginShuttingdownOS();
 }
 
