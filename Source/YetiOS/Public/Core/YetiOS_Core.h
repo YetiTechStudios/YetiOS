@@ -589,10 +589,11 @@ public:
 	/**
 	* public UYetiOS_Core::GetInstalledPrograms const
 	* Returns an array of programs already installed on this device.
+	* @param bSystemProgramsOnly [const bool] Enable to return apps installed with Operating System.
 	* @return [const TArray<class UYetiOS_BaseProgram*>] Array of programs installed on this device.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms() const { return InstalledPrograms; }
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms(const bool bSystemProgramsOnly = false) const;
 
 	/**
 	* public UYetiOS_Core::GetSystemSettings const

@@ -731,6 +731,25 @@ class UYetiOS_BaseProgram* UYetiOS_Core::GetRunningProgramByIdentifier(const FNa
 	return *FoundDevice;
 }
 
+const TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetInstalledPrograms(const bool bSystemProgramsOnly /*= false*/) const
+{
+	if (bSystemProgramsOnly)
+	{
+		TArray<UYetiOS_BaseProgram*> ReturnResult;
+		for (const auto& It : InstalledPrograms)
+		{
+			if (It->IsSystemInstalledProgram())
+			{
+				ReturnResult.Add(It);
+			}
+		}
+
+		return ReturnResult;
+	}
+	
+	return InstalledPrograms;
+}
+
 const bool UYetiOS_Core::GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<class UYetiOS_BaseProgram>>& OutPrograms)
 {
 	if (HasRepositoryLibrary())
