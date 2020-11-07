@@ -37,11 +37,11 @@ enum class EYetiOsTerminalMessageLevel : uint8
 };
 
 UENUM(BlueprintType)
-enum class EThemeMode : uint8
+enum class EYetiOsThemeMode : uint8
 {
 	Light,
-	Dark,
-	Custom
+	Dark
+};
 };
 
 UENUM(BlueprintType)

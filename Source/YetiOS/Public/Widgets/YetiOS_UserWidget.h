@@ -34,6 +34,6 @@ protected:
 	void K2_SetOperatingSystem(UYetiOS_Core* OS);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS User Widget", DisplayName = "On Theme Changed")
-	void K2_OnThemeChanged(const EThemeMode InNewTheme);
+	void K2_OnThemeChanged(const EYetiOsThemeMode InNewTheme);
 	
 };

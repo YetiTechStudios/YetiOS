@@ -129,7 +129,7 @@ protected:
 	void K2_OnChangeVisibilityState(const EYetiOsProgramVisibilityState NewState);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Theme Changed")
-	void K2_OnThemeChanged(const EThemeMode InNewTheme);
+	void K2_OnThemeChanged(const EYetiOsThemeMode InNewTheme);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Show Program Icon")
 	void K2_OnShowProgramIcon(const bool bShow);
