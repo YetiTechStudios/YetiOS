@@ -5,6 +5,9 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Core/YetiOS_DirectoryRoot.h"
 #include "Core/YetiOS_SaveGame.h"
+#include "Core/YetiOS_Taskbar.h"
+#include "Core/YetiOS_StartMenu.h"
+#include "Misc/YetiOS_SystemSettings.h"
 #include "Devices/YetiOS_PortableDevice.h"
 #include "Devices/YetiOS_StationaryDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
@@ -16,7 +19,6 @@
 #include "Engine/Public/TimerManager.h"
 #include "Runtime/UMG/Public/Components/CanvasPanelSlot.h"
 #include "Runtime/UMG/Public/Blueprint/WidgetLayoutLibrary.h"
-#include "Misc/YetiOS_SystemSettings.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
@@ -60,9 +62,10 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 	if (ProxyOS->GetCompatibleDeviceClasses().Contains(InParentDevice->GetClass()))
 	{
 		ProxyOS->Device = InParentDevice;
-		ProxyOS->OsWorld = InParentDevice->GetWorld();
-		ProxyOS->SystemSettings = UYetiOS_SystemSettings::CreateSystemSettings(ProxyOS);
+		ProxyOS->OsWorld = InParentDevice->GetWorld();		
 		ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
+		ProxyOS->SystemSettings = UYetiOS_SystemSettings::CreateSystemSettings(ProxyOS);
+		ProxyOS->Taskbar = UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
 		ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
 		ProxyOS->InstalledPrograms.Empty();
 		ProxyOS->RemainingSpace = InParentDevice->GetHardDisk().HddCapacity;
@@ -729,6 +732,23 @@ class UYetiOS_BaseProgram* UYetiOS_Core::GetRunningProgramByIdentifier(const FNa
 	}
 
 	return *FoundDevice;
+}
+
+bool UYetiOS_Core::GetTaskbar(UYetiOS_Taskbar*& OutTaskbar) const
+{
+	OutTaskbar = Taskbar;
+	return OutTaskbar != nullptr;
+}
+
+bool UYetiOS_Core::GetStartMenu(UYetiOS_StartMenu*& OutStartMenu) const
+{
+	UYetiOS_Taskbar* OutTaskbar;
+	if (GetTaskbar(OutTaskbar))
+	{
+		return OutTaskbar->GetStartMenu(OutStartMenu);
+	}
+
+	return false;
 }
 
 const TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetInstalledPrograms(const bool bSystemProgramsOnly /*= false*/) const

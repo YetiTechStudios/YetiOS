@@ -85,6 +85,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<class UYetiOS_SystemSettings> SystemSettingsClass;
 
+	/** Class that defines system taskbar. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	TSubclassOf<class UYetiOS_Taskbar> TaskbarClass;
+
 	/** Settings for notification. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	FYetiOsNotificationSettings NotificationSettings;
@@ -156,6 +160,9 @@ private:
 	/* List of all created directories. Used for save game information. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<const UYetiOS_DirectoryBase*> AllCreatedDirectories;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	class UYetiOS_Taskbar* Taskbar;
 
 	UPROPERTY()
 	class UWorld* OsWorld;
@@ -612,6 +619,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS")
 	const bool GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<class UYetiOS_BaseProgram>>& OutPrograms);
 
+	/**
+	* public UYetiOS_Core::GetTaskbar const
+	* Returns true if there is a valid taskbar associated with this operating system.
+	* @param OutTaskbar [UYetiOS_Taskbar*&] Gets a reference to the taskbar owned by this operating system.
+	* @return [bool] True if there is a taskbar available.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	bool GetTaskbar(UYetiOS_Taskbar*& OutTaskbar) const;
+
+	/**
+	* public UYetiOS_Core::GetStartMenu const
+	* Returns true if there is a valid start menu associated with this operating system.
+	* @param OutStartMenu [UYetiOS_StartMenu*&] Gets a reference to the start menu owned by this operating system.
+	* @return [bool] True if there is a start menu available.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	bool GetStartMenu(UYetiOS_StartMenu*& OutStartMenu) const;
+
 protected:
 
 	/**
@@ -632,6 +657,9 @@ public:
 
 	/** Returns the system settings class. */
 	FORCEINLINE TSubclassOf<class UYetiOS_SystemSettings> GetSystemSettingsClass() const { return SystemSettingsClass; }
+
+	/** Returns the taskbar class */
+	FORCEINLINE TSubclassOf<class UYetiOS_Taskbar> GetTaskbarClass() const { return TaskbarClass; }
 
 	/* Returns a reference to the Operating system widget created using OsWidgetClass. */
 	FORCEINLINE UYetiOS_OsWidget* GetOsWidget() const { return OsWidget; }	
