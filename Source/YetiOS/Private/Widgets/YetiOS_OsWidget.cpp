@@ -73,12 +73,12 @@ void UYetiOS_OsWidget::OnLowBatteryWarningReceived(const bool bIsLowBattery)
 
 void UYetiOS_OsWidget::AddTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
 {
-	K2_OnWindowChangeFromTaskbar(InWindowWidget, true);
+	ensureAlwaysMsgf(false, TEXT("Deprecated since v2.0. Please use the new taskbar class."));
 }
 
 void UYetiOS_OsWidget::RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
 {
-	K2_OnWindowChangeFromTaskbar(InWindowWidget, false);
+	ensureAlwaysMsgf(false, TEXT("Deprecated since v2.0. Please use the new taskbar class."));
 }
 
 void UYetiOS_OsWidget::ReceiveNotification(const FYetiOsNotification InNotification)
