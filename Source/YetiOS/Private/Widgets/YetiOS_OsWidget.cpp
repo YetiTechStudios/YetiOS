@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Misc/YetiOS_SystemSettings.h"
+#include "Runtime/Engine/Classes/Sound/SoundBase.h"
 
 
 UYetiOS_OsWidget::UYetiOS_OsWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -93,6 +94,12 @@ bool UYetiOS_OsWidget::ChangePassword(FYetiOsUser& InNewUser, const FText InNewP
 	}
 
 	return false;
+}
+
+void UYetiOS_OsWidget::PlayNotificationSound(const FYetiOsNotification& InNotification, const float InVolume /*= 1.f*/)
+{
+	USoundBase* MySound = OwningOS->GetNotificationSound(InNotification);
+	UGameplayStatics::PlaySound2D(this, MySound, InVolume);
 }
 
 const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)

@@ -67,6 +67,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Widget")
 	bool ChangePassword(UPARAM(ref) FYetiOsUser& InNewUser, const FText InNewPassword);
 
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Widget")
+	void PlayNotificationSound(const FYetiOsNotification& InNotification, const float InVolume = 1.f);
+
 protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnInstallationStarted")
@@ -97,7 +100,7 @@ protected:
 	void K2_OnLowBatteryWarningReceived(const bool bIsLowBattery);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "On Theme Changed")
-	void K2_OnThemeChanged(const EThemeMode InNewTheme);
+	void K2_OnThemeChanged(const EYetiOsThemeMode InNewTheme);
 
 public:
 
