@@ -15,6 +15,8 @@
 #include "Input/Reply.h"
 #include "Components/CanvasPanel.h"
 #include "Misc/YetiOS_SystemSettings.h"
+#include "Core/YetiOS_Taskbar.h"
+#include "Widgets/YetiOS_TaskbarWidget.h"
 
 
 UYetiOS_DraggableWindowWidget::UYetiOS_DraggableWindowWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -226,7 +228,13 @@ void UYetiOS_DraggableWindowWidget::CloseWindow()
 		OsSystemSettings->OnShowProgramIconChanged.Remove(OnShowProgramIconDelegateHandle);
 		OnShowProgramIconDelegateHandle.Reset();
 	}
-	OwningOS->GetOsWidget()->RemoveTaskbarButton(this);
+	
+	UYetiOS_Taskbar* OutTaskbar;
+	if (OwningOS->GetTaskbar(OutTaskbar))
+	{
+		OutTaskbar->GetTaskbarWidget()->RemoveProgramFromTaskbar(this);
+	}
+
 	ProgramCanvas->ClearChildren();
 	RemoveFromParent();
 }
@@ -256,7 +264,13 @@ void UYetiOS_DraggableWindowWidget::AddProgramWidget(class UYetiOS_AppWidget* In
 	ProgramCanvas->AddChildToCanvas(InWidget);
 	InWidget->SetWindow(this);
 	K2_OnProgramAdded(InWidget);
-	OwningOS->GetOsWidget()->AddTaskbarButton(this);
+	
+	UYetiOS_Taskbar* OutTaskbar;
+	if (OwningOS->GetTaskbar(OutTaskbar))
+	{
+		OutTaskbar->GetTaskbarWidget()->AddProgramToTaskbar(this);
+	}
+
 	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
 	if (OsSystemSettings)
 	{
