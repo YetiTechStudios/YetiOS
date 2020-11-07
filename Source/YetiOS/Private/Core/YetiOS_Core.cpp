@@ -82,8 +82,11 @@ const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
 
 void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotification)
 {
-	OsWidget->ReceiveNotification(InNewNotification);
-	NotificationManager->LogNotification(InNewNotification);
+	if (NotificationSettings.bEnableNotifications)
+	{
+		OsWidget->ReceiveNotification(InNewNotification);
+		NotificationManager->LogNotification(InNewNotification);
+	}
 }
 
 const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage)

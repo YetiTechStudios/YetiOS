@@ -7,6 +7,36 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_Core.generated.h"
 
+USTRUCT()
+struct FYetiOsNotificationSettings
+{
+	GENERATED_USTRUCT_BODY();
+	
+	UPROPERTY(EditAnywhere, Category = "Notification Settings")
+	uint8 bEnableNotifications : 1;
+	
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications"))
+	uint8 bPlayNotificationSound : 1;
+
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications"))
+	class USoundBase* NotificationSoundDefault;
+
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications"))
+	class USoundBase* NotificationSoundWarning;
+
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications"))
+	class USoundBase* NotificationSoundError;
+
+	FYetiOsNotificationSettings()
+	{
+		bEnableNotifications = true;
+		bPlayNotificationSound = true;
+		NotificationSoundDefault = nullptr;
+		NotificationSoundWarning = nullptr;
+		NotificationSoundError = nullptr;
+	}
+};
+
 
 UCLASS(Abstract, Blueprintable, DisplayName = "Operating System")
 class YETIOS_API UYetiOS_Core : public UObject
@@ -54,6 +84,10 @@ private:
 	/** Class that defines system settings. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<class UYetiOS_SystemSettings> SystemSettingsClass;
+
+	/** Settings for notification. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	FYetiOsNotificationSettings NotificationSettings;
 
 	/* A root user for this OS. Defaults to root. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
@@ -604,7 +638,24 @@ public:
 	FORCEINLINE const float GetRemainingSpace() const { return RemainingSpace; }
 	FORCEINLINE const TArray<const UYetiOS_DirectoryBase*> GetAllCreatedDirectories() const { return AllCreatedDirectories; }
 	FORCEINLINE const FText GetRootCommand() const { return RootCommand; }
-	
+	FORCEINLINE class USoundBase* GetNotificationSound(const FYetiOsNotification& InNotification) const
+	{
+		USoundBase* MySound = nullptr;
+		EYetiOsNotificationType NotifyType = InNotification.Level;
+		switch (NotifyType)
+		{
+			case EYetiOsNotificationType::TYPE_Warning:
+				MySound = NotificationSettings.NotificationSoundWarning;
+				break;
+			case EYetiOsNotificationType::TYPE_Error:
+				MySound = NotificationSettings.NotificationSoundError;
+				break;
+			default:
+				MySound = NotificationSettings.NotificationSoundDefault;
+				break;
+		}
+		return MySound;
+	}
 };
 
 class YETIOS_API FYetiOsNotificationManager
