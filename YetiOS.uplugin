@@ -10,7 +10,7 @@
 	"DocsURL": "https://docs.yetitechstudios.com/",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/f7b61d843b8e4b0a84079cb383073cc9",
 	"SupportURL": "https://discord.gg/S7ykM2q",
-	"EngineVersion": "4.25.0",
+	"EngineVersion": "4.26.0",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
