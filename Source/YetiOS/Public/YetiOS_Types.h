@@ -42,6 +42,15 @@ enum class EYetiOsThemeMode : uint8
 	Light,
 	Dark
 };
+
+UENUM(BlueprintType)
+enum class EYetiOsColorTypes : uint8
+{
+	PrimaryColor,
+	SecondayColor,
+	AccentOne,
+	AccentTwo,
+	AccentThree
 };
 
 UENUM(BlueprintType)
@@ -219,6 +228,23 @@ static FORCEINLINE const FString GetSocketNameImplementation(EYetiOsSocketType I
 
 	return MySocketName;
 }
+
+USTRUCT(BlueprintType)
+struct FYetiOsColorCollection
+{
+	GENERATED_USTRUCT_BODY();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Color Collection")
+	FName CollectionName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Color Collection")
+	TMap<EYetiOsColorTypes, FLinearColor> SystemColors;
+
+	FYetiOsColorCollection()
+	{
+		CollectionName = NAME_None;
+	}
+};
 
 USTRUCT(BlueprintType)
 struct FYetiOsError

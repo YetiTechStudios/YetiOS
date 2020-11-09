@@ -13,13 +13,56 @@ DEFINE_LOG_CATEGORY_STATIC(LogYetiOsSystemSettings, All, All)
 UYetiOS_SystemSettings::UYetiOS_SystemSettings()
 {
 	bShowProgramIconOnWindows = false;
-	CurrentTheme = EThemeMode::Light;
+	CurrentTheme = EYetiOsThemeMode::Light;
 }
 
 void UYetiOS_SystemSettings::ToggleShowProgramIconOnWindows(const bool bShowIcon)
 {
 	bShowProgramIconOnWindows = bShowIcon;
 	OnShowProgramIconChanged.Broadcast(bShowProgramIconOnWindows);
+}
+
+bool UYetiOS_SystemSettings::GetColorCollection(const FName InCollectionName, FYetiOsColorCollection& OutCollection) const
+{
+	if (InCollectionName.IsNone() == false)
+	{
+		for (const auto& It : ColorCollections)
+		{
+			if (It.CollectionName.IsEqual(InCollectionName, ENameCase::IgnoreCase))
+			{
+				OutCollection = It;
+				return true;
+			}
+		}
+	}
+
+	printlog_error(FString::Printf(TEXT("Color Collection '%s' not found."), *InCollectionName.ToString()));
+	OutCollection = FYetiOsColorCollection();
+	return false;
+}
+
+TArray<FName> UYetiOS_SystemSettings::GetAllCollectionNames() const
+{
+	TArray<FName> ReturnResult;
+	ReturnResult.Reserve(ColorCollections.Num());
+	for (const auto& It : ColorCollections)
+	{
+		ReturnResult.Add(It.CollectionName);
+	}
+
+	return ReturnResult;
+}
+
+FLinearColor UYetiOS_SystemSettings::GetColorFromType(const FName InCollectionName, EYetiOsColorTypes InColorType) const
+{	
+	FYetiOsColorCollection OutCollection;
+	if (GetColorCollection(InCollectionName, OutCollection))
+	{
+		return OutCollection.SystemColors.FindRef(InColorType);
+	}
+
+	printlog_error(FString::Printf(TEXT("Failed to find color type '%s' from collection '%s'."), *InCollectionName.ToString()));
+	return FLinearColor::Transparent;
 }
 
 UYetiOS_SystemSettings* UYetiOS_SystemSettings::CreateSystemSettings(class UYetiOS_Core* InCore)
@@ -42,11 +85,11 @@ UYetiOS_SystemSettings* UYetiOS_SystemSettings::CreateSystemSettings(class UYeti
 	return ProxyObject;
 }
 
-const bool UYetiOS_SystemSettings::UpdateTheme(EThemeMode NewMode)
+const bool UYetiOS_SystemSettings::UpdateTheme(EYetiOsThemeMode NewMode)
 {
 	if (CurrentTheme != NewMode)
 	{
-		printlog_vv(FString::Printf(TEXT("Current theme changed from %s to %s"), *ENUM_TO_STRING(EThemeMode, CurrentTheme), *ENUM_TO_STRING(EThemeMode, NewMode)));
+		printlog_vv(FString::Printf(TEXT("Current theme changed from %s to %s"), *ENUM_TO_STRING(EYetiOsThemeMode, CurrentTheme), *ENUM_TO_STRING(EYetiOsThemeMode, NewMode)));
 		CurrentTheme = NewMode;
 		OnThemeModeChanged.Broadcast(CurrentTheme);
 		return true;
