@@ -57,23 +57,30 @@ UYetiOS_Core::UYetiOS_Core()
 
 UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage)
 {
-	UYetiOS_Core* ProxyOS = NewObject<UYetiOS_Core>(InParentDevice, InParentDevice->OperatingSystemClass);
-	if (ProxyOS->GetCompatibleDeviceClasses().Contains(InParentDevice->GetClass()))
+	if (InParentDevice->OperatingSystemClass)
 	{
-		ProxyOS->Device = InParentDevice;
-		ProxyOS->OsWorld = InParentDevice->GetWorld();		
-		ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
-		ProxyOS->SystemSettings = UYetiOS_SystemSettings::CreateSystemSettings(ProxyOS);
-		ProxyOS->Taskbar = UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
-		ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
-		ProxyOS->InstalledPrograms.Empty();
-		ProxyOS->RemainingSpace = InParentDevice->GetHardDisk().HddCapacity;
-		return ProxyOS;
+		UYetiOS_Core* ProxyOS = NewObject<UYetiOS_Core>(InParentDevice, InParentDevice->OperatingSystemClass);
+		if (ProxyOS->GetCompatibleDeviceClasses().Contains(InParentDevice->GetClass()))
+		{
+			ProxyOS->Device = InParentDevice;
+			ProxyOS->OsWorld = InParentDevice->GetWorld();
+			ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
+			ProxyOS->SystemSettings = UYetiOS_SystemSettings::CreateSystemSettings(ProxyOS);
+			ProxyOS->Taskbar = UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
+			ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
+			ProxyOS->InstalledPrograms.Empty();
+			ProxyOS->RemainingSpace = InParentDevice->GetHardDisk().HddCapacity;
+			return ProxyOS;
+		}
+
+		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_CreateOperatingSystemErrorCode", "INCOMPATIBLE_OPERATING_SYSTEM");
+		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_CreateOperatingSystemErrorException", "{0} is not compatible with this device."), ProxyOS->GetOsName());
+		ProxyOS->ConditionalBeginDestroy();
+		return nullptr;
 	}
 
-	OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_CreateOperatingSystemErrorCode", "INCOMPATIBLE_OPERATING_SYSTEM");
-	OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_CreateOperatingSystemErrorException", "{0} is not compatible with this device."), ProxyOS->GetOsName());	
-	ProxyOS->ConditionalBeginDestroy();
+	OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_NullOperatingSystemErrorCode", "NO_VALID_OPERATING_SYSTEM");
+	OutErrorMessage.ErrorException = LOCTEXT("YetiOS_NullOperatingSystemErrorException", "Operating system class is NULL.");
 	return nullptr;
 }
 

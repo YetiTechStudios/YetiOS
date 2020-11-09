@@ -88,10 +88,7 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 	Internal_CalculateDeviceScore();
 	if (OperatingSystem == nullptr)
 	{
-		if (OperatingSystemClass)
-		{
-			OperatingSystem = UYetiOS_Core::CreateOperatingSystem(this, OutErrorMessage);
-		}
+		OperatingSystem = UYetiOS_Core::CreateOperatingSystem(this, OutErrorMessage);
 
 		// If the OS is still null for some reason.
 		if (OperatingSystem)
