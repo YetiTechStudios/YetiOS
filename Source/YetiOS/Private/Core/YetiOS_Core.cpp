@@ -34,7 +34,6 @@ static const int32 MIN_PROCES_ID_TO_GENERATE = 1;
 static const int32 MAX_PROCES_ID_TO_GENERATE = 99999;
 
 const FString UYetiOS_Core::PATH_DELIMITER = "/";
-const FText UYetiOS_Core::ROOT_USER_NAME = FText::AsCultureInvariant("root");
 
 static const FText INSTALL_ERROR_CODE = LOCTEXT("YetiOS_InstallProgramErrorCode", "ERR_INSTALL_FAIL");
 static const FText CLOSE_ERROR_CODE = LOCTEXT("YetiOS_CloseProgramErrorCode", "ERR_CLOSE_PROGRAM");
@@ -52,7 +51,7 @@ UYetiOS_Core::UYetiOS_Core()
 
 	CurrentZOrder = INDEX_NONE;
 
-	RootUser = FYetiOsUser(UYetiOS_Core::ROOT_USER_NAME.ToString());
+	RootUser = FYetiOsUser("root");
 	RootCommand = FText::AsCultureInvariant("sudo");
 }
 
@@ -158,12 +157,12 @@ void UYetiOS_Core::RestartOS()
 
 bool UYetiOS_Core::AddNewUser(FYetiOsUser InNewUser, FYetiOsError& OutErrorMessage)
 {
-	if (InNewUser.UserName.EqualToCaseIgnored(UYetiOS_Core::ROOT_USER_NAME))
+	if (InNewUser.UserName.EqualToCaseIgnored(RootUser.UserName))
 	{
 		const FText Title = LOCTEXT("YetiOS_InvalidUsernameErrorText", "Restricted Username");
 		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_InvalidUsernameError", "ERR_INVALID_USERNAME");
-		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "You cannot use '{0}' as your username."), UYetiOS_Core::ROOT_USER_NAME);
-		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "'{0}' is a system reserved username. Please try again with another name."), UYetiOS_Core::ROOT_USER_NAME);
+		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "You cannot use '{0}' as your username."), RootUser.UserName);
+		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "'{0}' is a system reserved username. Please try again with another name."), RootUser.UserName);
 		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 		return false;

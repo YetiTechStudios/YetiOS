@@ -176,7 +176,6 @@ public:
 	UYetiOS_Core();
 
 	static const FString PATH_DELIMITER;
-	static const FText ROOT_USER_NAME;
 
 	/**
 	* public static UYetiOS_Core::CreateOperatingSystem
