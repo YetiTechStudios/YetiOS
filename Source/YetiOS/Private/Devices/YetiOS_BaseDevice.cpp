@@ -57,9 +57,6 @@ void UYetiOS_BaseDevice::OnCreateDevice()
 
 EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorMessage)
 {
-	const UYetiOS_SaveGame* LoadGameInstance = UYetiOS_SaveGame::LoadGame();
-	LoadSavedData(LoadGameInstance);
-
 	bBsodHappened = false;
 	OutErrorMessage = FYetiOsError();
 	printlog(FString::Printf(TEXT("Trying to start %s"), *DeviceName.ToString()));
@@ -69,6 +66,9 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 		printlog_error(FString::Printf(TEXT("Failed to start %s. Reason: %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
 		return EYetiOsDeviceStartResult::DEVICESTART_HardwareFail;
 	}
+
+	const UYetiOS_SaveGame* LoadGameInstance = UYetiOS_SaveGame::LoadGame();
+	LoadSavedData(LoadGameInstance);
 
 	bool bPartialSuccess = false;
 	const float Local_DeviceDurability = Internal_GetSystemDurability(OutErrorMessage);
