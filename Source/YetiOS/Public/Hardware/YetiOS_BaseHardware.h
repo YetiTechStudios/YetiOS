@@ -31,6 +31,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
 	FText Brand;
 
+	/** Price of this hardware. */
+	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	float Price;
+
 	/* An icon for this hardware. */
 	UPROPERTY(EditDefaultsOnly, Category = "Hardware", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	class UObject* Icon;
