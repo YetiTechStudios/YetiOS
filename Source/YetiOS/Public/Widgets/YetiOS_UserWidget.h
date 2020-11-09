@@ -18,11 +18,12 @@ class YETIOS_API UYetiOS_UserWidget : public UUserWidget
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS User Widget", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS User Widget", meta = (ExposeOnSpawn = "true"))
 	class UYetiOS_Core* OwningOS;
 
 public:
 
+	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS User Widget")

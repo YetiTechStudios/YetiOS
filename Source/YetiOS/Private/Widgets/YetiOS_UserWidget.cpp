@@ -5,20 +5,36 @@
 #include "Misc/YetiOS_SystemSettings.h"
 #include "Core/YetiOS_Core.h"
 
+void UYetiOS_UserWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	if (OwningOS)
+	{
+		SetOperatingSystem(OwningOS);
+	}
+}
+
 void UYetiOS_UserWidget::NativeDestruct()
 {
-	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
-	if (OsSystemSettings)
+	if (OwningOS)
 	{
-		OsSystemSettings->OnThemeModeChanged.Remove(OnThemeChangedDelegateHandle);
-		OnThemeChangedDelegateHandle.Reset();
+		UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+		if (OsSystemSettings)
+		{
+			OsSystemSettings->OnThemeModeChanged.Remove(OnThemeChangedDelegateHandle);
+			OnThemeChangedDelegateHandle.Reset();
+		}
 	}
 	Super::NativeDestruct();
 }
 
 void UYetiOS_UserWidget::SetOperatingSystem(UYetiOS_Core* InOS)
 {
-	OwningOS = InOS;
+	if (OwningOS != InOS)
+	{
+		OwningOS = InOS;
+	}
+
 	K2_SetOperatingSystem(OwningOS);
 	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
 	if (OsSystemSettings)
