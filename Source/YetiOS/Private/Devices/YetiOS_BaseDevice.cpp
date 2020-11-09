@@ -21,7 +21,7 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
 
-#define printlog_display(Param1)		UE_LOG(LogYetiOsBaseDevice, Display, TEXT("%s"), *FString(Param1))
+#define printlog(Param1)				UE_LOG(LogYetiOsBaseDevice, Log, TEXT("%s"), *FString(Param1))
 #define printlog_warn(Param1)			UE_LOG(LogYetiOsBaseDevice, Warning, TEXT("%s"), *FString(Param1))
 #define printlog_error(Param1)			UE_LOG(LogYetiOsBaseDevice, Error, TEXT("%s"), *FString(Param1))
 #define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsBaseDevice, VeryVerbose, TEXT("%s"), *FString(Param1))
@@ -62,7 +62,7 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 
 	bBsodHappened = false;
 	OutErrorMessage = FYetiOsError();
-	printlog_display(FString::Printf(TEXT("Trying to start %s"), *DeviceName.ToString()));
+	printlog(FString::Printf(TEXT("Trying to start %s"), *DeviceName.ToString()));
 
 	if (Internal_DeviceCanBoot(OutErrorMessage) == false)
 	{
@@ -185,24 +185,24 @@ void UYetiOS_BaseDevice::ShutdownYetiDevice()
 {
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 	const bool bSaveSuccess = UYetiOS_SaveGame::SaveGame(this);
-	printlog_display(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
+	printlog(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
 	OperatingSystem->ShutdownOS();
 	const float TimeToShutdown = UKismetMathLibrary::MapRangeClamped(GetDeviceScore(true), 0.f, 1.f, 6.f, 3.f);
 	FTimerHandle TimerHandle_Dummy;
 	GetOuter()->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, this, &UYetiOS_BaseDevice::DestroyYetiDevice, TimeToShutdown, false);
-	printlog_display(FString::Printf(TEXT("%s shuts down in %f seconds."), *DeviceName.ToString(), TimeToShutdown));
+	printlog(FString::Printf(TEXT("%s shuts down in %f seconds."), *DeviceName.ToString(), TimeToShutdown));
 }
 
 void UYetiOS_BaseDevice::RestartYetiDevice()
 {
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 	const bool bSaveSuccess = UYetiOS_SaveGame::SaveGame(this);
-	printlog_display(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
+	printlog(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
 	OperatingSystem->RestartOS();
 	const float TimeToRestart = UKismetMathLibrary::MapRangeClamped(GetDeviceScore(true), 0.f, 1.f, 6.f, 3.f);
 	FTimerHandle TimerHandle_Dummy;
 	GetOuter()->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, this, &UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart, TimeToRestart, false);
-	printlog_display(FString::Printf(TEXT("%s restarts in %f seconds."), *DeviceName.ToString(), TimeToRestart));
+	printlog(FString::Printf(TEXT("%s restarts in %f seconds."), *DeviceName.ToString(), TimeToRestart));
 }
 
 void UYetiOS_BaseDevice::ShowBSOD(const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
@@ -224,16 +224,16 @@ const bool UYetiOS_BaseDevice::UpdateDeviceState(EYetiOsDeviceState InNewState)
 		switch (CurrentDeviceState)
 		{
 			case EYetiOsDeviceState::STATE_Starting:				
-				printlog_display(FString::Printf(TEXT("%s started succesfully."), *DeviceName.ToString()));
+				printlog(FString::Printf(TEXT("%s started succesfully."), *DeviceName.ToString()));
 				break;
 			case EYetiOsDeviceState::STATE_Running:
-				printlog_display(FString::Printf(TEXT("%s changed state to running."), *DeviceName.ToString()));
+				printlog(FString::Printf(TEXT("%s changed state to running."), *DeviceName.ToString()));
 				break;
 			case EYetiOsDeviceState::STATE_PowerOff:
-				printlog_display(FString::Printf(TEXT("%s is shutting down."), *DeviceName.ToString()));
+				printlog(FString::Printf(TEXT("%s is shutting down."), *DeviceName.ToString()));
 				break;
 			case EYetiOsDeviceState::STATE_Restart:
-				printlog_display(FString::Printf(TEXT("%s is restarting..."), *DeviceName.ToString()));
+				printlog(FString::Printf(TEXT("%s is restarting..."), *DeviceName.ToString()));
 				break;
 			default:
 				break;
@@ -247,7 +247,7 @@ const bool UYetiOS_BaseDevice::UpdateDeviceState(EYetiOsDeviceState InNewState)
 void UYetiOS_BaseDevice::OnFinishInstallingOperatingSystem()
 {
 	bOperatingSystemInstalled = true;
-	printlog_display(FString::Printf(TEXT("%s installed on %s."), *OperatingSystem->GetOsName().ToString(), *DeviceName.ToString()));
+	printlog(FString::Printf(TEXT("%s installed on %s."), *OperatingSystem->GetOsName().ToString(), *DeviceName.ToString()));
 	UpdateDeviceState(EYetiOsDeviceState::STATE_Restart);
 	ChangeOnScreenWidget(DeviceWidget);
 }
@@ -646,7 +646,7 @@ UTexture2D* UYetiOS_BaseDevice::CreateTextureFromPath(const FString& InImagePath
 	return Texture;
 }
 
-#undef printlog_display
+#undef printlog
 #undef printlog_warn
 #undef printlog_error
 #undef printlog_veryverbose

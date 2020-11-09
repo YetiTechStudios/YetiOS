@@ -23,7 +23,7 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
 
-#define printlog_display(Param1)		UE_LOG(LogYetiOsOperatingSystem, Display, TEXT("%s"), *FString(Param1))
+#define printlog(Param1)				UE_LOG(LogYetiOsOperatingSystem, Log, TEXT("%s"), *FString(Param1))
 #define printlog_warn(Param1)			UE_LOG(LogYetiOsOperatingSystem, Warning, TEXT("%s"), *FString(Param1))
 #define printlog_error(Param1)			UE_LOG(LogYetiOsOperatingSystem, Error, TEXT("%s"), *FString(Param1))
 #define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsOperatingSystem, VeryVerbose, TEXT("%s"), *FString(Param1))
@@ -103,7 +103,7 @@ const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIf
 
 		CalculatedInstallationTime = FMath::Lerp<float>(MaxInstallationTime, MinInstallationTime, Device->GetDeviceScore());
 
-		printlog_display(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
+		printlog(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
 		OsWidget->StartOsInstallation(CalculatedInstallationTime);
 
 		OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
@@ -231,7 +231,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		Internal_ConsumeSpace(NewProgram->GetProgramSpace());
 		OutIconWidget = UYetiOS_AppIconWidget::CreateProgramIconWidget(this, NewProgram, OutErrorMessage);
 		InstalledPrograms.Add(NewProgram);
-		printlog_display(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
+		printlog(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
 		return NewProgram;
 	}
 	
@@ -523,7 +523,7 @@ void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 	const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
 	CreateOsNotification(NewNotification);
 
-	printlog_display(Description.ToString());
+	printlog(Description.ToString());
 
 	OsWidget->FinishOsInstallation();
 	Device->OnFinishInstallingOperatingSystem();
@@ -536,7 +536,7 @@ TSubclassOf<class UYetiOS_BaseProgram> UYetiOS_Core::Internal_FindProgramFromPac
 		TArray<UBlueprintGeneratedClass*> OutBlueprintGeneratedClass;
 		RepositoryLibrary->GetObjects<UBlueprintGeneratedClass>(OutBlueprintGeneratedClass);
 
-		printlog_display(FString::Printf(TEXT("Looking for %s from %i package(s) in repo."), *InProgramIdentifier.ToString(), OutBlueprintGeneratedClass.Num()));
+		printlog(FString::Printf(TEXT("Looking for %s from %i package(s) in repo."), *InProgramIdentifier.ToString(), OutBlueprintGeneratedClass.Num()));
 		if (OutBlueprintGeneratedClass.Num() > 0)
 		{			
 			for (const auto& It : OutBlueprintGeneratedClass)
@@ -544,7 +544,7 @@ TSubclassOf<class UYetiOS_BaseProgram> UYetiOS_Core::Internal_FindProgramFromPac
 				UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It);
 				if (MyLoadedProgram->GetProgramIdentifierName().IsEqual(InProgramIdentifier))
 				{
-					printlog_display(FString::Printf(TEXT("Found %s from package repo."), *InProgramIdentifier.ToString()));
+					printlog(FString::Printf(TEXT("Found %s from package repo."), *InProgramIdentifier.ToString()));
 					return MyLoadedProgram->GetClass();
 				}
 			}
@@ -694,7 +694,7 @@ UYetiOS_DirectoryBase* UYetiOS_Core::CreateDirectoryInPath(const FString& InDire
 			{
 				FString LeftS, RightS;
 				DirectoryString.Split(OutPathArray[i], &LeftS, &RightS);
-				printlog_display(FString::Printf(TEXT("Created child directory in %s"), *LeftS));
+				printlog(FString::Printf(TEXT("Created child directory in %s"), *LeftS));
 				return ExistingDir;
 			}
 		}
@@ -792,7 +792,7 @@ const bool UYetiOS_Core::GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<
 	return false;
 }
 
-#undef printlog_display
+#undef printlog
 #undef printlog_warn
 #undef printlog_error
 #undef printlog_veryverbose

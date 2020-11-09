@@ -11,7 +11,7 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseProgram, All, All)
 
-#define printlog_display(Param1)		UE_LOG(LogYetiOsBaseProgram, Display, TEXT("%s"), *FString(Param1))
+#define printlog(Param1)				UE_LOG(LogYetiOsBaseProgram, Log, TEXT("%s"), *FString(Param1))
 #define printlog_error(Param1)			UE_LOG(LogYetiOsBaseProgram, Error, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "YetiOS"
@@ -60,7 +60,7 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 			ProxyProgram->K2_OnCreate();
 		}
 
-		printlog_display(FString::Printf(TEXT("%s created."), *ProxyProgram->ProgramName.ToString()));
+		printlog(FString::Printf(TEXT("%s created."), *ProxyProgram->ProgramName.ToString()));
 		if (bStartImmediately)
 		{
 			ProxyProgram->StartProgram(OutErrorMessage);
@@ -80,7 +80,7 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 		ProgramWidget = UYetiOS_AppWidget::Internal_CreateAppWidget(this);
 		ProcessID = MyProcessID;
 		OwningOS->GetOsWidget()->K2_CreateNewWindow(this, ProgramWidget);
-		printlog_display(FString::Printf(TEXT("Executing program %s..."), *ProgramName.ToString()));
+		printlog(FString::Printf(TEXT("Executing program %s..."), *ProgramName.ToString()));
 		if (bCanCallOnStart)
 		{
 			K2_OnStart();
@@ -135,7 +135,7 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 	ProgramWidget->DestroyProgramWidget();
 	ProgramWidget = nullptr;
 
-	printlog_display(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
+	printlog(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
 }
 
 bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
@@ -150,7 +150,7 @@ bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
 	ProgramSettings = UYetiOS_ProgramSettings::LoadSettings(this);
 	if (ProgramSettings)
 	{
-		printlog_display(FString::Printf(TEXT("Loading saved settings for %s."), *ProgramName.ToString()));
+		printlog(FString::Printf(TEXT("Loading saved settings for %s."), *ProgramName.ToString()));
 		K2_OnSettingsLoad();
 		return true;
 	}
@@ -159,14 +159,14 @@ bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
 	if (SettingsClass)
 	{
 		ProgramSettings = UYetiOS_ProgramSettings::CreateSettings(this, SettingsClass);
-		printlog_display(FString::Printf(TEXT("Created new settings class for %s."), *ProgramName.ToString()));
+		printlog(FString::Printf(TEXT("Created new settings class for %s."), *ProgramName.ToString()));
 		return true;
 	}
 
 	return false;
 }
 
-#undef printlog_display
+#undef printlog
 #undef printlog_error
 
 #undef LOCTEXT_NAMESPACE

@@ -14,7 +14,7 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDeviceManager, All, All)
 
-#define printlog_display(Param1)		UE_LOG(LogYetiOsDeviceManager, Display, TEXT("%s"), *FString(Param1))
+#define printlog(Param1)		UE_LOG(LogYetiOsDeviceManager, Log, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "YetiOS"
 
@@ -76,7 +76,7 @@ void AYetiOS_DeviceManagerActor::EndPlay(const EEndPlayReason::Type EndPlayReaso
 			break;
 	}
 
-	printlog_display(FString::Printf(TEXT("Ending play on device manager %s. Reason: %s."), *GetName(), *EndReasonString));
+	printlog(FString::Printf(TEXT("Ending play on device manager %s. Reason: %s."), *GetName(), *EndReasonString));
 
 	if (CurrentDevice)
 	{
@@ -134,5 +134,5 @@ void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)
 	OutErrorMessage.ErrorException = LOCTEXT("YetiOS_CurrentDeviceCreateException", "Current device was already created or Device class was null");
 }
 
-#undef printlog_display
+#undef printlog
 #undef LOCTEXT_NAMESPACE
