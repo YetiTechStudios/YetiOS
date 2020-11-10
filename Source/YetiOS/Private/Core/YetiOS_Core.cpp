@@ -108,7 +108,7 @@ const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIf
 		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
 		CreateOsNotification(NewNotification);
 
-		CalculatedInstallationTime = FMath::Lerp<float>(MaxInstallationTime, MinInstallationTime, Device->GetDeviceScore());
+		CalculatedInstallationTime = FMath::RandRange(MinInstallationTime, MaxInstallationTime);
 
 		printlog(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
 		OsWidget->StartOsInstallation(CalculatedInstallationTime);
@@ -510,11 +510,6 @@ const float UYetiOS_Core::GetTotalCPUSpeed(const bool bWithDurability /*= true*/
 const bool UYetiOS_Core::HasGpuInstalled() const
 {
 	return Device->IsGpuInstalled();
-}
-
-const float UYetiOS_Core::GetDeviceScore() const
-{
-	return Device->GetDeviceScore(true);
 }
 
 const bool UYetiOS_Core::HasValidRootDirectoryClass() const

@@ -115,6 +115,5 @@ const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)
 
 const float UYetiOS_OsWidget::GetDelayTime(const float InMin /*= 0.01*/, const float InMax /*= 0.2*/) const
 {
-	const float DeviceScore = OwningDevice->GetDeviceScore(true);
-	return UKismetMathLibrary::MapRangeClamped(DeviceScore, 0.f, 1.f, InMin, InMax);
+	return FMath::RandRange(InMin, InMax);
 }

@@ -43,8 +43,6 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 	DeviceWidget = nullptr;
 	CurrentDeviceState = EYetiOsDeviceState::STATE_None;
 
-	DeviceScore = 0.f;
-	MaxDeviceScore = 0.f;
 }
 
 void UYetiOS_BaseDevice::OnCreateDevice()
@@ -70,7 +68,6 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 	const UYetiOS_SaveGame* LoadGameInstance = UYetiOS_SaveGame::LoadGame();
 	LoadSavedData(LoadGameInstance);
 
-	Internal_CalculateDeviceScore();
 	if (OperatingSystem == nullptr)
 	{
 		OperatingSystem = UYetiOS_Core::CreateOperatingSystem(this, OutErrorMessage);
@@ -169,7 +166,7 @@ void UYetiOS_BaseDevice::ShutdownYetiDevice()
 	const bool bSaveSuccess = UYetiOS_SaveGame::SaveGame(this);
 	printlog(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
 	OperatingSystem->ShutdownOS();
-	const float TimeToShutdown = UKismetMathLibrary::MapRangeClamped(GetDeviceScore(true), 0.f, 1.f, 6.f, 3.f);
+	const float TimeToShutdown = FMath::RandRange(1.f, 5.f);
 	FTimerHandle TimerHandle_Dummy;
 	GetOuter()->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, this, &UYetiOS_BaseDevice::DestroyYetiDevice, TimeToShutdown, false);
 	printlog(FString::Printf(TEXT("%s shuts down in %f seconds."), *DeviceName.ToString(), TimeToShutdown));
@@ -181,7 +178,7 @@ void UYetiOS_BaseDevice::RestartYetiDevice()
 	const bool bSaveSuccess = UYetiOS_SaveGame::SaveGame(this);
 	printlog(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
 	OperatingSystem->RestartOS();
-	const float TimeToRestart = UKismetMathLibrary::MapRangeClamped(GetDeviceScore(true), 0.f, 1.f, 6.f, 3.f);
+	const float TimeToRestart = FMath::RandRange(1.f, 5.f);
 	FTimerHandle TimerHandle_Dummy;
 	GetOuter()->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, this, &UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart, TimeToRestart, false);
 	printlog(FString::Printf(TEXT("%s restarts in %f seconds."), *DeviceName.ToString(), TimeToRestart));
@@ -296,27 +293,6 @@ void UYetiOS_BaseDevice::Internal_RemoveHardware(class UYetiOS_BaseHardware* InH
 	K2_OnHardwareRemoved(InHardware);
 }
 
-void UYetiOS_BaseDevice::Internal_CalculateDeviceScore()
-{	
-	MaxDeviceScore = 0.f;
-	for (auto const& It : GetAllCpus())
-	{
-		DeviceScore += (It.CpuSpeed * It.CpuDurability);
-		MaxDeviceScore += It.GetMaxCPUSpeed();
-	}
-
-	for (auto const& It : GetAllMemory())
-	{
-		DeviceScore += (It.GetMemorySize() * It.MemoryDurability);
-		MaxDeviceScore += It.GetMaxMemorySize();
-	}
-
-	FYetiOsHardDisk Local_HDD = GetHardDisk();
-	DeviceScore += (Local_HDD.HddRpmSpeed * Local_HDD.HddDurability);
-	MaxDeviceScore += Local_HDD.HddRpmSpeed;
-
-	DeviceScore = (DeviceScore * GetMotherboardDurability());
-}
 
 inline const bool UYetiOS_BaseDevice::Internal_DeviceCanBoot(FYetiOsError& OutErrorMessage) const
 {

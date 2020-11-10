@@ -43,10 +43,6 @@ private:
 	uint8 bBsodHappened : 1;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	float DeviceScore;
-
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	float MaxDeviceScore;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OperatingSystem;
@@ -205,12 +201,6 @@ private:
 	void Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware);
 
 	/**
-	* private UYetiOS_BaseDevice::Internal_CalculateDeviceScore
-	* Calculates the device score. Device Score can be used to check if the device is faster or slower. Higher the number faster the device is.
-	**/
-	void Internal_CalculateDeviceScore();
-
-	/**
 	* private UYetiOS_BaseDevice::Internal_DeviceCanBoot const
 	* Checks if the device can boot.
 	* @param OutErrorMessage [FYetiOsError &] Outputs error message (if any).
@@ -346,7 +336,6 @@ public:
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
 	FORCEINLINE const bool IsInBsodState() const { return bBsodHappened; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
-	FORCEINLINE const float GetDeviceScore(const bool bNormalize = true) const { return bNormalize ? (DeviceScore / MaxDeviceScore) : DeviceScore; }
 	
 	static FORCEINLINE const TSet<FString> GetImageExtensions()
 	{

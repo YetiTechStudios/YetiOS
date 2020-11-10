@@ -403,14 +403,6 @@ protected:
 	const bool HasValidRootDirectoryClass() const;
 		
 	/**
-	* protected UYetiOS_Core::GetDeviceScore const
-	* Gets a normalized (0-1 range) device score.
-	* @return [const float] Range between 0-1.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const float GetDeviceScore() const;
-		
-	/**
 	* protected UYetiOS_Core::GetMainCpu const
 	* Returns the primary CPU (at index 0 in motherboard cpus).
 	* @return [const FYetiOsCpu] CPU Struct.
