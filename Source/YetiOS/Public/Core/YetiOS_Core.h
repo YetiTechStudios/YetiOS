@@ -404,11 +404,11 @@ protected:
 		
 	/**
 	* protected UYetiOS_Core::GetMainCpu const
-	* Returns the primary CPU (at index 0 in motherboard cpus).
-	* @return [const FYetiOsCpu] CPU Struct.
+	* Returns the primary CPU.
+	* @return [UYetiOS_CPU*] CPU Object.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const FYetiOsCpu GetMainCpu() const;
+	UYetiOS_CPU* GetMainCpu() const;
 
 private:
 

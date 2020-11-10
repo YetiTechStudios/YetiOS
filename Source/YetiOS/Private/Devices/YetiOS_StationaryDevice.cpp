@@ -6,6 +6,4 @@
 
 UYetiOS_StationaryDevice::UYetiOS_StationaryDevice()
 {
-	StationaryDeviceMotherBoard = FYetiOsStationaryDeviceMotherBoard();
-	StationaryDeviceMotherBoard.HardDisk.RootDirectoryClass = UYetiOS_DirectoryRoot::StaticClass();
 }

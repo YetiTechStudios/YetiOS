@@ -17,9 +17,6 @@ class YETIOS_API UYetiOS_PortableDevice : public UYetiOS_BaseDevice
 	
 private:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device")
-	FYetiOsPortableDeviceMotherBoard PortableDeviceMotherBoard;
-
 	/* Battery level for this portable device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device", meta = (UIMin = "0", UIMax = "1", ClampMin = "0", ClampMax = "1"))
 	float BatteryLevel;
@@ -41,14 +38,6 @@ public:
 	UYetiOS_PortableDevice();
 
 	virtual const bool IsPortableDevice() const override final { return true; }
-	
-	/**
-	* public UYetiOS_PortableDevice::GetPortableDeviceMotherboard const
-	* Gets device motherboard
-	* @return [FYetiOsPortableDeviceMotherBoard] Returns motherboard.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Portable Device")
-	inline FYetiOsPortableDeviceMotherBoard GetPortableDeviceMotherboard() const { return PortableDeviceMotherBoard; }
 
 
 	virtual EYetiOsDeviceStartResult StartDevice(FYetiOsError& OutErrorMessage) override final;
@@ -113,7 +102,6 @@ protected:
 
 public:
 
-	FORCEINLINE const FYetiOsCpu GetCpu() const { return PortableDeviceMotherBoard.MotherboardCpu; }
 	FORCEINLINE const float GetChargingSpeed() const { return (GetTimeToFullyRechargeInHours() * 3600.f) / 10.f; }
 	FORCEINLINE const float GetTimeToFullyRechargeInHours() const { return InstalledBattery.GetTimeToFullyRechargeInHours(); }
 };

@@ -486,30 +486,10 @@ void UYetiOS_Core::UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWin
 	}
 }
 
-const FYetiOsCpu UYetiOS_Core::GetMainCpu() const
+UYetiOS_CPU* UYetiOS_Core::GetMainCpu() const
 {
-	if (Device->IsPortableDevice())
-	{
-		return Device->GetCastedDevice<UYetiOS_PortableDevice>()->GetCpu();
-	}
-
-	return Device->GetCastedDevice<UYetiOS_StationaryDevice>()->GetCpu(0);
-}
-
-const float UYetiOS_Core::GetTotalMemory(const bool bInBytes /*= true*/) const
-{
-	const float TotalMemory = Device->GetTotalMemorySize();
-	return bInBytes ? TotalMemory * 1000000.f : TotalMemory;
-}
-
-const float UYetiOS_Core::GetTotalCPUSpeed(const bool bWithDurability /*= true*/) const
-{
-	return Device->GetTotalCpuSpeed(bWithDurability);
-}
-
-const bool UYetiOS_Core::HasGpuInstalled() const
-{
-	return Device->IsGpuInstalled();
+	int32 DummyTotal;
+	return Device->GetMotherboard()->GetCpu(DummyTotal);
 }
 
 const bool UYetiOS_Core::HasValidRootDirectoryClass() const
