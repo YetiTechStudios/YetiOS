@@ -85,9 +85,6 @@ enum class EYetiOsDeviceStartResult : uint8
 	/* Device cannot start because of no battery power. Only applicable if owning device is portable. */
 	DEVICESTART_NoBattery				UMETA(DisplayName = "No battery power"),
 
-	/* Device was able to start but one or more hardware is having low durability. */
-	DEVICESTART_PartialSuccess			UMETA(DisplayName = "Partial Success"),
-
 	/* Device started successfully with no issues. Yay! */
 	DEVICESTART_Success					UMETA(DisplayName = "Success")
 };

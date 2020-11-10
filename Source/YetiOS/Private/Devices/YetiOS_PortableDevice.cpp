@@ -20,7 +20,7 @@ UYetiOS_PortableDevice::UYetiOS_PortableDevice()
 EYetiOsDeviceStartResult UYetiOS_PortableDevice::StartDevice(FYetiOsError& OutErrorMessage)
 {
 	EYetiOsDeviceStartResult Local_StartResult = Super::StartDevice(OutErrorMessage);
-	if (Local_StartResult == EYetiOsDeviceStartResult::DEVICESTART_Success || Local_StartResult == EYetiOsDeviceStartResult::DEVICESTART_PartialSuccess)
+	if (Local_StartResult == EYetiOsDeviceStartResult::DEVICESTART_Success)
 	{
 		if (BatteryLevel <= InstalledBattery.LowBatteryWarningLevel)
 		{
