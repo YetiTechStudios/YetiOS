@@ -16,45 +16,45 @@ class YETIOS_API UYetiOS_BaseHardware : public UObject
 protected:
 
 	/* Name of this hardware. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	FText Name;
 
 	/* Description for this hardware. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware", meta = (MultiLine = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware", meta = (MultiLine = "true"))
 	FText Description;
 
 	/* Model name. This should be different to Name and should be unique. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	FText Model;
 
 	/* Brand name. This can act as the company who made this. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	FText Brand;
 
 	/** Price of this hardware. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	float Price;
 
 	/* An icon for this hardware. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	class UObject* Icon;
 
 	/* List of devices this hardware is supported. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	TArray<TSubclassOf<class UYetiOS_BaseDevice>> SupportedDeviceClasses;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	uint8 bCanInstallIfDeviceIsRunning : 1;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	uint8 bFatalIfForceRemoved : 1;
 
 	/* Does this hardware has wattage settings. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	uint8 bHasWattage : 1;
 
 	/* Power required by this hardware. */
-	UPROPERTY(EditDefaultsOnly, Category = "Hardware", meta = (UIMin = "0", ClampMin = "0", UIMax = "1000", EditCondition = "bHasWattage"))
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware", meta = (UIMin = "0", ClampMin = "0", UIMax = "1000", EditCondition = "bHasWattage"))
 	int32 Wattage;
 	
 	/* Points to the device which this hardware is installed. */
@@ -65,10 +65,10 @@ public:
 
 	UYetiOS_BaseHardware();
 
-	UFUNCTION(BlueprintCallable, Category = "Hardware")
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Hardware")
 	EYetiOsHardwareInstallResult InstallToDevice(class UYetiOS_BaseDevice* ToDevice, const bool bRemoveIfInstalled = false);
 
-	UFUNCTION(BlueprintCallable, Category = "Hardware")
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Hardware")
 	void RemoveFromDevice();
 
 	/**
@@ -76,7 +76,7 @@ public:
 	* Checks if this hardware is installed or not.
 	* @return [bool] True if this hardware is installed to a device.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Hardware")
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Hardware")
 	bool IsInstalled() const;
 
 	/**
@@ -84,7 +84,7 @@ public:
 	* Returns the device this hardware is installed to. If not installed, returns null.
 	* @return [class UYetiOS_BaseDevice*] Returns InstalledDevice or null if not installed.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Hardware")	
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Hardware")	
 	class UYetiOS_BaseDevice* GetInstalledDevice() const;
 
 	const bool IsCompatibleWithDevice(const class UYetiOS_BaseDevice* InDevice) const;
