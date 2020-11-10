@@ -70,21 +70,6 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 	const UYetiOS_SaveGame* LoadGameInstance = UYetiOS_SaveGame::LoadGame();
 	LoadSavedData(LoadGameInstance);
 
-	bool bPartialSuccess = false;
-	const float Local_DeviceDurability = Internal_GetSystemDurability(OutErrorMessage);
-	if (Local_DeviceDurability < 1.f)
-	{
-		if (Local_DeviceDurability == 0.f)
-		{
-			printlog_error(FString::Printf(TEXT("Failed to start %s. Reason: %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
-			return EYetiOsDeviceStartResult::DEVICESTART_HardwareFail;
-		}
-		else
-		{			
-			bPartialSuccess = true;
-		}
-	}
-
 	Internal_CalculateDeviceScore();
 	if (OperatingSystem == nullptr)
 	{
@@ -141,7 +126,7 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 	CREATE_PHYSICAL_DIR(Internal_UserIconsPath(this));
 
 	UpdateDeviceState(EYetiOsDeviceState::STATE_Starting);
-	return bPartialSuccess ? EYetiOsDeviceStartResult::DEVICESTART_PartialSuccess : EYetiOsDeviceStartResult::DEVICESTART_Success;
+	return EYetiOsDeviceStartResult::DEVICESTART_Success;
 }
 
 void UYetiOS_BaseDevice::ChangeOnScreenWidget(class UUserWidget* InNewWidget /*= nullptr*/)
@@ -331,81 +316,6 @@ void UYetiOS_BaseDevice::Internal_CalculateDeviceScore()
 	MaxDeviceScore += Local_HDD.HddRpmSpeed;
 
 	DeviceScore = (DeviceScore * GetMotherboardDurability());
-}
-
-inline const float UYetiOS_BaseDevice::Internal_GetSystemDurability(FYetiOsError& OutErrorMessage) const
-{
-	OutErrorMessage = FYetiOsError();
-	OutErrorMessage.ErrorCode = LOCTEXT("Device_HardwareDurabilityErrorCode", "FATAL_ERROR_HARDWARE_FAIL");
-
-	TArray<FYetiOsCpu> AllCpus = GetAllCpus();
-	TArray<FYetiOsMemory> AllMemories = GetAllMemory();
-	TArray<FYetiOsGpu> AllGpus = GetAllGpu();
-
-	const float TotalValue = AllCpus.Num() + AllMemories.Num() + AllGpus.Num() + 2; // + 2 means taking motherboard and HDD durabilities into account.
-	const float MotherboardDurability = GetMotherboardDurability();
-	const float HddDurability = GetHardDisk().HddDurability;
-	float NewDurability = MotherboardDurability + HddDurability;
-
-	if (MotherboardDurability == 0.f)
-	{
-		OutErrorMessage.ErrorException = LOCTEXT("Device_MotherboardDurabilityErrorException", "Motherboard failed to boot.");
-		return 0.f;
-	}
-
-	if (HddDurability == 0.f)
-	{
-		OutErrorMessage.ErrorException = LOCTEXT("Device_HddDurability", "Hard disk failed to boot.");
-		return 0.f;
-	}
-
-	for (int32 i = 0; i < AllCpus.Num(); ++i)
-	{
-		const float Durability = AllCpus[i].CpuDurability;
-		if (Durability == 0.f)
-		{
-			OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_CpuDurability", "CPU #{0} failed to boot."), FText::AsNumber(i));
-			return 0.f;
-		}
-
-		NewDurability += Durability;
-	}
-
-	for (int32 i = 0; i < AllMemories.Num(); ++i)
-	{
-		const float Durability = AllMemories[i].MemoryDurability;
-		if (Durability == 0.f)
-		{
-			OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_MemoryDurability", "Memory #{0} failed to boot."), FText::AsNumber(i));
-			return 0.f;
-		}
-
-		NewDurability += Durability;
-	}
-
-	for (int32 i = 0; i < AllGpus.Num(); ++i)
-	{
-		const float Durability = AllGpus[i].GpuDurability;
-		if (Durability == 0.f)
-		{
-			OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_GpuDurability", "GPU #{0} failed to boot."), FText::AsNumber(i));
-			return 0.f;
-		}
-
-		NewDurability += Durability;
-	}
-
-	OutErrorMessage.ErrorCode = FText::GetEmpty();
-	ensureMsgf(NewDurability <= TotalValue, TEXT("Durability check is incorrect. NewDurability (%f) should be less than TotalValue (%f)"), NewDurability, TotalValue);
-	const float TotalDurability = NewDurability / TotalValue;
-	static const float DURABILITY_WARNING_THRESHOLD = 0.99;
-	if (TotalDurability < DURABILITY_WARNING_THRESHOLD)
-	{
-		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_DurabilityWarning", "CRITICAL WARNING: Hardware durability low. Replace as soon as possible. ({0}%)."), FText::AsNumber(TotalDurability * 100.f));
-		printlog_warn(FString::Printf(TEXT("%s durability warning %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
-	}	
-
-	return TotalDurability;
 }
 
 inline const bool UYetiOS_BaseDevice::Internal_DeviceCanBoot(FYetiOsError& OutErrorMessage) const

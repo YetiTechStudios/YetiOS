@@ -211,14 +211,6 @@ private:
 	void Internal_CalculateDeviceScore();
 
 	/**
-	* private UYetiOS_BaseDevice::Internal_GetSystemDurability const
-	* Gets the durability of the system in 0-1 range.
-	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @return [const float] Returns system durability.
-	**/
-	inline const float Internal_GetSystemDurability(FYetiOsError& OutErrorMessage) const;
-
-	/**
 	* private UYetiOS_BaseDevice::Internal_DeviceCanBoot const
 	* Checks if the device can boot.
 	* @param OutErrorMessage [FYetiOsError &] Outputs error message (if any).
