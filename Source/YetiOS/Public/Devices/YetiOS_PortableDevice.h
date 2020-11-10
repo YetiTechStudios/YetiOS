@@ -101,20 +101,6 @@ protected:
 
 	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance) override final;
 
-	virtual const FYetiOsHardDisk GetHardDisk() const override final;
-	virtual const float GetTotalCpuSpeed(const bool bWithDurability) const override final;
-	virtual const float GetTotalMemorySize() const override final;
-	virtual const float GetMotherboardDurability() const override final;
-	virtual const bool MotherboardHasOnBoardGraphics() const override final;
-	virtual const bool CpusAreOfCorrectType(FYetiOsCpu& OutIncorrectCpu) const override final;
-	virtual const bool IsGpuInstalled() const override final;
-	virtual const bool HasEnoughPower() const override final;
-	virtual const FString GetSocketName() const override final;
-	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const override final;
-	virtual const TArray<FYetiOsCpu> GetAllCpus() const override final;
-	virtual const TArray<FYetiOsMemory> GetAllMemory() const override final;
-	virtual const TArray<FYetiOsGpu> GetAllGpu() const override final;
-
 protected:
 
 	/**

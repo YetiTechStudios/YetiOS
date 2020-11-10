@@ -234,25 +234,11 @@ protected:
 
 	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance);
 
-	virtual const FYetiOsHardDisk GetHardDisk() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetHardDisk, return FYetiOsHardDisk(););
-	virtual const float GetTotalCpuSpeed(const bool bWithDurability) const				PURE_VIRTUAL(UYetiOS_BaseDevice::GetTotalCpuSpeed, return 0.f;);
-	virtual const float GetTotalMemorySize() const										PURE_VIRTUAL(UYetiOS_BaseDevice::GetTotalMemorySize(), return 0.f;);
-	virtual const float GetMotherboardDurability() const								PURE_VIRTUAL(UYetiOS_BaseDevice::GetMotherboardDurability, return 0.f;);
-	virtual const bool MotherboardHasOnBoardGraphics() const							PURE_VIRTUAL(UYetiOS_BaseDevice::MotherboardHasOnBoardGraphics, return false;);
-	virtual const bool CpusAreOfCorrectType(FYetiOsCpu& OutIncorrectCpu) const			PURE_VIRTUAL(UYetiOS_BaseDevice::CpusAreOfCorrectType, return false;);
-	virtual const bool IsGpuInstalled() const											PURE_VIRTUAL(UYetiOS_BaseDevice::IsGpuInstalled, return false;);
-	virtual const bool HasEnoughPower() const											PURE_VIRTUAL(UYetiOS_BaseDevice::HasEnoughPower, return false;);
-	virtual const FString GetSocketName() const											PURE_VIRTUAL(UYetiOS_BaseDevice::GetSocketName, return FString(););
-	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const		PURE_VIRTUAL(UYetiOS_BaseDevice::GetRootDirectoryClass, return nullptr;);
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
-	virtual const TArray<FYetiOsCpu> GetAllCpus() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllCpus, return TArray<FYetiOsCpu>(););
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
-	virtual const TArray<FYetiOsMemory> GetAllMemory() const							PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllMemory, return TArray<FYetiOsMemory>(););
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
-	virtual const TArray<FYetiOsGpu> GetAllGpu() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllGpu, return TArray<FYetiOsGpu>(););
 
 public:
 
