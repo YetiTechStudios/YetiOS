@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class YETIOS_API UYetiOS_DeviceHardware : public UYetiOS_BaseHardware
 {
 	GENERATED_BODY()
