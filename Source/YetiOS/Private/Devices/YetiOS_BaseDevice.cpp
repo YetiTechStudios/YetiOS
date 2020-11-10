@@ -17,6 +17,7 @@
 #include "Misc/FileHelper.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Runtime/Launch/Resources/Version.h"
+#include "Hardware/YetiOS_Motherboard.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
@@ -59,7 +60,8 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 	OutErrorMessage = FYetiOsError();
 	printlog(FString::Printf(TEXT("Trying to start %s"), *DeviceName.ToString()));
 
-	if (Internal_DeviceCanBoot(OutErrorMessage) == false)
+	DeviceMotherboard = UYetiOS_Motherboard::CreateMotherboard(this, OutErrorMessage);
+	if (DeviceMotherboard == nullptr)
 	{
 		printlog_error(FString::Printf(TEXT("Failed to start %s. Reason: %s"), *DeviceName.ToString(), *OutErrorMessage.ErrorException.ToString()));
 		return EYetiOsDeviceStartResult::DEVICESTART_HardwareFail;
@@ -291,55 +293,6 @@ void UYetiOS_BaseDevice::Internal_RemoveHardware(class UYetiOS_BaseHardware* InH
 	}
 
 	K2_OnHardwareRemoved(InHardware);
-}
-
-
-inline const bool UYetiOS_BaseDevice::Internal_DeviceCanBoot(FYetiOsError& OutErrorMessage) const
-{
-	if (GetAllCpus().IsValidIndex(0) == false)
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoCpuErrorCode", "NO_CPU_BOOT_ERROR");
-		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoCpuErrorException", "You need a cpu to boot this device.");
-		return false;
-	}
-	
-	FYetiOsCpu OutIncorrectCpu;
-	if (CpusAreOfCorrectType(OutIncorrectCpu) == false)
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorIncorrectCpuErrorCode", "INCORRECT_CPU_BOOT_ERROR");
-		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("Device_BootErrorIncorrectCpuErrorException", "{0} {1} is of incorrect socket type ({2}). This motherboard requires '{3}' socket type."), OutIncorrectCpu.Brand, OutIncorrectCpu.Model, FText::FromString(OutIncorrectCpu.GetSocketName()), FText::FromString(GetSocketName()));
-		return false;
-	}
-
-	if (GetAllMemory().IsValidIndex(0) == false)
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoRamErrorCode", "NO_RAM_BOOT_ERROR");
-		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoRamErrorException", "Missing memory.");
-		return false;
-	}
-
-	if (GetAllGpu().IsValidIndex(0) == false && MotherboardHasOnBoardGraphics() == false)
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoGpuErrorCode", "NO_GRAPHICS_BOOT_ERROR");
-		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoGpuErrorException", "Requires a GPU to boot this device.");
-		return false;
-	}
-
-	if (HasEnoughPower() == false)
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("Device_PowerFailureErrorCode", "POWER_FAILURE");
-		OutErrorMessage.ErrorException = LOCTEXT("Device_PowerFailureErrorException", "Your device doesn't have enough power to boot.");
-		return false;
-	}
-
-	if (GetRootDirectoryClass() == nullptr)
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("Device_BootErrorNoRootDirErrorCode", "NO_ROOT_DIRECTORY");
-		OutErrorMessage.ErrorException = LOCTEXT("Device_BootErrorNoRootDirErrorException", "Requires a root directory to boot this device.");
-		return false;
-	}
-
-	return true;
 }
 
 const FString UYetiOS_BaseDevice::Internal_GetBasePath()

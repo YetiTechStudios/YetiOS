@@ -43,6 +43,7 @@ private:
 	uint8 bBsodHappened : 1;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	class UYetiOS_Motherboard* DeviceMotherboard;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OperatingSystem;
@@ -199,14 +200,6 @@ private:
 
 	void Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved);
 	void Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware);
-
-	/**
-	* private UYetiOS_BaseDevice::Internal_DeviceCanBoot const
-	* Checks if the device can boot.
-	* @param OutErrorMessage [FYetiOsError &] Outputs error message (if any).
-	* @return [const bool] Returns true if device can boot.
-	**/
-	inline const bool Internal_DeviceCanBoot(FYetiOsError& OutErrorMessage) const;
 
 	/**
 	* private static UYetiOS_BaseDevice::Internal_GetBasePath
