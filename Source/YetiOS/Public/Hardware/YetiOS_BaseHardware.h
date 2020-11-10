@@ -88,6 +88,16 @@ public:
 	class UYetiOS_BaseDevice* GetInstalledDevice() const;
 
 	const bool IsCompatibleWithDevice(const class UYetiOS_BaseDevice* InDevice) const;
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Hardware")
+	FText GetName() const { return Name; }
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Hardware")
+	FText GetModel() const { return Model; }
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Hardware")
+	FText GetBrand() const { return Brand; }
+
 public:
 
 	FORCEINLINE const bool IsFatalIfForceRemoved() const { return bFatalIfForceRemoved; }
