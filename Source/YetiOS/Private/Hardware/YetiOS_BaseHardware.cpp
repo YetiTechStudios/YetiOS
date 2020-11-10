@@ -67,4 +67,20 @@ class UYetiOS_BaseDevice* UYetiOS_BaseHardware::GetInstalledDevice() const
 	return InstalledDevice;
 }
 
+const bool UYetiOS_BaseHardware::IsCompatibleWithDevice(const class UYetiOS_BaseDevice* InDevice) const
+{
+	if (InDevice)
+	{
+		for (const auto& It : SupportedDeviceClasses)
+		{
+			if (InDevice->GetClass()->IsChildOf(It))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 #undef LOCTEXT_NAMESPACE

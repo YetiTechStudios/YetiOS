@@ -87,6 +87,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Hardware")	
 	class UYetiOS_BaseDevice* GetInstalledDevice() const;
 
+	const bool IsCompatibleWithDevice(const class UYetiOS_BaseDevice* InDevice) const;
 public:
 
 	FORCEINLINE const bool IsFatalIfForceRemoved() const { return bFatalIfForceRemoved; }
