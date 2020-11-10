@@ -320,25 +320,6 @@ const FString UYetiOS_BaseDevice::Internal_UserIconsPath(const UYetiOS_BaseDevic
 	return FPaths::Combine(Internal_GetSavePath(InDevice), *FString("UserIcons"));
 }
 
-const TArray<FString> UYetiOS_BaseDevice::Internal_GetFiles(const FString& InPath, const FString& InExtension /*= "*.png"*/)
-{
-	TArray<FString> Output;
-	if (FPaths::DirectoryExists(InPath))
-	{
-		const FString CheckPath = FString::Printf(TEXT("%s/%s"), *InPath, *InExtension);
-		FFileManagerGeneric::Get().FindFiles(Output, *CheckPath, true, false);
-		printlog_veryverbose(FString::Printf(TEXT("Found %i %s files in path: %s"), Output.Num(), *InExtension, *InPath));
-		for (int i = 0; i < Output.Num(); ++i)
-		{
-			const FString Result = FString::Printf(TEXT("%s/%s"), *InPath, *Output[i]);
-			Output[i] = Result;
-			printlog_veryverbose(FString::Printf(TEXT("Found file: %s"), *Result.Replace(*Internal_GetBasePath(), TEXT("..."))));
-		}
-	}
-
-	return Output;
-}
-
 const TArray<FString> UYetiOS_BaseDevice::Internal_GetFiles(const FString& InPath, const TSet<FString>& InExtensions)
 {
 	TArray<FString> ReturnResult;

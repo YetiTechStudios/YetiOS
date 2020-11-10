@@ -215,15 +215,6 @@ private:
 
 	/**
 	* private static UYetiOS_BaseDevice::Internal_GetFiles
-	* Gets an array of physical paths of given file type extension.
-	* @param InPath [const FString&] Physical path to search.
-	* @param InExtension [const FString&] Extension to search for.
-	* @return [const TArray<FString>] Array of files.
-	**/
-	static const TArray<FString> Internal_GetFiles(const FString& InPath, const FString& InExtension = "*.png");
-
-	/**
-	* private static UYetiOS_BaseDevice::Internal_GetFiles
 	* Gets an array of physical paths of given file type extensions.
 	* @param InPath [const FString&] Physical path to search.
 	* @param InExtensions [const TSet<FString>&] Array of Extensions to search for. Example *.png, *.jpg etc. @See GetImageExtensions method.
