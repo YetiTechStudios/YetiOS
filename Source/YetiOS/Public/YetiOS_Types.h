@@ -840,6 +840,91 @@ struct FYetiOsProgramSaveLoad
 	bool bSaveLoad_SingleInstanceOnly;
 };
 
+USTRUCT()
+struct FYetiOS_DeviceCPU
+{
+	GENERATED_USTRUCT_BODY();
+
+	/** How many should be created. Better to keep it <= 4 */
+	UPROPERTY(EditAnywhere, Category = "Device CPU")
+	uint8 Total;
+
+	/** Class of object to construct. */
+	UPROPERTY(EditAnywhere, Category = "Device CPU")
+	TSubclassOf<class UYetiOS_CPU> Class;
+
+	FYetiOS_DeviceCPU()
+	{
+		Total = 1;
+		Class = nullptr;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOS_DeviceMemory
+{
+	GENERATED_USTRUCT_BODY();
+
+	/** How many should be created. Better to keep it <= 4 */
+	UPROPERTY(EditAnywhere, Category = "Device Memory")
+	uint8 Total;
+
+	/** Class of object to construct. */
+	UPROPERTY(EditAnywhere, Category = "Device Memory")
+	TSubclassOf<class UYetiOS_Memory> Class;
+
+	FYetiOS_DeviceMemory()
+	{
+		Total = 1;
+		Class = nullptr;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOS_DeviceGPU
+{
+	GENERATED_USTRUCT_BODY();
+
+	/** How many should be created. Better to keep it <= 4 */
+	UPROPERTY(EditAnywhere, Category = "Device GPU")
+	uint8 Total;
+
+	/** Class of object to construct. */
+	UPROPERTY(EditAnywhere, Category = "Device GPU")
+	TSubclassOf<class UYetiOS_GraphicsCard> Class;
+
+	FYetiOS_DeviceGPU()
+	{
+		Total = 1;
+		Class = nullptr;
+	}
+};
+
+USTRUCT()
+struct FYetiOS_DeviceClasses
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere, Category = "Device Classes")
+	TSubclassOf<class UYetiOS_Motherboard> MotherboardClass;
+
+	UPROPERTY(EditAnywhere, Category = "Device Classes")
+	FYetiOS_DeviceCPU CPU;
+
+	UPROPERTY(EditAnywhere, Category = "Device Classes")
+	FYetiOS_DeviceMemory Memory;
+
+	UPROPERTY(EditAnywhere, Category = "Device Classes")
+	FYetiOS_DeviceGPU GPU;
+
+	UPROPERTY(EditAnywhere, Category = "Device Classes")
+	TSubclassOf<class UYetiOS_HardDisk> HardDiskClass;
+
+	UPROPERTY(EditAnywhere, Category = "Device Classes")
+	TSubclassOf<class UYetiOS_PowerSupply> PowerSupplyClass;
+};
+
+
 template<typename TEnum>
 static FORCEINLINE const FString GetEnumAsString(const FString& Name, TEnum Value)
 {
