@@ -100,14 +100,48 @@ void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotificat
 	}
 }
 
+const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage)
 {
+	bool bSuccess = true;
+	if (bIsInstalled)
 	{
+		OsWidget->BeginLoadOS();
+	}
+	else
+	{
+		if (Internal_ConsumeSpace(InstallationSpace))
+		{
+			static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
+			static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
+			static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "INSTALL_START");
+			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
+			CreateOsNotification(NewNotification);
 
+			CalculatedInstallationTime = FMath::RandRange(MinInstallationTime, MaxInstallationTime);
 
+			printlog(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
+			OsWidget->StartOsInstallation(CalculatedInstallationTime);
 
+			OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
+		}
+		else
+		{
+			static const FText Exception = LOCTEXT("YetiOS_StartInstallation", "Insufficient space.");
+			static const FText DetailedException = LOCTEXT("YetiOS_StartInstallationDescription", "Not enough space to install Operating System on this device.");
+			static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "OS_INSTALL_FAIL");
+			OutErrorMessage.ErrorCode = Code;
+			OutErrorMessage.ErrorException = Exception;
+			OutErrorMessage.ErrorDetailedException = DetailedException;
+			if (bShowBsodIfInstallationFails)
+			{
+				AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, Code, Exception, DetailedException);
+			}
 
+			bSuccess = false;
+		}
 	}
 
+	return bSuccess;
 }
 
 void UYetiOS_Core::ShutdownOS()

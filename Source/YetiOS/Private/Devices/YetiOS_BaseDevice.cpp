@@ -153,14 +153,7 @@ void UYetiOS_BaseDevice::ChangeOnScreenWidget(class UUserWidget* InNewWidget /*=
 void UYetiOS_BaseDevice::StartOperatingSystem(FYetiOsError& OutErrorMessage, const bool bShowBsodOnError /*= true*/)
 {
 	ChangeOnScreenWidget(OperatingSystem->GetOsWidget());
-	if (bOperatingSystemInstalled)
-	{
-		OperatingSystem->LoadOS();
-	}
-	else
-	{
-		OperatingSystem->StartOperatingSystemInstallation(bShowBsodOnError, OutErrorMessage);
-	}
+	OperatingSystem->StartOperatingSystem(bOperatingSystemInstalled, bShowBsodOnError, OutErrorMessage);
 }
 
 void UYetiOS_BaseDevice::ShutdownYetiDevice()
