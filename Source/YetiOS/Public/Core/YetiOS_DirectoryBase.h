@@ -59,7 +59,13 @@ protected:
 	TArray<UYetiOS_DirectoryBase*> ChildDirectories;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	TSet<UYetiOS_DirectoryBase*> SystemDirectories;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OwningOS;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	uint8 bIsSystemDirectory : 1;
 
 public:
 
@@ -125,6 +131,14 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
 	TArray<class UYetiOS_DirectoryBase*> GetAllChildDirectories() const { return ChildDirectories; }
+
+	/**
+	* public UYetiOS_DirectoryBase::GetSystemDirectories const
+	* Gets all system directories.
+	* @return [TSet<class UYetiOS_DirectoryBase*>] A set of system directories.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")	
+	TSet<class UYetiOS_DirectoryBase*> GetSystemDirectories() const { return SystemDirectories; }
 
 	/**
 	* public UYetiOS_Directory::GetDirectoryFiles const
@@ -211,9 +225,16 @@ private:
 	* @param bForceCreate [const bool] Forcefully creates child directory even if this folder cannot create new directory. Ignores bCanCreateNewFolder.
 	* @param bCreateGrandChildDirectories [const bool] Continue to create child directories inside child directories.
 	* @param CheckDirectoryName [const FText&] Override default directory name with this name. 
+	* @param bIsSystemDir [const bool] Indicates the newly created directory is a system directory.
 	* @return [TArray<UYetiOS_DirectoryBase*>] Reference to the list of newly created child directories. This does not include grand child directories.
 	**/
-	TArray<UYetiOS_DirectoryBase*> Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate = false, const bool bCreateGrandChildDirectories = true, const FText& CheckDirectoryName = FText::GetEmpty());
+	TArray<UYetiOS_DirectoryBase*> Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, 
+		const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, 
+		FYetiOsError& OutErrorMessage, 
+		const bool bForceCreate = false, 
+		const bool bCreateGrandChildDirectories = true, 
+		const FText& CheckDirectoryName = FText::GetEmpty(), 
+		const bool bIsSystemDir = false);
 
 public:
 

@@ -8,4 +8,5 @@ UYetiOS_DirectoryRoot::UYetiOS_DirectoryRoot()
 	bCanCreateNewFolder = false;
 	bCanCreateNewFile = false;
 	bIsHidden = true;
+	bIsSystemDirectory = true;
 }

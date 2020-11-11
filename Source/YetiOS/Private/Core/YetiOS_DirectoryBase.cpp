@@ -9,6 +9,7 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDirectoryBase, All, All)
 
+#define printlog_warning(Param1)					UE_LOG(LogYetiOsDirectoryBase, Warning, TEXT("%s"), *FString(Param1))
 #define printlog_veryverbose(Param1)				UE_LOG(LogYetiOsDirectoryBase, VeryVerbose, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "YetiOS"
@@ -19,6 +20,7 @@ UYetiOS_DirectoryBase::UYetiOS_DirectoryBase()
 	bCanCreateNewFile = true;
 	bIsHidden = false;
 	ParentDirectory = nullptr;
+	bIsSystemDirectory = false;
 }
 
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectory(TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass) const
@@ -126,7 +128,7 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateChildDirectories(cla
 
 TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateNativeChildDirectories(class UYetiOS_Core* InOwningOS, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/)
 {
-	return Internal_CreateChildDirectories(InOwningOS, ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories);
+	return Internal_CreateChildDirectories(InOwningOS, ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories, FText::GetEmpty(), true);
 }
 
 void UYetiOS_DirectoryBase::EnsureOS(const class UYetiOS_Core* InOS)
@@ -180,7 +182,7 @@ const bool UYetiOS_DirectoryBase::CreateNewFile(FFileProperties InNewFile, FYeti
 	return false;
 }
 
-TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/)
+TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/, const bool bIsSystemDir /*= false*/)
 {
 	EnsureOS(InOwningOS);
 	TArray<UYetiOS_DirectoryBase*> ReturnResult;
@@ -211,7 +213,13 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 				{
 					ChildDirectory->DirectoryName = CheckDirectoryName;
 				}
+				ChildDirectory->bIsSystemDirectory = false;
 				ChildDirectories.Add(ChildDirectory);
+				if (bIsSystemDir)
+				{
+					ChildDirectory->bIsSystemDirectory = true;
+					SystemDirectories.Add(ChildDirectory);
+				}
 				ReturnResult.Add(ChildDirectory);
 				OwningOS->AddToCreatedDirectories(ChildDirectory);
 				printlog_veryverbose(FString::Printf(TEXT("Created child directory [%s] in %s."), *ChildDirectory->DirectoryName.ToString(), *DirectoryName.ToString()));
@@ -313,5 +321,6 @@ inline const bool UYetiOS_DirectoryBase::HasChildDirectory(const FText& InDirect
 	return false;
 }
 
+#undef printlog_warning
 #undef printlog_veryverbose
 #undef LOCTEXT_NAMESPACE
