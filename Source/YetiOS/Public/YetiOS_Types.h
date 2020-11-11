@@ -263,6 +263,27 @@ struct FYetiOsError
 		ErrorException = FText::GetEmpty();
 		ErrorDetailedException = FText::GetEmpty();
 	}
+
+	FYetiOsError(const FText InErrorCode)
+	{
+		ErrorCode = InErrorCode;
+		ErrorException = FText::GetEmpty();
+		ErrorDetailedException = FText::GetEmpty();
+	}
+
+	FYetiOsError(const FText InErrorCode, const FText InErrorException)
+	{
+		ErrorCode = InErrorCode;
+		ErrorException = InErrorException;
+		ErrorDetailedException = FText::GetEmpty();
+	}
+
+	FYetiOsError(const FText InErrorCode, const FText InErrorException, const FText InErrorExceptionDetailed)
+	{
+		ErrorCode = InErrorCode;
+		ErrorException = InErrorException;
+		ErrorDetailedException = InErrorExceptionDetailed;
+	}
 };
 
 USTRUCT(BlueprintType)
