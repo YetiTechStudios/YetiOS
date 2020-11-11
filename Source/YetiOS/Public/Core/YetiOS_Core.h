@@ -369,32 +369,6 @@ public:
 protected:
 
 	/**
-	* protected UYetiOS_Core::GetTotalMemory const
-	* Returns total memory on the device.
-	* @param bInBytes [const bool] True to return the value in bytes.
-	* @return [const float] Total memory.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const float GetTotalMemory(const bool bInBytes = true) const;
-
-	/**
-	* protected UYetiOS_Core::GetTotalCPUSpeed const
-	* Returns the total cpu speed.
-	* @param bWithDurability [const bool] If true consider durability to calculate total cpu speed.
-	* @return [const float] Returns a combined speed of all cpus.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const float GetTotalCPUSpeed(const bool bWithDurability = true) const;
-
-	/**
-	* protected UYetiOS_Core::HasGpuInstalled const
-	* Checks if motherboard has at least one GPU installed. This does not check for on board graphics. Only installed GPUs.
-	* @return [const bool] True if one or more GPU is available.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const bool HasGpuInstalled() const;
-
-	/**
 	* protected UYetiOS_Core::HasValidRootDirectoryClass const
 	* True if this OS has a valid root directory class.
 	* @return [const bool] True if valid root directory class is available.
