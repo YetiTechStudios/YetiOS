@@ -867,3 +867,36 @@ static FORCEINLINE bool GetEnumValueFromString(const FString& EnumName, const FS
 	OutEnum = (EnumType)Enum->GetIndexByName(FName(*TargetString));
 	return true;
 }
+
+static FORCEINLINE const FYetiOsError GetErrorStruct(const FText& InErrorCode, const FText& InErrorException, const FText& InErrorExceptionDetail = FText::GetEmpty())
+{
+	return FYetiOsError(InErrorCode, InErrorException, InErrorExceptionDetail);
+}
+
+#define LOCTEXT_NAMESPACE "YetiOS"
+
+namespace YetiOS_CommonErrors
+{
+	static const FText MbNotCompatibleErrorCode = LOCTEXT("MbCompatibleErrorCode", "HW_MB_NOT_COMPATIBLE");
+	static const FText MbNotCompatibleErrorException = LOCTEXT("MbCompatibleErrorException", "Motherboard not compatible with target device.");
+
+	static const FText MbErrorCode = LOCTEXT("NoMbErrorCode", "HW_MB_FAIL");
+	static const FText MbErrorException = LOCTEXT("NoMbErrorException", "You need a motherboard to boot this device.");
+
+	static const FText CpuErrorCode = LOCTEXT("NoCpuErrorCode", "HW_CPU_FAIL");
+	static const FText CpuErrorException = LOCTEXT("NoCpuErrorException", "You need a cpu to boot this device.");
+
+	static const FText RamErrorCode = LOCTEXT("NoRamErrorCode", "HW_RAM_FAIL");
+	static const FText RamErrorException = LOCTEXT("NoRamErrorException", "Memory Error.");
+
+	static const FText GpuErrorCode = LOCTEXT("NoGpuErrorCode", "HW_GPU_FAIL");
+	static const FText GpuErrorException = LOCTEXT("NoGpuErrorException", "Failed to access Graphics Card (GPU).");
+
+	static const FText HddErrorCode = LOCTEXT("NoHddErrorCode", "HW_HDD_FAIL");
+	static const FText HddErrorException = LOCTEXT("NoHddErrorException", "Failed to read/write from Hard Disk.");
+
+	static const FText PsuErrorCode = LOCTEXT("NoPsuErrorCode", "HW_PSU_FAIL");
+	static const FText PsuErrorException = LOCTEXT("NoPsuErrorException", "Failed to access Power Supply.");
+}
+
+#undef LOCTEXT_NAMESPACE
