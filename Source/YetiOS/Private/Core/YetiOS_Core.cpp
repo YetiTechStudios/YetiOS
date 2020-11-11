@@ -19,6 +19,8 @@
 #include "Engine/Public/TimerManager.h"
 #include "Runtime/UMG/Public/Components/CanvasPanelSlot.h"
 #include "Runtime/UMG/Public/Blueprint/WidgetLayoutLibrary.h"
+#include "Hardware/YetiOS_Motherboard.h"
+#include "Hardware/YetiOS_HardDisk.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
@@ -69,7 +71,7 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 			ProxyOS->Taskbar = UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
 			ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
 			ProxyOS->InstalledPrograms.Empty();
-			ProxyOS->RemainingSpace = InParentDevice->GetHardDisk().HddCapacity;
+			ProxyOS->RemainingSpace = InParentDevice->GetHardDisk()->GetHddCapacity();
 			return ProxyOS;
 		}
 
