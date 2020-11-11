@@ -18,6 +18,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Runtime/Launch/Resources/Version.h"
 #include "Hardware/YetiOS_Motherboard.h"
+#include "Hardware/YetiOS_HardDisk.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
@@ -364,6 +365,27 @@ void UYetiOS_BaseDevice::LoadSavedData(const class UYetiOS_SaveGame* InLoadGameI
 		printlog_veryverbose("Loading device save data...");
 		bOperatingSystemInstalled = InLoadGameInstance->GetDeviceLoadData().bSaveLoad_OsInstalled;
 	}
+}
+
+const UYetiOS_HardDisk* UYetiOS_BaseDevice::GetHardDisk() const
+{
+	return DeviceMotherboard->GetHardDisk();
+}
+
+const float UYetiOS_BaseDevice::GetTotalCpuSpeed() const
+{
+	return DeviceMotherboard->GetTotalCpuSpeed();
+}
+
+const float UYetiOS_BaseDevice::GetTotalMemorySize(const bool bInBytes /*= true*/) const
+{
+	const float TotalMemory = DeviceMotherboard->GetTotalMemorySize();
+	return bInBytes ? TotalMemory * 1000000.f : TotalMemory;
+}
+
+TSubclassOf<class UYetiOS_DirectoryRoot> UYetiOS_BaseDevice::GetRootDirectoryClass() const
+{
+	return DeviceMotherboard->GetHardDisk()->GetRootDirectoryClass();
 }
 
 TArray<FString> UYetiOS_BaseDevice::GetLoginWallpapers(const UYetiOS_BaseDevice* InDevice)

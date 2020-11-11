@@ -28,6 +28,9 @@ private:
 	FText DeviceName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
+	FYetiOS_DeviceClasses DeviceClasses;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_Core> OperatingSystemClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
@@ -166,6 +169,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	inline FText GetDeviceName() const { return DeviceName; }
 
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	class UYetiOS_Motherboard* GetMotherboard() const { return DeviceMotherboard; }
+
 	/**
 	* public UYetiOS_BaseDevice::UpdateDeviceState
 	* Updates current device state to new state.
@@ -234,11 +240,15 @@ protected:
 
 	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance);
 
+	virtual const UYetiOS_HardDisk* GetHardDisk() const;
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	virtual const float GetTotalCpuSpeed() const; 
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	virtual const float GetTotalMemorySize(const bool bInBytes = true) const;
 
+	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const;
 
 public:
 
@@ -306,6 +316,7 @@ public:
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
 	FORCEINLINE const bool IsInBsodState() const { return bBsodHappened; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
+	FORCEINLINE const FYetiOS_DeviceClasses& GetDeviceClasses() const { return DeviceClasses; }
 	
 	static FORCEINLINE const TSet<FString> GetImageExtensions()
 	{
