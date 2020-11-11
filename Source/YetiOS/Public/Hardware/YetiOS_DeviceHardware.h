@@ -16,12 +16,12 @@ class YETIOS_API UYetiOS_DeviceHardware : public UYetiOS_BaseHardware
 
 protected:
 
-	/** Temperature settings. */
-	UPROPERTY(EditDefaultsOnly, Category = "Device Hardware")
+	/** Temperature settings. */ // #TERMINALPLUGIN TODO STILL NEED WORK
+	//UPROPERTY(EditDefaultsOnly, Category = "Device Hardware")
 	FYetiOSTemperature Temperature;
 
 	/** Current temperature of this hardware. */
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	//UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 CurrentTemperature;
 
 public:
