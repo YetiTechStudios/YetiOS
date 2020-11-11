@@ -206,19 +206,9 @@ public:
 	void CreateOsNotification(const FYetiOsNotification InNewNotification);
 
 	/**
-	* public UYetiOS_Core::StartOperatingSystemInstallation
-	* Starts Operating System installation.
 	* @param bShowBsodIfInstallationFails [const bool] If true, then show blue screen widget if installation fails. Recommended to keep this true.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @return [const bool] Returns true if installation was started successfully.
 	**/
-	const bool StartOperatingSystemInstallation(const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage);
-	
-	/**
-	* public UYetiOS_Core::LoadOS
-	* Load the operating system. Calls BeginLoadOS() in OsWidget.
-	**/
-	void LoadOS();
 
 	/**
 	* public UYetiOS_Core::ShutdownOS

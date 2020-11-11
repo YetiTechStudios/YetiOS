@@ -100,42 +100,14 @@ void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotificat
 	}
 }
 
-const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage)
 {
-	if (Internal_ConsumeSpace(InstallationSpace))
 	{
-		static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
-		static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
-		static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "INSTALL_START");
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
-		CreateOsNotification(NewNotification);
 
-		CalculatedInstallationTime = FMath::RandRange(MinInstallationTime, MaxInstallationTime);
 
-		printlog(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
-		OsWidget->StartOsInstallation(CalculatedInstallationTime);
 
-		OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
-		return true;
+
 	}
 
-	static const FText Exception = LOCTEXT("YetiOS_StartInstallation", "Insufficient space.");
-	static const FText DetailedException = LOCTEXT("YetiOS_StartInstallationDescription", "Not enough space to install Operating System on this device.");
-	static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "OS_INSTALL_FAIL");
-	OutErrorMessage.ErrorCode = Code;
-	OutErrorMessage.ErrorException = Exception;
-	OutErrorMessage.ErrorDetailedException = DetailedException;
-	if (bShowBsodIfInstallationFails)
-	{		
-		AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, Code, Exception, DetailedException);
-	}
-
-	return false;
-}
-
-void UYetiOS_Core::LoadOS()
-{
-	OsWidget->BeginLoadOS();
 }
 
 void UYetiOS_Core::ShutdownOS()
