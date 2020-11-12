@@ -540,16 +540,7 @@ void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 	const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
 	CreateOsNotification(NewNotification);
 
-	UYetiOS_AppIconWidget* OutIconWidget = nullptr;
-	FYetiOsError OutError;
-	for (const auto& It : ProgramsToInstall)
-	{		
-		UYetiOS_BaseProgram* Local_InstalledProgram = InstallProgram(It, OutError, OutIconWidget);
-		if (Local_InstalledProgram == nullptr)
-		{
-			printlog_warn(OutError.ErrorDetailedException.ToString());
-		}
-	}
+	Internal_InstallStartupPrograms();
 
 	printlog(Description.ToString());
 
@@ -592,6 +583,20 @@ const bool UYetiOS_Core::Internal_ConsumeSpace(float InSpaceToConsume)
 	}
 
 	return false;
+}
+
+void UYetiOS_Core::Internal_InstallStartupPrograms()
+{
+	UYetiOS_AppIconWidget* OutIconWidget = nullptr;
+	FYetiOsError OutError;
+	for (const auto& It : ProgramsToInstall)
+	{
+		UYetiOS_BaseProgram* Local_InstalledProgram = InstallProgram(It, OutError, OutIconWidget);
+		if (Local_InstalledProgram == nullptr)
+		{
+			printlog_warn(OutError.ErrorDetailedException.ToString());
+		}
+	}
 }
 
 void UYetiOS_Core::NotifyBatteryLevelChange(const float& CurrentBatteryLevel)

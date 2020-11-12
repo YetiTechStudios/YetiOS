@@ -405,7 +405,15 @@ private:
 	**/
 	const bool Internal_ConsumeSpace(float InSpaceToConsume);
 
+	/**
+	* private UYetiOS_Core::Internal_InstallStartupPrograms
+	* Installs all programs defined in ProgramsToInstall.
+	**/
+	void Internal_InstallStartupPrograms();
+
 public:
+
+	void OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveGame*& LoadGameInstance, FYetiOsError& OutErrorMessage);
 
 	/**
 	* public UYetiOS_Core::NotifyBatteryLevelChange
