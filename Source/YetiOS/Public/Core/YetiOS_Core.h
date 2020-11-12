@@ -171,6 +171,8 @@ private:
 
 	int32 CurrentZOrder;
 
+	TWeakObjectPtr<UYetiOS_DirectoryBase> DesktopDirectory;
+
 public:
 
 	UYetiOS_Core();
