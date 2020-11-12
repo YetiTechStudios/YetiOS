@@ -265,7 +265,7 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::Internal_GetChildDirectoryByType(c
 				return ChildIt;
 			}
 
-			UYetiOS_DirectoryBase* Local_Child = ChildIt->GetChildDirectoryByType(InType);
+			UYetiOS_DirectoryBase* Local_Child = ChildIt->Internal_GetChildDirectoryByType(InType);
 			if (Local_Child)
 			{
 				return Local_Child;
