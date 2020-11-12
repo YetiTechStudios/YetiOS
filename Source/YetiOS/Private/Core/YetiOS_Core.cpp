@@ -763,6 +763,13 @@ bool UYetiOS_Core::GetStartMenu(UYetiOS_StartMenu*& OutStartMenu) const
 	return false;
 }
 
+bool UYetiOS_Core::GetDesktopDirectory(UYetiOS_DirectoryBase*& OutDesktopDir) const
+{
+	const bool bIsValid = DesktopDirectory.IsValid();
+	OutDesktopDir = bIsValid ? DesktopDirectory.Get() : nullptr;
+	return bIsValid;
+}
+
 const TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetInstalledPrograms(const bool bSystemProgramsOnly /*= false*/) const
 {
 	if (bSystemProgramsOnly)

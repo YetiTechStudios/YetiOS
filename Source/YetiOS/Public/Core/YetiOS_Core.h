@@ -599,6 +599,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
 	bool GetStartMenu(UYetiOS_StartMenu*& OutStartMenu) const;
 
+	/**
+	* public UYetiOS_Core::GetDesktopDirectory const
+	* Returns true if there is a valid Desktop associated with this operating system.
+	* @param OutDesktopDir [UYetiOS_DirectoryBase*&] Gets a reference to Desktop directory.
+	* @return [bool] True if desktop directory is available.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	bool GetDesktopDirectory(UYetiOS_DirectoryBase*& OutDesktopDir) const;
+
 protected:
 
 	/**
