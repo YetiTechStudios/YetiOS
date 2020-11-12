@@ -599,6 +599,44 @@ void UYetiOS_Core::Internal_InstallStartupPrograms()
 	}
 }
 
+void UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveGame*& LoadGameInstance, FYetiOsError& OutErrorMessage)
+{
+	if (LoadGameInstance)
+	{
+		printlog_veryverbose("Loading OS save data...");
+		OsVersion = LoadGameInstance->GetOsLoadData().SaveLoad_OSVersion;
+		OsUsers = LoadGameInstance->GetOsLoadData().SaveLoad_OsUsers;
+		RemainingSpace = LoadGameInstance->GetOsLoadData().SaveLoad_RemainingSpace;
+		if (GetRootDirectory())
+		{
+			TArray<FYetiOsDirectorySaveLoad> SavedDirectories = LoadGameInstance->GetDirectoriesData();
+			printlog_veryverbose(FString::Printf(TEXT("Loading %i saved directories..."), SavedDirectories.Num()));
+			for (const auto& It : SavedDirectories)
+			{
+				UYetiOS_DirectoryBase* LoadedDirectory = CreateDirectoryInPath(It.SaveLoad_DirPath, It.bSaveLoad_IsHidden, OutErrorMessage, It.SaveLoad_DirectoryName);
+				if (LoadedDirectory && It.SaveLoad_Files.Num() > 0)
+				{
+					printlog_veryverbose(FString::Printf(TEXT("Loading %i file(s) from save data for %s..."), It.SaveLoad_Files.Num(), *LoadedDirectory->GetDirectoryName().ToString()));
+					for (const auto& LoadFileIt : It.SaveLoad_Files)
+					{
+						FYetiOsError Dummy_OutErrorMessage;
+						LoadedDirectory->CreateNewFile(LoadFileIt, Dummy_OutErrorMessage);
+					}
+				}
+			}
+		}
+
+		Internal_InstallStartupPrograms();
+		TArray<FYetiOsProgramSaveLoad> SavedPrograms = LoadGameInstance->GetProgramData();
+		printlog_veryverbose(FString::Printf(TEXT("Loading %i saved programs..."), SavedPrograms.Num()));
+		for (const auto& It : SavedPrograms)
+		{
+			UYetiOS_AppIconWidget* OutWidget;
+			InstallProgram(It.SaveLoad_ProgramClass, OutErrorMessage, OutWidget);
+		}
+	}
+}
+
 void UYetiOS_Core::NotifyBatteryLevelChange(const float& CurrentBatteryLevel)
 {
 	K2_OnBatteryLevelChanged(CurrentBatteryLevel);

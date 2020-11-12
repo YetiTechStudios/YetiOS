@@ -413,6 +413,13 @@ private:
 
 public:
 
+	/**
+	* public UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame
+	* Loads the operating system from a save state. 
+	* @See UYetiOS_BaseDevice::StartDevice
+	* @param LoadGameInstance [const class UYetiOS_SaveGame*&] Load game instance. @See UYetiOS_BaseDevice::StartDevice
+	* @param OutErrorMessage [FYetiOsError&] Any error message.
+	**/
 	void OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveGame*& LoadGameInstance, FYetiOsError& OutErrorMessage);
 
 	/**

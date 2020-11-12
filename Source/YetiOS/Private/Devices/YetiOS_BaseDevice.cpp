@@ -78,39 +78,7 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 		// If the OS is still null for some reason.
 		if (OperatingSystem)
 		{
-			if (LoadGameInstance)
-			{
-				printlog_veryverbose("Loading OS save data...");
-				OperatingSystem->OsVersion = LoadGameInstance->GetOsLoadData().SaveLoad_OSVersion;
-				OperatingSystem->OsUsers = LoadGameInstance->GetOsLoadData().SaveLoad_OsUsers;
-				OperatingSystem->RemainingSpace = LoadGameInstance->GetOsLoadData().SaveLoad_RemainingSpace;
-				if (OperatingSystem->GetRootDirectory())
-				{
-					TArray<FYetiOsDirectorySaveLoad> SavedDirectories = LoadGameInstance->GetDirectoriesData();
-					printlog_veryverbose(FString::Printf(TEXT("Loading %i saved directories..."), SavedDirectories.Num()));
-					for (const auto& It : SavedDirectories)
-					{
-						UYetiOS_DirectoryBase* LoadedDirectory = OperatingSystem->CreateDirectoryInPath(It.SaveLoad_DirPath, It.bSaveLoad_IsHidden, OutErrorMessage, It.SaveLoad_DirectoryName);
-						if (LoadedDirectory && It.SaveLoad_Files.Num() > 0)
-						{
-							printlog_veryverbose(FString::Printf(TEXT("Loading %i file(s) from save data for %s..."), It.SaveLoad_Files.Num(), *LoadedDirectory->GetDirectoryName().ToString()));
-							for (const auto& LoadFileIt : It.SaveLoad_Files)
-							{
-								FYetiOsError Dummy_OutErrorMessage;
-								LoadedDirectory->CreateNewFile(LoadFileIt, Dummy_OutErrorMessage);
-							}
-						}
-					}
-				}
-
-				TArray<FYetiOsProgramSaveLoad> SavedPrograms = LoadGameInstance->GetProgramData();
-				printlog_veryverbose(FString::Printf(TEXT("Loading %i saved programs..."), SavedPrograms.Num()));
-				for (const auto& It : SavedPrograms)
-				{
-					UYetiOS_AppIconWidget* OutWidget;
-					OperatingSystem->InstallProgram(It.SaveLoad_ProgramClass, OutErrorMessage, OutWidget);
-				}
-			}
+			OperatingSystem->OnOperatingSystemLoadedFromSaveGame(LoadGameInstance, OutErrorMessage);
 			
 		}
 		else
