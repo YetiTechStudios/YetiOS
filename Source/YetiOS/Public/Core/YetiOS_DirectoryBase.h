@@ -239,8 +239,7 @@ private:
 		FYetiOsError& OutErrorMessage, 
 		const bool bForceCreate = false, 
 		const bool bCreateGrandChildDirectories = true, 
-		const FText& CheckDirectoryName = FText::GetEmpty(), 
-		const bool bIsSystemDir = false);
+		const FText& CheckDirectoryName = FText::GetEmpty());
 
 	UYetiOS_DirectoryBase* Internal_GetChildDirectoryByType(const EDirectoryType& InType) const;
 

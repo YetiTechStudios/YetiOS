@@ -135,7 +135,7 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateChildDirectories(cla
 
 TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateNativeChildDirectories(class UYetiOS_Core* InOwningOS, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/)
 {
-	return Internal_CreateChildDirectories(InOwningOS, ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories, FText::GetEmpty(), true);
+	return Internal_CreateChildDirectories(InOwningOS, ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories, FText::GetEmpty());
 }
 
 void UYetiOS_DirectoryBase::EnsureOS(const class UYetiOS_Core* InOS)
@@ -189,7 +189,7 @@ const bool UYetiOS_DirectoryBase::CreateNewFile(FFileProperties InNewFile, FYeti
 	return false;
 }
 
-TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/, const bool bIsSystemDir /*= false*/)
+TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/)
 {
 	EnsureOS(InOwningOS);
 	TArray<UYetiOS_DirectoryBase*> ReturnResult;
@@ -222,7 +222,7 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 				}
 				ChildDirectory->bIsSystemDirectory = false;
 				ChildDirectories.Add(ChildDirectory);
-				if (bIsSystemDir)
+				if (ChildDirectory->DirectoryType != EDirectoryType::Other)
 				{
 					ChildDirectory->bIsSystemDirectory = true;
 					SystemDirectories.Add(ChildDirectory);
