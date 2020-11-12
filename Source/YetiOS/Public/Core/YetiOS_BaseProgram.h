@@ -173,6 +173,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")
 	inline int32 GetProcessID() const { return ProcessID; }
 
+	/**
+	* public UYetiOS_BaseProgram::IsRunning const
+	* Checks if this program is running.
+	* @return [bool] True if this program is currently running.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")	
+	bool IsRunning() const { return ProcessID != INDEX_NONE; }
+
 private:
 
 	bool Internal_LoadProgramSettings();
