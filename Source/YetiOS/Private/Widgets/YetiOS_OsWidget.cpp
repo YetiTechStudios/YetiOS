@@ -61,16 +61,24 @@ void UYetiOS_OsWidget::BeginRestartOS()
 	K2_OnBeginRestartingOS();
 }
 
+void UYetiOS_OsWidget::AddDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget)
 {
+	K2_OnAddDesktopShortcut(InAppIconWidget);
 }
 
+void UYetiOS_OsWidget::RemoveDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget)
 {
+	K2_OnRemoveDesktopShortcut(InAppIconWidget);
 }
 
+void UYetiOS_OsWidget::OnBatteryLevelChanged(const float& CurrentBatteryLevel)
 {
+	K2_OnBatteryLevelChanged(CurrentBatteryLevel);
 }
 
+void UYetiOS_OsWidget::OnLowBatteryWarningReceived(const bool bIsLowBattery)
 {
+	K2_OnLowBatteryWarningReceived(bIsLowBattery);
 }
 
 void UYetiOS_OsWidget::ReceiveNotification(const FYetiOsNotification InNotification)

@@ -47,6 +47,9 @@ public:
 	void BeginShutdownOS();
 	void BeginRestartOS();
 
+	void AddDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget);
+	void RemoveDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget);
+
 	void OnBatteryLevelChanged(const float& CurrentBatteryLevel);
 	void OnLowBatteryWarningReceived(const bool bIsLowBattery);
 
@@ -77,6 +80,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginLoadingOS")
 	void K2_OnBeginLoadingOS();	
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnAddDesktopShortcut")
+	void K2_OnAddDesktopShortcut(UYetiOS_AppIconWidget* AppIconWidget);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnRemoveDesktopShortcut")
+	void K2_OnRemoveDesktopShortcut(UYetiOS_AppIconWidget* AppIconWidget);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginShuttingdownOS")
 	void K2_OnBeginShuttingdownOS();
