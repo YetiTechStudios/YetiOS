@@ -28,6 +28,7 @@ UYetiOS_AppIconWidget* UYetiOS_AppIconWidget::CreateProgramIconWidget(const UObj
 		UYetiOS_AppIconWidget* ProxyWidget = CreateWidget<UYetiOS_AppIconWidget>(MyController, InCreatedProgram->GetProgramIconWidgetClass());
 		ProxyWidget->OwningOS = MyOS;
 		ProxyWidget->BaseProgram = InCreatedProgram;
+		ProxyWidget->ProgramClass = InCreatedProgram->GetClass();
 		return ProxyWidget;
 	}
 
