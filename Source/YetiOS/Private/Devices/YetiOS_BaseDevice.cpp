@@ -238,7 +238,10 @@ void UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* In
 		{
 			static const FText LOCAL_ERR_CODE = LOCTEXT("YetiOS_HW_INSTALL_CODE", "HW_INSTALL_SUCCESS");
 			static const FText LOCAL_EXCEPTION = LOCTEXT("YetiOS_HW_INSTALL_TITLE", "Hardware Installed.");
-			static const FText LOCAL_EXCEPTION_DETAIL = LOCTEXT("YetiOS_HW_INSTALL_DESCRIPTION", "A new hardware was installed to the OS.");
+
+			FFormatNamedArguments Arguments;
+			Arguments.Add(TEXT("HardwareName"), InHardware->GetName());
+			const FText LOCAL_EXCEPTION_DETAIL = FText::Format(LOCTEXT("YetiOS_HW_INSTALL_DESCRIPTION", "{HardwareName} was installed to the OS."), Arguments);
 			FYetiOsNotification HardwareNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL, LOCAL_ERR_CODE, EYetiOsNotificationType::TYPE_Info);
 			OperatingSystem->CreateOsNotification(HardwareNotification);
 		}
