@@ -996,6 +996,18 @@ namespace YetiOS_CommonErrors
 
 	static const FText PsuErrorCode = LOCTEXT("NoPsuErrorCode", "HW_PSU_FAIL");
 	static const FText PsuErrorException = LOCTEXT("NoPsuErrorException", "Failed to access Power Supply.");
+
+	static const FText OsInstallCode = LOCTEXT("StartInstallationCode", "OS_INSTALL_FAIL");
+	static const FText OsInstallException = LOCTEXT("StartInstallation", "Insufficient space.");
+	static const FText OsInstallDetailedException = LOCTEXT("StartInstallationDescription", "Not enough space to install Operating System on this device.");
+
+	static const FText OsDesktopCode = LOCTEXT("DesktopErrorCode", "NO_DESKTOP");
+	static const FText OsDesktopException = LOCTEXT("DesktopError", "Desktop not found.");
+	static const FText OsDesktopDetailedException = LOCTEXT("DesktopErrorDescription", "Failed to find Desktop Directory.");
+
+	static const FText OsRootCode = LOCTEXT("RootDirErrorCode", "NO_ROOT_DIR");
+	static const FText OsRootException = LOCTEXT("RootDirError", "Root directory not found.");
+	static const FText OsRootDetailedException = LOCTEXT("RootDirDescription", "Failed to find Root Directory.");
 }
 
 #undef LOCTEXT_NAMESPACE
