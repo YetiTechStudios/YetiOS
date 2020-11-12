@@ -54,6 +54,20 @@ enum class EYetiOsColorTypes : uint8
 };
 
 UENUM(BlueprintType)
+enum class EDirectoryType : uint8
+{
+	Root,
+	Desktop,
+	Documents,
+	Downloads,
+	Home,
+	Music,
+	Pictures,
+	Videos,
+	Other
+};
+
+UENUM(BlueprintType)
 enum class EYetiOsDeviceState : uint8
 {	
 	/* Device is starting. */

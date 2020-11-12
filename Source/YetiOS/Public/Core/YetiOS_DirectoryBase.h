@@ -30,6 +30,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
 	UTexture2D* DirectoryIcon;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
+	EDirectoryType DirectoryType;
+
 	/* True if user can create new folder in this directory. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
 	uint8 bCanCreateNewFolder : 1;
@@ -95,6 +98,9 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
 	UYetiOS_DirectoryBase* GetChildDirectory(TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass) const;
+
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
+	UYetiOS_DirectoryBase* GetChildDirectoryByType(EDirectoryType InType) const;
 
 	/**
 	* public UYetiOS_DirectoryBase::GetChildDirectoryByName const
@@ -236,6 +242,8 @@ private:
 		const FText& CheckDirectoryName = FText::GetEmpty(), 
 		const bool bIsSystemDir = false);
 
+	UYetiOS_DirectoryBase* Internal_GetChildDirectoryByType(const EDirectoryType& InType) const;
+
 public:
 
 	void DestroyDirectory();
@@ -254,4 +262,5 @@ public:
 
 	FORCEINLINE const bool CanCreateNewFile() const { return bCanCreateNewFile; }
 	FORCEINLINE const TArray<TSubclassOf<UYetiOS_DirectoryBase>> GetChildDirectories() const { return ChildDirectoryClasses; }
+	FORCEINLINE const EDirectoryType GetDirectoryType() const  { return DirectoryType; }
 };

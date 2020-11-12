@@ -9,4 +9,5 @@ UYetiOS_DirectoryRoot::UYetiOS_DirectoryRoot()
 	bCanCreateNewFile = false;
 	bIsHidden = true;
 	bIsSystemDirectory = true;
+	DirectoryType = EDirectoryType::Root;
 }
