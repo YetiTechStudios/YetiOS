@@ -70,6 +70,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	EProgramSaveMethod SaveMethod;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
+	uint8 bAddDesktopShortcut : 1;
+
 	/* If true, user can only run one instance of this program. If false, user can create as many instances as they want. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
 	uint8 bSingleInstanceOnly : 1;
@@ -212,6 +215,7 @@ public:
 	FORCEINLINE UYetiOS_ProgramSettings* GetProgramSettings() const { return ProgramSettings; }
 	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.Get(); }
 	FORCEINLINE const bool IsSingleInstanceProgram() const { return bSingleInstanceOnly; }
+	FORCEINLINE const bool CanAddDesktopShortcut() const { return bAddDesktopShortcut; }
 	FORCEINLINE const float GetProgramSpace() const { return ProgramSpace; }
 	FORCEINLINE TSubclassOf<UYetiOS_AppIconWidget> GetProgramIconWidgetClass() const { return ProgramIconWidgetClass; }
 	FORCEINLINE TSubclassOf<UYetiOS_AppWidget> GetProgramWidgetClass() const { return ProgramWidgetClass; }
