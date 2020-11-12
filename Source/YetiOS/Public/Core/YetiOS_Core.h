@@ -215,7 +215,7 @@ public:
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
 	* @return [const bool] Returns true if OS was started successfully or installation was started successfully.
 	**/
-	const bool StartOperatingSystem(const bool bIsInstalled, const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage);
+	const bool StartOperatingSystem(const bool bIsInstalled, FYetiOsError& OutErrorMessage);
 
 	/**
 	* public UYetiOS_Core::ShutdownOS

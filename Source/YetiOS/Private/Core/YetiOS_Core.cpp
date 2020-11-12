@@ -100,7 +100,7 @@ void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotificat
 	}
 }
 
-const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage)
+const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, FYetiOsError& OutErrorMessage)
 {
 	bool bSuccess = false;
 
@@ -140,10 +140,7 @@ const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, const boo
 					OutErrorMessage.ErrorCode = YetiOS_CommonErrors::OsInstallCode;
 					OutErrorMessage.ErrorException = YetiOS_CommonErrors::OsInstallException;
 					OutErrorMessage.ErrorDetailedException = YetiOS_CommonErrors::OsInstallDetailedException;
-					if (bShowBsodIfInstallationFails)
-					{
-						AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, OutErrorMessage);
-					}
+					
 				}
 			}
 		}
@@ -152,7 +149,6 @@ const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, const boo
 			OutErrorMessage.ErrorCode = YetiOS_CommonErrors::OsDesktopCode;
 			OutErrorMessage.ErrorException = YetiOS_CommonErrors::OsDesktopException;
 			OutErrorMessage.ErrorDetailedException = YetiOS_CommonErrors::OsDesktopDetailedException;
-			AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, OutErrorMessage);
 		}
 	}
 	else
@@ -160,12 +156,12 @@ const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, const boo
 		OutErrorMessage.ErrorCode = YetiOS_CommonErrors::OsRootCode;
 		OutErrorMessage.ErrorException = YetiOS_CommonErrors::OsRootException;
 		OutErrorMessage.ErrorDetailedException = YetiOS_CommonErrors::OsRootDetailedException;
-		AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, OutErrorMessage);
 	}
 
 	if (bSuccess == false)
 	{
 		printlog_error(FString::Printf(TEXT("OS Name: %s - %s"), *OsName.ToString(), *OutErrorMessage.ErrorDetailedException.ToString()));
+		AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, OutErrorMessage);
 	}
 
 	return bSuccess;
