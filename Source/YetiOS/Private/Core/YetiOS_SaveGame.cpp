@@ -12,8 +12,10 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsSaveGame, All, All)
 
-#define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsOperatingSystem, VeryVerbose, TEXT("%s"), *FString(Param1))
+#define printlog_error(Param1)			UE_LOG(LogYetiOsSaveGame, Error, TEXT("%s"), *FString(Param1))
+#define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsSaveGame, VeryVerbose, TEXT("%s"), *FString(Param1))
 
+static const float SAVE_VERSION = 2.0;
 
 UYetiOS_SaveGame::UYetiOS_SaveGame()
 {
@@ -29,6 +31,7 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 		if (MyDeviceManager && MyDeviceManager->CanSaveGame())
 		{
 			UYetiOS_SaveGame* SaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
+			SaveGameInstance->SaveVersion = SAVE_VERSION;
 			SaveGameInstance->DeviceData.bSaveLoad_OsInstalled = InDevice->IsOperatingSystemInstalled();
 
 			const UYetiOS_PortableDevice* MyPortableDevice = Cast<UYetiOS_PortableDevice>(InDevice);
@@ -92,14 +95,22 @@ const UYetiOS_SaveGame* UYetiOS_SaveGame::LoadGame()
 	UYetiOS_SaveGame* Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
 	const FString MySaveSlotName = Local_SaveLoadInstance->SaveSlotName;
 	const uint32 MyUserIndex = Local_SaveLoadInstance->UserIndex;
+	Local_SaveLoadInstance->ConditionalBeginDestroy();
+	Local_SaveLoadInstance = nullptr;
 
 	if (UGameplayStatics::DoesSaveGameExist(MySaveSlotName, MyUserIndex))
-	{
+	{		
 		Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::LoadGameFromSlot(MySaveSlotName, MyUserIndex));
-		return Local_SaveLoadInstance;
+		if (Local_SaveLoadInstance->SaveVersion != SAVE_VERSION)
+		{
+			printlog_error(FString::Printf(TEXT("Failed to load save game. Version mismatch. Loaded save version: %f. Expected version: %f"), Local_SaveLoadInstance->SaveVersion, SAVE_VERSION));
+			Local_SaveLoadInstance->ConditionalBeginDestroy();
+			Local_SaveLoadInstance = nullptr;
+		}
 	}
 
-	return nullptr;
+	return Local_SaveLoadInstance;
 }
 
+#undef printlog_error
 #undef printlog_veryverbose

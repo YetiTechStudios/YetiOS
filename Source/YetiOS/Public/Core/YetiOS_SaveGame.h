@@ -23,6 +23,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Debug)
 	uint32 UserIndex;
 
+	UPROPERTY(VisibleAnywhere, Category = Debug)
+	float SaveVersion;
+
 	UPROPERTY()
 	FYetiOsDeviceSaveLoad DeviceData;
 
