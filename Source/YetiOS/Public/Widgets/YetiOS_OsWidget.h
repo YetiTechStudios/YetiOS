@@ -50,12 +50,6 @@ public:
 	void OnBatteryLevelChanged(const float& CurrentBatteryLevel);
 	void OnLowBatteryWarningReceived(const bool bIsLowBattery);
 
-	UE_DEPRECATED(4.25, "This method is deprecated. We now have a dedicated class for Taskbar which should be used for adding/removing taskbar buttons.")
-	void AddTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget);
-
-	UE_DEPRECATED(4.25, "This method is deprecated. We now have a dedicated class for Taskbar which should be used for adding/removing taskbar buttons.")
-	void RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget);
-
 	void ReceiveNotification(const FYetiOsNotification InNotification);
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
@@ -89,9 +83,6 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnBeginRestartingOS")
 	void K2_OnBeginRestartingOS();
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnWindowChangeFromTaskbar", meta = (DeprecatedFunction, DeprecationMessage = "This event will never be called. We now have a dedicated class for Taskbar and Taskbar widget which should be used for adding/removing taskbar buttons."))
-	void K2_OnWindowChangeFromTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget, const bool bAddedToTaskbar);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Widget", DisplayName = "OnReceivedNotification")
 	void K2_OnReceivedNotification(const FYetiOsNotification NewNotification);
