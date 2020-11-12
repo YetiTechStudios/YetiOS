@@ -53,7 +53,7 @@ public:
 	* @param InDetailedException [const FText] Detailed exception name (if any).
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti Device Manager", meta = (WorldContext = "WorldContextObject"))	
-	static void ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName = FText::GetEmpty(), const FText InExceptionName = FText::GetEmpty(), const FText InDetailedException = FText::GetEmpty());
+	static void ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FYetiOsError& InErrorMessage);
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

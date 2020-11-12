@@ -32,10 +32,10 @@ AYetiOS_DeviceManagerActor::AYetiOS_DeviceManagerActor()
 	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
-void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
+void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FYetiOsError& InErrorMessage)
 {
 	checkf(InDevice != nullptr, TEXT("Device cannot be null for BSOD."));
-	InDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);
+	InDevice->ShowBSOD(InErrorMessage.ErrorCode, InErrorMessage.ErrorException, InErrorMessage.ErrorDetailedException);
 }
 
 void AYetiOS_DeviceManagerActor::BeginPlay()
