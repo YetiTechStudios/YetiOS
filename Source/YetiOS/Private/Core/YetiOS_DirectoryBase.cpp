@@ -39,8 +39,30 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectory(TSubclassOf<UYet
 
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectoryByType(EDirectoryType InType) const
 {
-	UYetiOS_DirectoryRoot* MyRootDirectory = OwningOS->GetRootDirectory();
-	return MyRootDirectory->Internal_GetChildDirectoryByType(InType);
+	for (auto const& It : ChildDirectories)
+	{
+		if (It->DirectoryType == InType)
+		{
+			return It;
+		}
+
+		// Look in child directories too.
+		for (auto const& ChildIt : It->ChildDirectories)
+		{
+			if (ChildIt->DirectoryType == InType)
+			{
+				return ChildIt;
+			}
+
+			UYetiOS_DirectoryBase* Local_Child = ChildIt->GetChildDirectoryByType(InType);
+			if (Local_Child)
+			{
+				return Local_Child;
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectoryByName(const FName& InDirectoryName, const bool bRecursive /*= true*/) const
@@ -246,34 +268,6 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 	}
 
 	return ReturnResult;
-}
-
-UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::Internal_GetChildDirectoryByType(const EDirectoryType& InType) const
-{
-	for (auto const& It : ChildDirectories)
-	{
-		if (It->DirectoryType == InType)
-		{
-			return It;
-		}
-
-		// Look in child directories too.
-		for (auto const& ChildIt : It->ChildDirectories)
-		{
-			if (ChildIt->DirectoryType == InType)
-			{
-				return ChildIt;
-			}
-
-			UYetiOS_DirectoryBase* Local_Child = ChildIt->Internal_GetChildDirectoryByType(InType);
-			if (Local_Child)
-			{
-				return Local_Child;
-			}
-		}
-	}
-
-	return nullptr;
 }
 
 void UYetiOS_DirectoryBase::DestroyDirectory()

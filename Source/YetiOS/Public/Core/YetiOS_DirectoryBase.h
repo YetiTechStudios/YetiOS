@@ -99,7 +99,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
 	UYetiOS_DirectoryBase* GetChildDirectory(TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass) const;
 
-	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
+	/**
+	* public UYetiOS_DirectoryBase::GetChildDirectoryByType const
+	* Returns a child directory of given type. Can be null so check for validity.
+	* @param InType [EDirectoryType] Type of directory to return.
+	* @return [UYetiOS_DirectoryBase*] Found directory of type. Can be null so check for validity.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")	
 	UYetiOS_DirectoryBase* GetChildDirectoryByType(EDirectoryType InType) const;
 
 	/**
@@ -240,8 +246,6 @@ private:
 		const bool bForceCreate = false, 
 		const bool bCreateGrandChildDirectories = true, 
 		const FText& CheckDirectoryName = FText::GetEmpty());
-
-	UYetiOS_DirectoryBase* Internal_GetChildDirectoryByType(const EDirectoryType& InType) const;
 
 public:
 
