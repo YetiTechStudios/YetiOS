@@ -53,7 +53,7 @@ void UYetiOS_BaseHardware::RemoveFromDevice()
 		FYetiOsNotification HardwareNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL, LOCAL_ERR_CODE, EYetiOsNotificationType::TYPE_Error);
 		InstalledOS->CreateOsNotification(HardwareNotification);
 	}
-	AYetiOS_DeviceManagerActor::ShowBSOD(this, InstalledDevice, LOCAL_ERR_CODE, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL);
+	AYetiOS_DeviceManagerActor::ShowBSOD(this, InstalledDevice, GetErrorStruct(LOCAL_ERR_CODE, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL));
 	InstalledDevice = nullptr;	
 }
 
