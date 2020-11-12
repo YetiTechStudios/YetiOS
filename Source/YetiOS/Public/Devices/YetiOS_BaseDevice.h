@@ -109,10 +109,9 @@ public:
 	* public UYetiOS_BaseDevice::StartOperatingSystem
 	* Starts the operating system. This will detect if the OS is installed or no. If installed, then it will start. If not, it will install it.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @param bShowBsodOnError [const bool] If true, then show Blue Screen if error happens.
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device")	
-	void StartOperatingSystem(FYetiOsError& OutErrorMessage, const bool bShowBsodOnError = true);
+	bool StartOperatingSystem(FYetiOsError& OutErrorMessage);
 
 	/**
 	* public UYetiOS_BaseDevice::ShutdownYetiDevice
