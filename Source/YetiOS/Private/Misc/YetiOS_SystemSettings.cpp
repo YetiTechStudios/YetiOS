@@ -14,6 +14,48 @@ UYetiOS_SystemSettings::UYetiOS_SystemSettings()
 {
 	bShowProgramIconOnWindows = false;
 	CurrentTheme = EYetiOsThemeMode::Light;
+
+	ThemeColors[0].CollectionName = "Light";
+	ThemeColors[1].CollectionName = "Dark";
+
+	CurrentCollectionName = NAME_None;
+}
+
+UYetiOS_SystemSettings* UYetiOS_SystemSettings::CreateSystemSettings(class UYetiOS_Core* InCore)
+{
+	if (InCore == nullptr)
+	{
+		printlog_error("Create System Settings failed. Reason: NULL OS.")
+			return nullptr;
+	}
+
+	if (InCore->GetSystemSettingsClass() == NULL)
+	{
+		printlog_error(FString::Printf(TEXT("Create System Settings failed. Reason: No settings class provided for %s."), *InCore->GetOsName().ToString()));
+		return nullptr;
+	}
+
+	const FString SystemSettingsName = FString::Printf(TEXT("SystemSettings_%s"), *InCore->GetOsName().ToString());
+	UYetiOS_SystemSettings* ProxyObject = NewObject<UYetiOS_SystemSettings>(InCore, InCore->GetSystemSettingsClass(), *SystemSettingsName);
+	if (ProxyObject->ColorCollections.IsValidIndex(0))
+	{
+		ProxyObject->CurrentCollectionName = ProxyObject->ColorCollections[0].CollectionName;
+	}
+	printlog(FString::Printf(TEXT("System settings created: %s"), *SystemSettingsName));
+	return ProxyObject;
+}
+
+const bool UYetiOS_SystemSettings::UpdateTheme(EYetiOsThemeMode NewMode)
+{
+	if (CurrentTheme != NewMode)
+	{
+		printlog_vv(FString::Printf(TEXT("Current theme changed from %s to %s"), *ENUM_TO_STRING(EYetiOsThemeMode, CurrentTheme), *ENUM_TO_STRING(EYetiOsThemeMode, NewMode)));
+		CurrentTheme = NewMode;
+		OnThemeModeChanged.Broadcast(CurrentTheme);
+		return true;
+	}
+
+	return false;
 }
 
 void UYetiOS_SystemSettings::ToggleShowProgramIconOnWindows(const bool bShowIcon)
@@ -53,7 +95,7 @@ TArray<FName> UYetiOS_SystemSettings::GetAllCollectionNames() const
 	return ReturnResult;
 }
 
-FLinearColor UYetiOS_SystemSettings::GetColorFromType(const FName InCollectionName, EYetiOsColorTypes InColorType) const
+FLinearColor UYetiOS_SystemSettings::GetColorOfTypeFromCollection(const FName InCollectionName, EYetiOsColorTypes InColorType) const
 {	
 	FYetiOsColorCollection OutCollection;
 	if (GetColorCollection(InCollectionName, OutCollection))
@@ -65,37 +107,19 @@ FLinearColor UYetiOS_SystemSettings::GetColorFromType(const FName InCollectionNa
 	return FLinearColor::Transparent;
 }
 
-UYetiOS_SystemSettings* UYetiOS_SystemSettings::CreateSystemSettings(class UYetiOS_Core* InCore)
+FYetiOsColorCollection UYetiOS_SystemSettings::GetColorCollectionFromCurrentTheme() const
 {
-	if (InCore == nullptr)
+	if (CurrentTheme == EYetiOsThemeMode::Dark)
 	{
-		printlog_error("Create System Settings failed. Reason: NULL OS.")
-		return nullptr;
+		return ThemeColors[1];
 	}
 
-	if (InCore->GetSystemSettingsClass() == NULL)
-	{
-		printlog_error(FString::Printf(TEXT("Create System Settings failed. Reason: No settings class provided for %s."), *InCore->GetOsName().ToString()));
-		return nullptr;
-	}
-
-	const FString SystemSettingsName = FString::Printf(TEXT("SystemSettings_%s"), *InCore->GetOsName().ToString());
-	UYetiOS_SystemSettings* ProxyObject = NewObject<UYetiOS_SystemSettings>(InCore, InCore->GetSystemSettingsClass(), *SystemSettingsName);
-	printlog(FString::Printf(TEXT("System settings created: %s"), *SystemSettingsName));
-	return ProxyObject;
+	return ThemeColors[0];
 }
 
-const bool UYetiOS_SystemSettings::UpdateTheme(EYetiOsThemeMode NewMode)
+FLinearColor UYetiOS_SystemSettings::GetColorFromCurrent(EYetiOsColorTypes InColorType)
 {
-	if (CurrentTheme != NewMode)
-	{
-		printlog_vv(FString::Printf(TEXT("Current theme changed from %s to %s"), *ENUM_TO_STRING(EYetiOsThemeMode, CurrentTheme), *ENUM_TO_STRING(EYetiOsThemeMode, NewMode)));
-		CurrentTheme = NewMode;
-		OnThemeModeChanged.Broadcast(CurrentTheme);
-		return true;
-	}
-
-	return false;
+	return GetColorOfTypeFromCollection(CurrentCollectionName, InColorType);
 }
 
 #undef printlog

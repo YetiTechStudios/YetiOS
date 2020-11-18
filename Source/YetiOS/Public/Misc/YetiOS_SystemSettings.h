@@ -26,7 +26,12 @@ private:
 	EYetiOsThemeMode CurrentTheme;
 
 	UPROPERTY(EditDefaultsOnly, Category = "System Settings")
+	FYetiOsColorCollection ThemeColors[(int32)EYetiOsThemeMode::MAX];
+
+	UPROPERTY(EditDefaultsOnly, Category = "System Settings")
 	TArray<FYetiOsColorCollection> ColorCollections;
+
+	FName CurrentCollectionName;
 
 public:
 
@@ -93,12 +98,29 @@ public:
 	TArray<FName> GetAllCollectionNames() const;
 
 	/**
-	* public UYetiOS_SystemSettings::GetColorFromType const
+	* public UYetiOS_SystemSettings::GetColorOfTypeFromCollection const
 	* Returns a linear color of the given type from given collection.
 	* @param InCollectionName [const FName] Collection to search for.
 	* @param InColorType [EYetiOsColorTypes] Type of color to return.
 	* @return [FLinearColor] Linear color of given type.
 	**/
 	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS System Settings")	
-	FLinearColor GetColorFromType(const FName InCollectionName, EYetiOsColorTypes InColorType) const;
+	FLinearColor GetColorOfTypeFromCollection(const FName InCollectionName, EYetiOsColorTypes InColorType) const;
+
+	/**
+	* public UYetiOS_SystemSettings::GetColorCollectionFromCurrentTheme const
+	* Returns the current color collection based on current theme.
+	* @return [FYetiOsColorCollection] Color collection related to current theme.
+	**/
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS System Settings")	
+	FYetiOsColorCollection GetColorCollectionFromCurrentTheme() const;
+
+	/**
+	* public UYetiOS_SystemSettings::GetColorFromCurrent
+	* Returns color from current color collection that is set.
+	* @param InColorType [EYetiOsColorTypes] Type of color to get.
+	* @return [FLinearColor] Color of given type.
+	**/
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS System Settings")	
+	FLinearColor GetColorFromCurrent(EYetiOsColorTypes InColorType);
 };
