@@ -60,8 +60,9 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TSet<class UYetiOS_FileBase*> Files;
 
+	/* List of child directories. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	TSet<UYetiOS_DirectoryBase*> SystemDirectories;
+	TArray<UYetiOS_DirectoryBase*> ChildDirectories;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OwningOS;
@@ -216,6 +217,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Yeti Directory Base")	
 	bool CreateNewFileByClass(TSubclassOf<class UYetiOS_FileBase> InNewFileClass, class UYetiOS_FileBase*& OutFile, FYetiOsError& OutErrorMessage, const bool bRequirePermission = false);
 
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
+	TArray<UYetiOS_DirectoryBase*> GetAllParentDirectories(const bool bIncludeRootFolder = false) const;
+
 	void EnsureOS(const class UYetiOS_Core* InOS);
 
 private:
@@ -258,4 +262,5 @@ public:
 	FORCEINLINE const bool CanCreateNewFile() const { return bCanCreateNewFile; }
 	FORCEINLINE const TArray<TSubclassOf<UYetiOS_DirectoryBase>> GetChildDirectories() const { return ChildDirectoryClasses; }
 	FORCEINLINE const EDirectoryType GetDirectoryType() const  { return DirectoryType; }
+	FORCEINLINE class UYetiOS_Core* GetOwningOS() const { return OwningOS; }
 };
