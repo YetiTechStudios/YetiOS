@@ -75,6 +75,14 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 	return nullptr;
 }
 
+void UYetiOS_BaseProgram::ProgramInstalled()
+{
+	if (bCanCallOnInstall)
+	{
+		K2_OnInstall();
+	}
+}
+
 const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 {
 	if (IsRunning() && IsSingleInstanceProgram())

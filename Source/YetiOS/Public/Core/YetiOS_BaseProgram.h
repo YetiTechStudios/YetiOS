@@ -85,6 +85,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	uint8 bCanCallOnCreate : 1;
 
+	/* If true, then C++ can call K2_OnInstall function. Implement OnInstall event in Blueprint Graph */
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
+	uint8 bCanCallOnInstall : 1;
+
 	/* If true, then C++ can call K2_OnStart function. Implement OnStart event in Blueprint Graph. */
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	uint8 bCanCallOnStart : 1;
@@ -130,6 +134,7 @@ public:
 	**/
 	static UYetiOS_BaseProgram* CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bStartImmediately = false, const bool bInstalledWithOS = false);
 	
+	virtual void ProgramInstalled();
 	/**
 	* virtual public UYetiOS_BaseProgram::StartProgram
 	* Start this program and add to running list in Operating System.
@@ -194,6 +199,14 @@ protected:
 	**/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "OnCreate")	
 	void K2_OnCreate();
+
+	/**
+	* protected UYetiOS_BaseProgram::K2_OnInstalled
+	* Event called when this program is installed.
+	* NOTE: This event will ONLY be called if bCanCallOnInstall is true!
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "On Installed")	
+	void K2_OnInstall();
 
 	/**
 	* protected UYetiOS_BaseProgram::K2_OnStart
