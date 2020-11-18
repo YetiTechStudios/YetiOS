@@ -626,7 +626,7 @@ void UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveG
 		{
 			TArray<FYetiOsDirectorySaveLoad> SavedDirectories = LoadGameInstance->GetDirectoriesData();
 			printlog_veryverbose(FString::Printf(TEXT("Loading %i saved directories..."), SavedDirectories.Num()));
-			for (const auto& It : SavedDirectories)
+			for (const FYetiOsDirectorySaveLoad& It : SavedDirectories)
 			{
 				UYetiOS_DirectoryBase* LoadedDirectory = CreateDirectoryInPath(It.SaveLoad_DirPath, It.bSaveLoad_IsHidden, OutErrorMessage, It.SaveLoad_DirectoryName);
 				if (LoadedDirectory && It.SaveLoad_Files.Num() > 0)
@@ -634,8 +634,8 @@ void UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveG
 					printlog_veryverbose(FString::Printf(TEXT("Loading %i file(s) from save data for %s..."), It.SaveLoad_Files.Num(), *LoadedDirectory->GetDirectoryName().ToString()));
 					for (const auto& LoadFileIt : It.SaveLoad_Files)
 					{
-						FYetiOsError Dummy_OutErrorMessage;
-						LoadedDirectory->CreateNewFile(LoadFileIt, Dummy_OutErrorMessage);
+						UYetiOS_FileBase* OutFile;
+						LoadedDirectory->CreateNewFileByClass(LoadFileIt->GetClass(), OutFile, OutErrorMessage);
 					}
 				}
 			}
