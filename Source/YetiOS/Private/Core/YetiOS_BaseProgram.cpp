@@ -8,6 +8,7 @@
 #include "Widgets/YetiOS_AppWidget.h"
 #include "Widgets/YetiOS_OsWidget.h"
 #include "Misc/YetiOS_ProgramSettings.h"
+#include "Core/YetiOS_FileBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseProgram, All, All)
 
@@ -134,6 +135,17 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 		K2_OnClose();
 	}
 
+	OwningOS->CloseRunningProgram(this, OutErrorMessage);
+	ProcessID = INDEX_NONE;
+
+	ProgramWidget->SetFileWidget(nullptr);
+	if (CurrentFileOpened)
+	{
+		CurrentFileOpened->CloseFile();
+		CurrentFileOpened->ConditionalBeginDestroy();
+		CurrentFileOpened = nullptr;
+	}
+
 	if (bIsOperatingSystemShuttingDown)
 	{
 		if (SaveMethod == EProgramSaveMethod::SaveOnOperatingSystemShutdown || SaveMethod == EProgramSaveMethod::SaveOnExit)
@@ -152,12 +164,33 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 		ProgramSettings = nullptr;
 	}
 
-	OwningOS->CloseRunningProgram(this, OutErrorMessage);
-	ProcessID = INDEX_NONE;
 	ProgramWidget->DestroyProgramWidget();
 	ProgramWidget = nullptr;
 
 	printlog(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
+}
+
+bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
+{
+	bool bOpened = false;
+	CurrentFileOpened = InFileToOpen;
+	if (CurrentFileOpened)
+	{
+		bOpened = true;
+		const bool bIsRunning = IsRunning();
+		if (bIsRunning == false)
+		{
+			FYetiOsError OutError;
+			bOpened = StartProgram(OutError);
+		}
+	}
+
+	if (bOpened)
+	{
+		ProgramWidget->SetFileWidget(CurrentFileOpened->GetFileWidget());
+	}
+
+	return bOpened;
 }
 
 bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()

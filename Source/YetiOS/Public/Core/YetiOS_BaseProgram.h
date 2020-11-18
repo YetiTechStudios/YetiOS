@@ -104,6 +104,9 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	UYetiOS_AppWidget* ProgramWidget;
 
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	class UYetiOS_FileBase* CurrentFileOpened;
+
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	EYetiOsProgramVisibilityState CurrentVisibilityState;
 
@@ -169,6 +172,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
 	virtual void CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown = false);
 
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
+	virtual bool OpenFile(class UYetiOS_FileBase* InFileToOpen);
+
 	/**
 	* public UYetiOS_BaseProgram::GetProgramWidget const
 	* Returns the widget that was created using Program Widget Class.
@@ -210,7 +216,7 @@ protected:
 	* Event called when this program is created. @See CreateProgram() function.
 	* NOTE: This event will ONLY be called if bCanCallOnCreate is true!
 	**/
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "OnCreate")	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "On Create")	
 	void K2_OnCreate();
 
 	/**
@@ -226,7 +232,7 @@ protected:
 	* Event called when program starts successfully. @See StartProgram() function.
 	* NOTE: This event will ONLY be called if bCanCallOnStart is true!
 	**/
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "OnStart")	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "On Start")	
 	void K2_OnStart();
 
 	/**
@@ -234,14 +240,14 @@ protected:
 	* Event called when program closes. @See CloseProgram() function.
 	* NOTE: This event will ONLY be called if bCanCallOnClose is true!
 	**/
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "OnClose")	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "On Close")	
 	void K2_OnClose();
 
 	/**
 	* protected UYetiOS_BaseProgram::K2_OnSettingsLoad
 	* Event called when program settings are loaded. Use Get Program Settings node to access and load your settings manually.
 	**/
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "OnLoadSettings")	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "On Load Settings")	
 	void K2_OnSettingsLoad();
 	
 public:
