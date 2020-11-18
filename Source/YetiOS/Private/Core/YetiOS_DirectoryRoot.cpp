@@ -11,3 +11,11 @@ UYetiOS_DirectoryRoot::UYetiOS_DirectoryRoot()
 	bIsSystemDirectory = true;
 	DirectoryType = EDirectoryType::Root;
 }
+
+void UYetiOS_DirectoryRoot::AddSystemDirectory(UYetiOS_DirectoryBase* InDirectoryToAdd)
+{
+	if (InDirectoryToAdd && ensureMsgf(InDirectoryToAdd->GetDirectoryType() != EDirectoryType::Other, TEXT("%s cannot be added as system directory."), *InDirectoryToAdd->GetDirectoryName().ToString()))
+	{
+		SystemDirectories.Add(InDirectoryToAdd);
+	}	
+}

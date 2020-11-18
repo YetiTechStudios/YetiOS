@@ -19,9 +19,18 @@ UCLASS(DisplayName = "Root Directory")
 class YETIOS_API UYetiOS_DirectoryRoot : public UYetiOS_DirectoryBase
 {
 	GENERATED_BODY()
+
+private:
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	TArray<UYetiOS_DirectoryBase*> SystemDirectories;
 	
 public:
 
 	UYetiOS_DirectoryRoot();
+
+	void AddSystemDirectory(UYetiOS_DirectoryBase* InDirectoryToAdd);
+
+	FORCEINLINE const TArray<UYetiOS_DirectoryBase*> GetSystemDirectories() const { return SystemDirectories; }
 	
 };

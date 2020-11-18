@@ -247,7 +247,7 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 				if (ChildDirectory->DirectoryType != EDirectoryType::Other)
 				{
 					ChildDirectory->bIsSystemDirectory = true;
-					SystemDirectories.Add(ChildDirectory);
+					InOwningOS->GetRootDirectory()->AddSystemDirectory(ChildDirectory);
 				}
 				ReturnResult.Add(ChildDirectory);
 				OwningOS->AddToCreatedDirectories(ChildDirectory);
