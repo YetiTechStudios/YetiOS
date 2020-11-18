@@ -37,6 +37,7 @@ struct FYetiOsNotificationSettings
 	}
 };
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnProgramInstalled, class UYetiOS_BaseProgram*)
 
 UCLASS(Abstract, Blueprintable, DisplayName = "Operating System")
 class YETIOS_API UYetiOS_Core : public UObject
@@ -174,6 +175,8 @@ private:
 	TWeakObjectPtr<UYetiOS_DirectoryBase> DesktopDirectory;
 
 public:
+
+	FOnProgramInstalled OnProgramInstalled;
 
 	UYetiOS_Core();
 
