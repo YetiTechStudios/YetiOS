@@ -24,7 +24,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	SettingsClass = nullptr;
 	SaveMethod = EProgramSaveMethod::SaveOnExit;
 
-	bSingleInstanceOnly = true;
+	bSingleInstanceOnly = false;
 	bCanRunOnPortableDevice = true;
 	bIsSystemInstalledProgram = false;
 	bAddDesktopShortcut = false;
