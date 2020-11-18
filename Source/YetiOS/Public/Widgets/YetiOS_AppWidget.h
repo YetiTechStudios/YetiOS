@@ -16,11 +16,16 @@ class YETIOS_API UYetiOS_AppWidget : public UUserWidget
 	
 	friend class UYetiOS_BaseProgram;
 
+private:
+
 	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS App Widget", meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_BaseProgram* OwningProgram;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS App Widget", meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_Core* OwningOS;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS App Widget", meta = (AllowPrivateAccess = "true"))
+	class UYetiOS_FileWidget* FileWidget;
 
 	UPROPERTY()
 	class UYetiOS_DraggableWindowWidget* OwningWindow;
@@ -37,6 +42,7 @@ public:
 
 	void DestroyProgramWidget();
 	void SetWindow(class UYetiOS_DraggableWindowWidget* InWindow) { OwningWindow = InWindow; }
+	void SetFileWidget(class UYetiOS_FileWidget* InFileWidget);
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS App Widget")
 	inline class UYetiOS_DraggableWindowWidget* GetOwningWindow() const { return OwningWindow; }
@@ -44,7 +50,10 @@ public:
 protected:
 
 	/* Event called when program changes its visibility state. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS App Widget", DisplayName = "OnChangeVisibilityState")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS App Widget", DisplayName = "On Change Visibility State")
 	void K2_OnChangeVisibilityState(const EYetiOsProgramVisibilityState NewState);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS App Widget", DisplayName = "On File Widget Set")
+	void K2_OnFileWidgetSet();
 	
 };

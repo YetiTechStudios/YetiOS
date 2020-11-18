@@ -29,3 +29,13 @@ void UYetiOS_AppWidget::DestroyProgramWidget()
 	OwningOS = nullptr;	
 	RemoveFromParent();
 }
+
+void UYetiOS_AppWidget::SetFileWidget(class UYetiOS_FileWidget* InFileWidget)
+{
+	if (FileWidget)
+	{
+		FileWidget->RemoveFromParent();
+	}
+	FileWidget = InFileWidget;
+	K2_OnFileWidgetSet();
+}
