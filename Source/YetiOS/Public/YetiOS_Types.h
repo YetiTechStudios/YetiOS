@@ -39,8 +39,9 @@ enum class EYetiOsTerminalMessageLevel : uint8
 UENUM(BlueprintType)
 enum class EYetiOsThemeMode : uint8
 {
-	Light,
-	Dark
+	Light								UMETA(DisplayName = "Light"),
+	Dark								UMETA(DisplayName = "Dark"),
+	MAX									UMETA(Hidden) // Add new theme modes ABOVE this.
 };
 
 UENUM(BlueprintType)
@@ -823,7 +824,7 @@ struct FYetiOsDirectorySaveLoad
 	uint8 bSaveLoad_IsHidden : 1;
 
 	UPROPERTY()
-	TArray<FFileProperties> SaveLoad_Files;
+	TSet<class UYetiOS_FileBase*> SaveLoad_Files;
 
 	UPROPERTY()
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> SaveLoad_ChildDirectoryClasses;
