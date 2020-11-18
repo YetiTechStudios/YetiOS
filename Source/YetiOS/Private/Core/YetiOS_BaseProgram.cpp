@@ -33,6 +33,8 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	bCanCallOnStart = true;
 	bCanCallOnClose = true;
 
+	ProcessID = INDEX_NONE;
+
 	CurrentVisibilityState = EYetiOsProgramVisibilityState::STATE_Normal;
 }
 
