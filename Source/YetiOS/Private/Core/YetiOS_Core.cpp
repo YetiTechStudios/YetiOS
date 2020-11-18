@@ -86,6 +86,16 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 	return nullptr;
 }
 
+TArray<class UYetiOS_DirectoryBase*> UYetiOS_Core::GetSystemDirectories(class UYetiOS_Core* InOS)
+{
+	if (InOS && InOS->RootDirectory)
+	{
+		return InOS->RootDirectory->GetSystemDirectories();
+	}
+
+	return TArray<UYetiOS_DirectoryBase*>();
+}
+
 const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
 {
 	return FText::AsTime(InDateTime, EDateTimeStyle::Short, FText::GetInvariantTimeZone());
