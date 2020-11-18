@@ -101,6 +101,21 @@ const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
 	return FText::AsTime(InDateTime, EDateTimeStyle::Short, FText::GetInvariantTimeZone());
 }
 
+
+FLinearColor UYetiOS_Core::GetColorFromCurrent(class UYetiOS_Core* InOS, EYetiOsColorTypes InColorType)
+{
+	if (InOS)
+	{
+		UYetiOS_SystemSettings* ProxySettings = InOS->GetSystemSettings();
+		if (ProxySettings)
+		{
+			return ProxySettings->GetColorFromCurrent(InColorType);
+		}
+	}
+
+	return FLinearColor::Transparent;
+}
+
 void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotification)
 {
 	if (NotificationSettings.bEnableNotifications)

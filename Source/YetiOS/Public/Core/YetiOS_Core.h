@@ -210,6 +210,16 @@ public:
 	static const FText GetTimeAsText(const FDateTime& InDateTime);
 
 	/**
+	* public static UYetiOS_Core::GetColorFromCurrent
+	* Returns color from current color collection that is set.
+	* @param InOS [class UYetiOS_Core*] OS to get settings from.
+	* @param InColorType [EYetiOsColorTypes] Type of color to get.
+	* @return [FLinearColor] Color of given type.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Global|Themes")	
+	static FLinearColor GetColorFromCurrent(class UYetiOS_Core* InOS, EYetiOsColorTypes InColorType);
+
+	/**
 	* public UYetiOS_Core::CreateOsNotification
 	* Creates an OS notification and add it to the notification manager.
 	* @param InNewNotification [const FYetiOsNotification] Notification to add.
