@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Input/Events.h"
+#include "YetiOS_Types.h"
 #include "YetiOS_OsWidget.generated.h"
 
 /**
