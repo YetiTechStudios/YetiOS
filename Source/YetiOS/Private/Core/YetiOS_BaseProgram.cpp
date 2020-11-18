@@ -77,6 +77,11 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 
 const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 {
+	if (IsRunning() && IsSingleInstanceProgram())
+	{
+		return true;
+	}
+
 	const int32 MyProcessID = OwningOS->AddRunningProgram(this, OutErrorMessage);
 	if (MyProcessID != INDEX_NONE)
 	{
