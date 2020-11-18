@@ -258,7 +258,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of wallpaper paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")	
 	static TArray<FString> GetLoginWallpapers(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -268,7 +268,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of wallpaper paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
 	static TArray<FString> GetDesktopWallpapers(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -278,7 +278,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of icon paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
 	static TArray<FString> GetUserIconImages(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -289,7 +289,7 @@ public:
 	* @param DefaultTextureIfNull [UTexture2D*] Default texture to return if runtime texture fails to load.
 	* @return [UTexture2D*] Loaded texture or default texture if runtime texture loading fails.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")	
 	static UTexture2D* CreateTextureFromPath(const FString& InImagePath, UTexture2D* DefaultTextureIfNull);
 
 protected:

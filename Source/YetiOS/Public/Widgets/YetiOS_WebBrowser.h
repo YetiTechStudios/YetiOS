@@ -227,7 +227,7 @@ public:
 
 	UYetiOS_WebBrowser(const FObjectInitializer& ObjectInitializer);
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser")
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global|Web Browser")
 	static const bool DeleteWebBrowserCache(const bool bPrintToLog = true);
 
 	/**
@@ -348,7 +348,7 @@ public:
 	* @param OutResult [EBrowserURL&] Returns the URL type if string is valid.
 	* @return [const bool] True if the given string was converted successfully to EBrowserURL value.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Web Browser")
+	UFUNCTION(BlueprintPure, Category = "Yeti Global|Web Browser")
 	static const bool GetBrowserUrlFromString(const FString& InString, EBrowserURL& OutResult);
 
 	/**
@@ -357,7 +357,7 @@ public:
 	* @param InURL [const FText&] URL to get
 	* @return [const FText] Proper domain name.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Web Browser")
+	UFUNCTION(BlueprintPure, Category = "Yeti Global|Web Browser")
 	static const FText GetCleanDomainName(const FText& InURL);
 
 	/**

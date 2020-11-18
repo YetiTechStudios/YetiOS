@@ -78,7 +78,7 @@ public:
 	* @return [const FText] Returns the root command.
 	**/
 	UE_DEPRECATED(4.25, "Use GetRootCommand instead.")
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal", meta = (DeprecatedFunction, DeprecationMessage = "Use GetRootCommand instead."))
+	UFUNCTION(BlueprintPure, Category = "Yeti Global|Terminal", meta = (DeprecatedFunction, DeprecationMessage = "Use GetRootCommand instead."))
 	static const FText GetRootCommandName();
 
 	virtual const bool StartProgram(FYetiOsError& OutErrorMessage) override;

@@ -29,6 +29,6 @@ public:
 
 	static UYetiOS_BsodWidget* CreateBsodWidget(const UObject* WorldContextObject, TSubclassOf<class UYetiOS_BsodWidget> InBsodWidgetClass, const FText InFaultingModuleName = FText::GetEmpty(), const FText InExceptionName = FText::GetEmpty(), const FText InDetailedException = FText::GetEmpty());
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti BSOD")
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global")
 	static const FText GenerateRandomErrorCode();
 };

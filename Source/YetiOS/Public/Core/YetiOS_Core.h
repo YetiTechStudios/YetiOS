@@ -189,6 +189,9 @@ public:
 	**/
 	static UYetiOS_Core* CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage);
 
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
+	static TArray<class UYetiOS_DirectoryBase*> GetSystemDirectories(class UYetiOS_Core* InOS);
+
 	/**
 	* public static UYetiOS_Core::GetTimeAsText
 	* Converts a passed in date & time to a text, formatted as a time using an invariant timezone. This will use the given date & time as-is, so it's assumed to already be in the correct timezone.
@@ -196,7 +199,7 @@ public:
 	* @param InDateTime [const FDateTime&] Time to convert.
 	* @return [const FText] Time as text. Example: 1:00 PM
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
 	static const FText GetTimeAsText(const FDateTime& InDateTime);
 
 	/**

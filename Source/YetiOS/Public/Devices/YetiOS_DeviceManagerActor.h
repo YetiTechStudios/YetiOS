@@ -52,7 +52,7 @@ public:
 	* @param InExceptionName [const FText] Exception name (if any).
 	* @param InDetailedException [const FText] Detailed exception name (if any).
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti Device Manager", meta = (WorldContext = "WorldContextObject"))	
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global", meta = (WorldContext = "WorldContextObject"))	
 	static void ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FYetiOsError& InErrorMessage);
 
 	virtual void BeginPlay() override;

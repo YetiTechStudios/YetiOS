@@ -54,7 +54,7 @@ public:
 		return Cast<T>(LoadSettings(InParentProgram));
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Program Settings")
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global")
 	static bool SaveProgramSettings(class UYetiOS_BaseProgram* InProgram);
 
 private:
