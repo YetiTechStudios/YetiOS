@@ -667,18 +667,21 @@ public:
 	FORCEINLINE class USoundBase* GetNotificationSound(const FYetiOsNotification& InNotification) const
 	{
 		USoundBase* MySound = nullptr;
-		EYetiOsNotificationType NotifyType = InNotification.Level;
-		switch (NotifyType)
+		if (NotificationSettings.bPlayNotificationSound)
 		{
-			case EYetiOsNotificationType::TYPE_Warning:
-				MySound = NotificationSettings.NotificationSoundWarning;
-				break;
-			case EYetiOsNotificationType::TYPE_Error:
-				MySound = NotificationSettings.NotificationSoundError;
-				break;
-			default:
-				MySound = NotificationSettings.NotificationSoundDefault;
-				break;
+			EYetiOsNotificationType NotifyType = InNotification.Level;
+			switch (NotifyType)
+			{
+				case EYetiOsNotificationType::TYPE_Warning:
+					MySound = NotificationSettings.NotificationSoundWarning;
+					break;
+				case EYetiOsNotificationType::TYPE_Error:
+					MySound = NotificationSettings.NotificationSoundError;
+					break;
+				default:
+					MySound = NotificationSettings.NotificationSoundDefault;
+					break;
+			}
 		}
 		return MySound;
 	}
