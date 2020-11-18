@@ -54,7 +54,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	FText OsName;
 
-	/* Version of this operating system. Eg: 1.0.57784.1 */
+	/* Version of this operating system. Eg: 0.1 or 1.2 or 1.2.3 or 1.0.57784.1 */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	FText OsVersion;
 
