@@ -117,6 +117,9 @@ protected:
 	/* Process ID assigned to this program while running. Will be -1 (or INDEX_NONE in C++) if not running. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 ProcessID;
+
+	UPROPERTY()
+	UYetiOS_AppIconWidget* ProgramIconWidget;
 	
 public:
 
@@ -152,6 +155,13 @@ public:
 	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
 
 	/**
+	* public UYetiOS_BaseProgram::AddProgramIconWidget
+	* Add the icon widget to this program.
+	* @param InIconWidget [class UYetiOS_AppIconWidget*] Widget to set.
+	**/
+	void AddProgramIconWidget(class UYetiOS_AppIconWidget* InIconWidget);
+
+	/**
 	* virtual public UYetiOS_BaseProgram::CloseProgram
 	* Close this program.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
@@ -185,6 +195,9 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")	
 	bool IsRunning() const { return ProcessID != INDEX_NONE; }
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")
+	class UYetiOS_AppIconWidget* GetProgramIconWidget() const { return ProgramIconWidget; }
 
 private:
 

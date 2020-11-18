@@ -28,6 +28,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	bCanRunOnPortableDevice = true;
 	bIsSystemInstalledProgram = false;
 	bAddDesktopShortcut = false;
+	ProgramIconWidget = nullptr;
 
 	bCanCallOnCreate = true;
 	bCanCallOnStart = true;
@@ -119,6 +120,11 @@ bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilitySt
 	}
 
 	return false;
+}
+
+void UYetiOS_BaseProgram::AddProgramIconWidget(class UYetiOS_AppIconWidget* InIconWidget)
+{
+	ProgramIconWidget = InIconWidget;
 }
 
 void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown /*= false*/)
