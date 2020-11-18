@@ -47,6 +47,7 @@ protected:
 
 	/* List of files in this directory. Only valid if Can Create New File is checked. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base", meta = (EditCondition = "bCanCreateNewFile"))
+	TSet<TSubclassOf<class UYetiOS_FileBase>> FileClasses;
 
 	/* List of child directories for this directory. Only valid if Can Create New Folder is checked. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base", meta = (EditCondition = "bCanCreateNewFolder"))
@@ -56,9 +57,8 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	UYetiOS_DirectoryBase* ParentDirectory;
 
-	/* List of child directories. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	TArray<UYetiOS_DirectoryBase*> ChildDirectories;
+	TSet<class UYetiOS_FileBase*> Files;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TSet<UYetiOS_DirectoryBase*> SystemDirectories;
@@ -144,18 +144,12 @@ public:
 	TArray<class UYetiOS_DirectoryBase*> GetAllChildDirectories() const { return ChildDirectories; }
 
 	/**
-	* public UYetiOS_DirectoryBase::GetSystemDirectories const
-	* Gets all system directories.
-	* @return [TSet<class UYetiOS_DirectoryBase*>] A set of system directories.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")	
-	TSet<class UYetiOS_DirectoryBase*> GetSystemDirectories() const { return SystemDirectories; }
-
-	/**
 	* public UYetiOS_Directory::GetDirectoryFiles const
 	* Returns files in this directory.
+	* @return [TSet<class UYetiOS_FileBase*>] List of file objects.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
+	TSet<class UYetiOS_FileBase*> GetDirectoryFiles() const { return Files; }
 
 	/**
 	* public UYetiOS_Directory::IsHidden const
@@ -211,9 +205,16 @@ public:
 	TArray<UYetiOS_DirectoryBase*> CreateNativeChildDirectories(class UYetiOS_Core* InOwningOS, FYetiOsError& OutErrorMessage, const bool bForceCreate = false, const bool bCreateGrandChildDirectories = true);
 
 	/**
+	* public UYetiOS_DirectoryBase::CreateNewFileByClass
 	* Creates a new file in this directory.
+	* @param InNewFileClass [TSubclassOf<class UYetiOS_FileBase>] File class to create.
+	* @param OutFile [class UYetiOS_FileBase*&] Reference to the newly created file (if valid).
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
+	* @param bRequirePermission [const bool] Forcefully creates a file even if bCanCreateNewFile is false.
+	* @return [bool] Returns true if the file was created successfully.
 	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti Directory Base")	
+	bool CreateNewFileByClass(TSubclassOf<class UYetiOS_FileBase> InNewFileClass, class UYetiOS_FileBase*& OutFile, FYetiOsError& OutErrorMessage, const bool bRequirePermission = false);
 
 	void EnsureOS(const class UYetiOS_Core* InOS);
 

@@ -6,6 +6,7 @@
 #include "Core/YetiOS_DirectoryRoot.h"
 #include "Devices/YetiOS_BaseDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
+#include "Core/YetiOS_FileBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDirectoryBase, All, All)
 
@@ -169,46 +170,32 @@ void UYetiOS_DirectoryBase::EnsureOS(const class UYetiOS_Core* InOS)
 	}
 }
 
-const bool UYetiOS_DirectoryBase::CreateNewFile(FFileProperties InNewFile, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/)
+bool UYetiOS_DirectoryBase::CreateNewFileByClass(TSubclassOf<class UYetiOS_FileBase> InNewFileClass, class UYetiOS_FileBase*& OutFile, FYetiOsError& OutErrorMessage, const bool bRequirePermission /*= false*/)
 {
 	bool bLocal_CreateFile = bCanCreateNewFile;
 
-	if (bForceCreate)
+	if (bRequirePermission)
 	{
 		bLocal_CreateFile = true;
 	}
 
+	OutFile = nullptr;
 	if (bLocal_CreateFile)
 	{
-		bool bFileExists = false;
-		for (const auto& It : Files)
+		OutFile = UYetiOS_FileBase::CreateFile(this, InNewFileClass, OutErrorMessage);
+		if (OutFile)
 		{
-			const FString ExistingFile = FString::Printf(TEXT("%s%s"), *It.FileName.ToString(), *It.FileExtension.ToString());
-			const FString TargetFile = FString::Printf(TEXT("%s%s"), *InNewFile.FileName.ToString(), *InNewFile.FileExtension.ToString());
-			if (ExistingFile.ToLower() == TargetFile.ToLower())
-			{
-				bFileExists = true;
-				OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_FileCreateAlreadyExists", "ERR_FILE_EXISTS");
-				OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_FileCreateAlreadyExistsException", "Cannot create file inside {0}."), DirectoryName);
-				OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_FileCreateAlreadyExistsDetailedException", "A file with name {0} already exists inside {1}."), InNewFile.FileName, DirectoryName);
-				break;
-			}
-		}
-
-		if (bFileExists == false)
-		{
-			Files.Add(InNewFile);
-			return true;
+			Files.Add(OutFile);
 		}
 	}
-	else
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_FileCreateNoPermisson", "ERR_PERMISSION_DENIED");
-		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_FileCreateNoPermissonException", "Cannot create file inside {0}."), DirectoryName);
-		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_FileCreateNoPermissonDetailedException", "Permission error. Please make sure that '{0}' directory can create new folder."), DirectoryName);
+
+	return OutFile != nullptr;
+}
+
+		{
+		}
 	}
 
-	return false;
 }
 
 TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/)
