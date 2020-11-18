@@ -21,6 +21,7 @@
 #include "Runtime/UMG/Public/Blueprint/WidgetLayoutLibrary.h"
 #include "Hardware/YetiOS_Motherboard.h"
 #include "Hardware/YetiOS_HardDisk.h"
+#include "Core/YetiOS_FileBase.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
