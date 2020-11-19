@@ -34,6 +34,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	bCanCallOnCreate = true;
 	bCanCallOnStart = true;
 	bCanCallOnClose = true;
+	bCanCallOnInstall = true;
 
 	ProcessID = INDEX_NONE;
 
