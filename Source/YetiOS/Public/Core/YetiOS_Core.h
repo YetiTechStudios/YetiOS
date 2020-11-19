@@ -196,6 +196,16 @@ public:
 	**/
 	static UYetiOS_Core* CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage);
 
+	/**
+	* public static UYetiOS_Core::EvaluateMathExpression
+	* Evaluates the given expression. If expression failed, this will return false. Otherwise OutValue contains the result of the expression.
+	* @param InExpression [const FString&] Expression to evaluate.
+	* @param OutValue [float&] Result of the expression if return is true.
+	* @return [bool] True if successful, false if equation failed.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global")	
+	static bool EvaluateMathExpression(const FString& InExpression, float& OutValue);
+
 	UFUNCTION(BlueprintPure, Category = "Yeti Global")
 	static TArray<class UYetiOS_DirectoryBase*> GetSystemDirectories(class UYetiOS_Core* InOS);
 

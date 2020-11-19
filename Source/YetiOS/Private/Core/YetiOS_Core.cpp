@@ -87,6 +87,11 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 	return nullptr;
 }
 
+bool UYetiOS_Core::EvaluateMathExpression(const FString& InExpression, float& OutValue)
+{
+	return FMath::Eval(InExpression, OutValue);
+}
+
 TArray<class UYetiOS_DirectoryBase*> UYetiOS_Core::GetSystemDirectories(class UYetiOS_Core* InOS)
 {
 	if (InOS && InOS->RootDirectory)
