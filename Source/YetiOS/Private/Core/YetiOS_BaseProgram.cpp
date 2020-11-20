@@ -36,6 +36,9 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	bCanCallOnClose = true;
 	bCanCallOnInstall = true;
 
+	bOverrideWindowSize = false;
+	OverrideWindowSize = FVector2D(640.f, 480.f);
+
 	ProcessID = INDEX_NONE;
 
 	CurrentVisibilityState = EYetiOsProgramVisibilityState::STATE_Normal;
@@ -98,7 +101,7 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 	{
 		ProgramWidget = UYetiOS_AppWidget::Internal_CreateAppWidget(this);
 		ProcessID = MyProcessID;
-		OwningOS->GetOsWidget()->K2_CreateNewWindow(this, ProgramWidget);
+		OwningOS->GetOsWidget()->K2_CreateNewWindow(this, ProgramWidget, bOverrideWindowSize ? OverrideWindowSize : FVector2D::ZeroVector);
 		printlog(FString::Printf(TEXT("Executing program %s..."), *ProgramName.ToString()));
 		if (bCanCallOnStart)
 		{

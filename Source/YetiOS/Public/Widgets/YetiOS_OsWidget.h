@@ -115,5 +115,5 @@ public:
 	void K2_LoginUser(const FYetiOsUser& UserToLogin);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, BlueprintCallable, Category = "Yeti OS Widget", DisplayName = "CreateNewWindow")
-	void K2_CreateNewWindow(class UYetiOS_BaseProgram* InProgram, class UYetiOS_AppWidget* InProgramWidget);
+	void K2_CreateNewWindow(class UYetiOS_BaseProgram* InProgram, class UYetiOS_AppWidget* InProgramWidget, const FVector2D& OverrideSize);
 };

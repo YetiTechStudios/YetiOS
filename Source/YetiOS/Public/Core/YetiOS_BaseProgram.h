@@ -70,6 +70,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	EProgramSaveMethod SaveMethod;
 
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program", meta = (InlineEditConditionToggle))
+	uint8 bOverrideWindowSize : 1;
+
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program", meta = (EditCondition = "bOverrideWindowSize"))
+	FVector2D OverrideWindowSize;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
 	uint8 bAddDesktopShortcut : 1;
 
