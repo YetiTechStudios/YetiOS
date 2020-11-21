@@ -55,6 +55,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS File")
 	uint8 bIsMovable : 1;
 
+	/** If true, then if the associated program is running it will open in that instance. Eg: A video file will open on an existing media player (if already running) instead of opening a new one.
+	* If false, then opening this file will also start associated program as a new instance (if the program is NOT set to run as single instance).
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS File")
+	uint8 bOpenInSameInstance : 1;
+
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_BaseProgram* AssociatedProgram;
 
@@ -133,6 +139,7 @@ public:
 
 	FORCEINLINE class UYetiOS_DirectoryBase* GetParentDirectory() const { return Cast<class UYetiOS_DirectoryBase>(GetOuter()); }
 	FORCEINLINE TSubclassOf<class UYetiOS_FileIconWidget> GetFileIconWidgetClass() const { return FileIconWidgetClass; }
+	FORCEINLINE const bool CanOpenInSameInstance() const {; return bOpenInSameInstance; }
 	FORCEINLINE const bool IsSameFile(const UYetiOS_FileBase* OtherFile) const
 	{
 		return OtherFile->GetFilename(true).EqualToCaseIgnored(GetFilename(true));
