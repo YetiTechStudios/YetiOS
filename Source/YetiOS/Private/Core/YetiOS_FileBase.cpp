@@ -22,7 +22,6 @@ UYetiOS_FileBase::UYetiOS_FileBase()
 	Extension  = FText::AsCultureInvariant("");
 	Icon = nullptr;
 	Size = 0.f;
-	ParentDirectory = nullptr;
 	bIsHidden = false;
 	bIsDeletable = true;
 	bIsMovable = true;
@@ -37,7 +36,6 @@ UYetiOS_FileBase* UYetiOS_FileBase::CreateFile(class UYetiOS_DirectoryBase* InPa
 	FString ErrorString = "";
 	OutErrorMessage = FYetiOsError();
 	UYetiOS_FileBase* ProxyFile = NewObject<UYetiOS_FileBase>(InParentDirectory, FileClass);
-	ProxyFile->ParentDirectory = InParentDirectory;
 	if (ProxyFile->AssociatedProgramClass)
 	{
 		TSet<UYetiOS_FileBase*> AllFilesInParent = InParentDirectory->GetDirectoryFiles();
@@ -77,9 +75,9 @@ UYetiOS_FileBase* UYetiOS_FileBase::CreateFile(class UYetiOS_DirectoryBase* InPa
 
 bool UYetiOS_FileBase::OpenFile(FYetiOsError& OutErrorMessage)
 {
-	checkf(ParentDirectory, TEXT("File requires a valid reference to directory to open"));
+	checkf(GetParentDirectory(), TEXT("File requires a valid reference to directory to open"));
 	bIsOpen = AssociatedProgram != nullptr;
-	UYetiOS_Core* Local_OS = ParentDirectory->GetOwningOS();
+	UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
 	if (bIsOpen == false)
 	{
 		const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
@@ -105,13 +103,12 @@ void UYetiOS_FileBase::CloseFile()
 
 	if (DelegateHandle_OnAssociatedProgramInstalled.IsValid())
 	{
-		UYetiOS_Core* Local_OS = ParentDirectory->GetOwningOS();
+		UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
 		Local_OS->OnProgramInstalled.Remove(DelegateHandle_OnAssociatedProgramInstalled);
 		DelegateHandle_OnAssociatedProgramInstalled.Reset();
 	}
 
 	AssociatedProgram = nullptr;
-	ParentDirectory = nullptr;
 
 	if (FileWidget)
 	{
@@ -134,7 +131,7 @@ class UObject* UYetiOS_FileBase::GetDefaultIcon()
 {
 	if (OverrideDefaultIcon == nullptr)
 	{
-		UYetiOS_Core* Local_OwningOS = ParentDirectory->GetOwningOS();
+		UYetiOS_Core* Local_OwningOS = GetParentDirectory()->GetOwningOS();
 		if (Local_OwningOS)
 		{
 			OverrideDefaultIcon = Local_OwningOS->GetDefaultIcon();
@@ -158,7 +155,7 @@ const bool UYetiOS_FileBase::IsAssociatedProgramInstalled() const
 {
 	if (AssociatedProgram)
 	{
-		UYetiOS_Core* Local_OwningOS = ParentDirectory->GetOwningOS();
+		UYetiOS_Core* Local_OwningOS = GetParentDirectory()->GetOwningOS();
 		return Local_OwningOS->IsProgramInstalled(AssociatedProgram->GetProgramIdentifierName());
 	}
 
@@ -170,7 +167,7 @@ void UYetiOS_FileBase::Internal_OnFileCreate()
 	K2_OnFileCreate();
 	FYetiOsError OutError;
 	const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
-	UYetiOS_Core* Local_OS = ParentDirectory->GetOwningOS();
+	UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
 	Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutError);
 	if (AssociatedProgram == nullptr)
 	{
@@ -184,7 +181,7 @@ void UYetiOS_FileBase::Internal_OnAssociatedProgramInstalled(class UYetiOS_BaseP
 	{
 		AssociatedProgram = InNewInstalledProgram;
 		FileIconWidget->AssociatedProgramInstalled();
-		UYetiOS_Core* Local_OS = ParentDirectory->GetOwningOS();
+		UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
 		Local_OS->OnProgramInstalled.Remove(DelegateHandle_OnAssociatedProgramInstalled);
 		DelegateHandle_OnAssociatedProgramInstalled.Reset();
 	}

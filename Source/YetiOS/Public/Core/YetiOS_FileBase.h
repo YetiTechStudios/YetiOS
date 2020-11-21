@@ -64,9 +64,6 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_FileIconWidget* FileIconWidget;
 
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	class UYetiOS_DirectoryBase* ParentDirectory;
-
 	/** Is the file currently open */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bIsOpen : 1;
@@ -134,7 +131,7 @@ public:
 
 public:
 
-	FORCEINLINE class UYetiOS_DirectoryBase* GetParentDirectory() const { return ParentDirectory; }
+	FORCEINLINE class UYetiOS_DirectoryBase* GetParentDirectory() const { return Cast<class UYetiOS_DirectoryBase>(GetOuter()); }
 	FORCEINLINE TSubclassOf<class UYetiOS_FileIconWidget> GetFileIconWidgetClass() const { return FileIconWidgetClass; }
 	FORCEINLINE const bool IsSameFile(const UYetiOS_FileBase* OtherFile) const
 	{
