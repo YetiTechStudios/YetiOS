@@ -145,7 +145,14 @@ public:
 	**/
 	static UYetiOS_BaseProgram* CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bInstalledWithOS = false);
 	
+private:
+
+	static UYetiOS_BaseProgram* Internal_StartProgram(UYetiOS_BaseProgram* Program, FYetiOsError& OutErrorMessage);
+
+public:
+
 	virtual void ProgramInstalled();
+
 	/**
 	* virtual public UYetiOS_BaseProgram::StartProgram
 	* Start this program and add to running list in Operating System.
@@ -153,6 +160,8 @@ public:
 	* @return [const bool] True if the program was started successfully.
 	**/
 	virtual const bool StartProgram(FYetiOsError& OutErrorMessage);
+
+	virtual const bool StartProgram(UYetiOS_BaseProgram*& OutProgram, FYetiOsError& OutErrorMessage);
 
 	/**
 	* virtual public UYetiOS_BaseProgram::ChangeVisibilityState

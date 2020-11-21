@@ -75,14 +75,42 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 
 	return nullptr;
 }
+
+UYetiOS_BaseProgram* UYetiOS_BaseProgram::Internal_StartProgram(UYetiOS_BaseProgram* Program, FYetiOsError& OutErrorMessage)
+{
+	UYetiOS_BaseProgram* ProxyProgram = nullptr;
+	if (Program->IsRunning() == false)
+	{
+		ProxyProgram = Program;
+	}
+	else
+	{
+		ProxyProgram = NewObject<UYetiOS_BaseProgram>(Program->OwningOS, Program->GetClass());
+		ProxyProgram->OwningOS = Program->OwningOS;
+	}
+	
+	const int32 MyProcessID = ProxyProgram->OwningOS->AddRunningProgram(ProxyProgram, OutErrorMessage);
+	if (MyProcessID != INDEX_NONE)
+	{
+		ProxyProgram->bIsSystemInstalledProgram = Program->bIsSystemInstalledProgram;
+		ProxyProgram->ProgramWidget = UYetiOS_AppWidget::Internal_CreateAppWidget(ProxyProgram);
+		ProxyProgram->ProcessID = MyProcessID;
+		ProxyProgram->OwningOS->GetOsWidget()->K2_CreateNewWindow(ProxyProgram, ProxyProgram->ProgramWidget, ProxyProgram->bOverrideWindowSize ? ProxyProgram->OverrideWindowSize : FVector2D::ZeroVector);
+		printlog(FString::Printf(TEXT("Executing program %s..."), *ProxyProgram->ProgramName.ToString()));
+		if (ProxyProgram->bCanCallOnStart)
 		{
-			ProxyProgram->StartProgram(OutErrorMessage);
+			ProxyProgram->K2_OnStart();
 		}
 
-		return ProxyProgram;
+		ProxyProgram->Internal_LoadProgramSettings();
+	}
+	else
+	{
+		ProxyProgram->ConditionalBeginDestroy();
+		ProxyProgram = nullptr;
 	}
 
-	return nullptr;
+	return ProxyProgram;
 }
 
 void UYetiOS_BaseProgram::ProgramInstalled()
@@ -95,28 +123,20 @@ void UYetiOS_BaseProgram::ProgramInstalled()
 
 const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 {
+	UYetiOS_BaseProgram* OutProgram;
+	return StartProgram(OutProgram, OutErrorMessage);
+}
+
+const bool UYetiOS_BaseProgram::StartProgram(UYetiOS_BaseProgram*& OutProgram, FYetiOsError& OutErrorMessage)
+{
 	if (IsRunning() && IsSingleInstanceProgram())
 	{
+		OutProgram = this;
 		return true;
 	}
 
-	const int32 MyProcessID = OwningOS->AddRunningProgram(this, OutErrorMessage);
-	if (MyProcessID != INDEX_NONE)
-	{
-		ProgramWidget = UYetiOS_AppWidget::Internal_CreateAppWidget(this);
-		ProcessID = MyProcessID;
-		OwningOS->GetOsWidget()->K2_CreateNewWindow(this, ProgramWidget, bOverrideWindowSize ? OverrideWindowSize : FVector2D::ZeroVector);
-		printlog(FString::Printf(TEXT("Executing program %s..."), *ProgramName.ToString()));
-		if (bCanCallOnStart)
-		{
-			K2_OnStart();
-		}
-
-		Internal_LoadProgramSettings();
-		return true;
-	}
-
-	return false;
+	OutProgram = Internal_StartProgram(this, OutErrorMessage);
+	return OutProgram != nullptr;
 }
 
 bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
