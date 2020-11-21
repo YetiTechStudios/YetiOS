@@ -173,6 +173,7 @@ void UYetiOS_TerminalCommand::CloseProgramByIdentifier(const FName& InProgramIde
 	{
 		FYetiOsError OutErrorMessage;
 		FoundProgram->CloseProgram(OutErrorMessage);
+		FoundProgram = nullptr;
 	}
 }
 
@@ -183,6 +184,7 @@ void UYetiOS_TerminalCommand::CloseProgramByID(const int32& InProcessID)
 	{
 		FYetiOsError OutErrorMessage;
 		FoundProgram->CloseProgram(OutErrorMessage);
+		FoundProgram = nullptr;
 	}
 }
 
