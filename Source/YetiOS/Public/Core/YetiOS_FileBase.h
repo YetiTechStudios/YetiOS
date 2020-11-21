@@ -133,7 +133,7 @@ protected:
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "Yeti OS File")
-	class UObject* GetFileContent();
+	class UYetiOS_FileContent* GetFileContent();
 
 public:
 
