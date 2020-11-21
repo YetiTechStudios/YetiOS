@@ -196,6 +196,7 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 	ProgramWidget = nullptr;
 
 	printlog(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
+	ConditionalBeginDestroy();
 }
 
 bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
