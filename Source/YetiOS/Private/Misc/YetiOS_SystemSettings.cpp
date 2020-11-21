@@ -107,14 +107,7 @@ FLinearColor UYetiOS_SystemSettings::GetColorOfTypeFromCollection(const FName In
 	return FLinearColor::Transparent;
 }
 
-FYetiOsColorCollection UYetiOS_SystemSettings::GetColorCollectionFromCurrentTheme() const
 {
-	if (CurrentTheme == EYetiOsThemeMode::Dark)
-	{
-		return ThemeColors[1];
-	}
-
-	return ThemeColors[0];
 }
 
 FLinearColor UYetiOS_SystemSettings::GetColorFromCurrent(EYetiOsColorTypes InColorType)

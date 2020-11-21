@@ -220,14 +220,9 @@ public:
 	static const FText GetTimeAsText(const FDateTime& InDateTime);
 
 	/**
-	* public static UYetiOS_Core::GetColorCollectionFromCurrentTheme
-	* Helper function to retrieve color collection of current theme.
 	* @param InOS [class UYetiOS_Core*] OS to get settings from.
 	* @param OutCollection [FYetiOsColorCollection&] Outputs a valid collection if return value is true.
-	* @return [bool] True if a collection was found for the current theme.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti Global|Themes")	
-	static bool GetColorCollectionFromCurrentTheme(class UYetiOS_Core* InOS, FYetiOsColorCollection& OutCollection);
 
 	/**
 	* public static UYetiOS_Core::GetColorFromCurrent
