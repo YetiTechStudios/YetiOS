@@ -113,6 +113,7 @@ void UYetiOS_FileBase::CloseFile()
 	if (FileWidget)
 	{
 		FileWidget->RemoveFromParent();
+		FileWidget->ConditionalBeginDestroy();
 		FileWidget = nullptr;
 	}
 }
