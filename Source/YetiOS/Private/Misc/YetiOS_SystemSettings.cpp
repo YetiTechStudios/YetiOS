@@ -107,7 +107,9 @@ FLinearColor UYetiOS_SystemSettings::GetColorOfTypeFromCollection(const FName In
 	return FLinearColor::Transparent;
 }
 
+FYetiOsColorCollection UYetiOS_SystemSettings::GetColorCollectionFromTheme(EYetiOsThemeMode InTheme) const
 {
+	return ThemeColors[(int32)InTheme];
 }
 
 FLinearColor UYetiOS_SystemSettings::GetColorFromCurrent(EYetiOsColorTypes InColorType)

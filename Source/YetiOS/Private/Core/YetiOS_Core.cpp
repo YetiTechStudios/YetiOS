@@ -107,12 +107,14 @@ const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
 	return FText::AsTime(InDateTime, EDateTimeStyle::Short, FText::GetInvariantTimeZone());
 }
 
+bool UYetiOS_Core::GetColorCollectionOfTheme(class UYetiOS_Core* InOS, EYetiOsThemeMode InTheme, FYetiOsColorCollection& OutCollection)
 {
 	if (InOS)
 	{
 		UYetiOS_SystemSettings* ProxySettings = InOS->GetSystemSettings();
 		if (ProxySettings)
 		{
+			OutCollection = ProxySettings->GetColorCollectionFromTheme(InTheme);
 			return true;
 		}
 	}

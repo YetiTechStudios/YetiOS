@@ -113,6 +113,7 @@ public:
 	* @return [FYetiOsColorCollection] Color collection related to current theme.
 	**/
 	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS System Settings")	
+	FYetiOsColorCollection GetColorCollectionFromTheme(EYetiOsThemeMode InTheme) const;
 
 	/**
 	* public UYetiOS_SystemSettings::GetColorFromCurrent
