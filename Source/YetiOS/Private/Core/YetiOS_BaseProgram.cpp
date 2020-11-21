@@ -44,7 +44,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	CurrentVisibilityState = EYetiOsProgramVisibilityState::STATE_Normal;
 }
 
-UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bStartImmediately /*= false*/, const bool bInstalledWithOS /*= false*/)
+UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bInstalledWithOS /*= false*/)
 {
 	if (InOS && !InOS->IsPendingKill())
 	{
@@ -70,7 +70,11 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 		}
 
 		printlog(FString::Printf(TEXT("%s created."), *ProxyProgram->ProgramName.ToString()));
-		if (bStartImmediately)
+		return ProxyProgram;
+	}
+
+	return nullptr;
+}
 		{
 			ProxyProgram->StartProgram(OutErrorMessage);
 		}

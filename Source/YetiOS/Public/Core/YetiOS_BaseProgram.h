@@ -140,11 +140,10 @@ public:
 	* @param InOS [UYetiOS_Core*] Operating System this program belongs to.
 	* @param ProgramClass [TSubclassOf<UYetiOS_BaseProgram>] Program class to create.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @param bStartImmediately [const bool] If true, program will start immediately after creating.
 	* @param bInstalledWithOS [const bool] If true, then consider this program was installed with the Operating system.
 	* @return [UYetiOS_BaseProgram*] Newly created program. Will be nullptr if InOS is not valid.
 	**/
-	static UYetiOS_BaseProgram* CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bStartImmediately = false, const bool bInstalledWithOS = false);
+	static UYetiOS_BaseProgram* CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bInstalledWithOS = false);
 	
 	virtual void ProgramInstalled();
 	/**
