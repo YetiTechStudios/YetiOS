@@ -9,6 +9,7 @@
 #include "Widgets/YetiOS_OsWidget.h"
 #include "Misc/YetiOS_ProgramSettings.h"
 #include "Core/YetiOS_FileBase.h"
+#include "Core/YetiOS_DirectoryBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseProgram, All, All)
 
@@ -201,25 +202,24 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 
 bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
 {
-	bool bOpened = false;
-	CurrentFileOpened = InFileToOpen;
-	if (CurrentFileOpened)
+	const bool bLocal_ShouldStartProgram = InFileToOpen->CanOpenInSameInstance() ? IsRunning() == false : true;
+	if (bLocal_ShouldStartProgram)
 	{
-		bOpened = true;
-		const bool bIsRunning = IsRunning();
-		if (bIsRunning == false)
+		UYetiOS_BaseProgram* OutProgram;
+		FYetiOsError OutError;
+		if (StartProgram(OutProgram, OutError))
 		{
-			FYetiOsError OutError;
-			bOpened = StartProgram(OutError);
+			// We need to create a temp file as new to avoid issues since the same UObject or its child maybe referenced elsewhere.			
+			UYetiOS_FileBase* TempFileCreated = NewObject<UYetiOS_FileBase>(InFileToOpen->GetParentDirectory(), InFileToOpen->GetClass());
+			OutProgram->CurrentFileOpened = TempFileCreated;
+			OutProgram->ProgramWidget->SetFileWidget(OutProgram->CurrentFileOpened->GetFileWidget());
+			return true;
 		}
 	}
 
-	if (bOpened)
-	{
-		ProgramWidget->SetFileWidget(CurrentFileOpened->GetFileWidget());
-	}
-
-	return bOpened;
+	CurrentFileOpened = InFileToOpen;
+	ProgramWidget->SetFileWidget(CurrentFileOpened->GetFileWidget());
+	return true;
 }
 
 bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
