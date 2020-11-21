@@ -308,7 +308,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 	}
 
 	const bool bIsPredefinedProgram = ProgramsToInstall.Contains(InProgramToInstall);
-	UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(this, InProgramToInstall, OutErrorMessage, false, bIsPredefinedProgram);
+	UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(this, InProgramToInstall, OutErrorMessage, bIsPredefinedProgram);
 	if (NewProgram)
 	{
 		Internal_ConsumeSpace(NewProgram->GetProgramSpace());
