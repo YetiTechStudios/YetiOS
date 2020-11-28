@@ -68,7 +68,7 @@ private:
 
 	/* A collection of programs which user can install from a "repo" simulating the effect of "sudo apt-get install program-identifier". */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
-	class UObjectLibrary* RepositoryLibrary;
+	class UYetiOS_ProgramsRepository* ProgramsRepository;
 
 	/* List of devices this operating system is compatible with. If you try to load this OS on incompatible device it will result in Blue Screen. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
@@ -105,10 +105,6 @@ private:
 	/* List of users for this OS. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	TArray<FYetiOsUser> OsUsers;
-
-	/* List of pre-defined programs to install when you install this OS. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
-	TArray<TSubclassOf<UYetiOS_BaseProgram>> ProgramsToInstall;
 
 	/* A default template directory with no name. This template directory is used to create new directories. Must not be null. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
@@ -371,14 +367,6 @@ public:
 	void DestroyOS();
 
 	void UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow);
-
-	/**
-	* public UYetiOS_Core::GetInstallablePrograms const
-	* Returns a list of pre-defined installable programs.
-	* @return [const TArray<TSubclassOf<class UYetiOS_BaseProgram>>] Program classes.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const TArray<TSubclassOf<class UYetiOS_BaseProgram>> GetInstallablePrograms() const { return ProgramsToInstall; }
 
 	/**
 	* public UYetiOS_Core::GetOsVersion const

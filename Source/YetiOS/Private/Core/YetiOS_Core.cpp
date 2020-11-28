@@ -22,6 +22,7 @@
 #include "Hardware/YetiOS_Motherboard.h"
 #include "Hardware/YetiOS_HardDisk.h"
 #include "Core/YetiOS_FileBase.h"
+#include "Misc/YetiOS_ProgramsRepository.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
@@ -307,7 +308,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		return nullptr;
 	}
 
-	const bool bIsPredefinedProgram = ProgramsToInstall.Contains(InProgramToInstall);
+	const bool bIsPredefinedProgram = ProgramsRepository->IsInstalledWithOS(InProgramToInstall);
 	UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(this, InProgramToInstall, OutErrorMessage, bIsPredefinedProgram);
 	if (NewProgram)
 	{
@@ -602,28 +603,38 @@ void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 
 TSubclassOf<class UYetiOS_BaseProgram> UYetiOS_Core::Internal_FindProgramFromPackage(const FName& InProgramIdentifier)
 {
+	TSubclassOf<class UYetiOS_BaseProgram> ProgramClassToReturn = nullptr;
 	if (HasRepositoryLibrary() && InProgramIdentifier.IsNone() == false)
 	{
-		TArray<UBlueprintGeneratedClass*> OutBlueprintGeneratedClass;
-		RepositoryLibrary->GetObjects<UBlueprintGeneratedClass>(OutBlueprintGeneratedClass);
+		TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
 
-		printlog(FString::Printf(TEXT("Looking for %s from %i package(s) in repo."), *InProgramIdentifier.ToString(), OutBlueprintGeneratedClass.Num()));
-		if (OutBlueprintGeneratedClass.Num() > 0)
+		printlog(FString::Printf(TEXT("Looking for %s from %i package(s) in repo."), *InProgramIdentifier.ToString(), AllProgramsFromRepo.Num()));
+		if (AllProgramsFromRepo.Num() > 0)
 		{			
-			for (const auto& It : OutBlueprintGeneratedClass)
+			for (const auto& It : AllProgramsFromRepo)
 			{
-				UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It);
-				if (MyLoadedProgram->GetProgramIdentifierName().IsEqual(InProgramIdentifier))
+				if (It.ProgramClass)
 				{
-					printlog(FString::Printf(TEXT("Found %s from package repo."), *InProgramIdentifier.ToString()));
-					return MyLoadedProgram->GetClass();
+					UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It.ProgramClass);
+					if (MyLoadedProgram->GetProgramIdentifierName().IsEqual(InProgramIdentifier))
+					{
+						printlog(FString::Printf(TEXT("Found %s from package repo."), *InProgramIdentifier.ToString()));
+						ProgramClassToReturn = MyLoadedProgram->GetClass();
+						MyLoadedProgram->ConditionalBeginDestroy();
+						MyLoadedProgram = nullptr;
+						break;
+					}
 				}
 			}
 		}
 	}
 
-	printlog_warn(FString::Printf(TEXT("Package %s not found in repo."), *InProgramIdentifier.ToString()));
-	return nullptr;
+	if (ProgramClassToReturn == nullptr)
+	{
+		printlog_warn(FString::Printf(TEXT("Package %s not found in repo."), *InProgramIdentifier.ToString()));
+	}
+
+	return ProgramClassToReturn;
 }
 
 const bool UYetiOS_Core::Internal_ConsumeSpace(float InSpaceToConsume)
@@ -640,13 +651,17 @@ const bool UYetiOS_Core::Internal_ConsumeSpace(float InSpaceToConsume)
 void UYetiOS_Core::Internal_InstallStartupPrograms()
 {
 	UYetiOS_AppIconWidget* OutIconWidget = nullptr;
+	TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
 	FYetiOsError OutError;
-	for (const auto& It : ProgramsToInstall)
+	for (const auto& It : AllProgramsFromRepo)
 	{
-		UYetiOS_BaseProgram* Local_InstalledProgram = InstallProgram(It, OutError, OutIconWidget);
-		if (Local_InstalledProgram == nullptr)
+		if (It.bInstallWithOS)
 		{
-			printlog_warn(OutError.ErrorDetailedException.ToString());
+			UYetiOS_BaseProgram* Local_InstalledProgram = InstallProgram(It.ProgramClass, OutError, OutIconWidget);
+			if (Local_InstalledProgram == nullptr)
+			{
+				printlog_warn(OutError.ErrorDetailedException.ToString());
+			}
 		}
 	}
 }
@@ -747,7 +762,7 @@ void UYetiOS_Core::AddToCreatedDirectories(const UYetiOS_DirectoryBase* InDirect
 
 bool UYetiOS_Core::HasRepositoryLibrary() const
 {
-	return RepositoryLibrary != nullptr && RepositoryLibrary->GetObjectCount() > 0;
+	return ProgramsRepository != nullptr && ProgramsRepository->GetProgramsFromRepository().Num() > 0;
 }
 
 UYetiOS_DirectoryRoot* UYetiOS_Core::GetRootDirectory()
@@ -903,16 +918,12 @@ const bool UYetiOS_Core::GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<
 {
 	if (HasRepositoryLibrary())
 	{
-		TArray<UBlueprintGeneratedClass*> OutBlueprintGeneratedClass;
-		RepositoryLibrary->GetObjects<UBlueprintGeneratedClass>(OutBlueprintGeneratedClass);
+		TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
 
-		if (OutBlueprintGeneratedClass.Num() > 0)
+		for (const auto& It : AllProgramsFromRepo)
 		{
-			for (const auto& It : OutBlueprintGeneratedClass)
-			{
-				UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It);
-				OutPrograms.Add(MyLoadedProgram->GetClass());
-			}
+			UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It.ProgramClass);
+			OutPrograms.Add(MyLoadedProgram->GetClass());
 		}
 
 		return true;
