@@ -29,7 +29,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	bSingleInstanceOnly = false;
 	bCanRunOnPortableDevice = true;
 	bIsSystemInstalledProgram = false;
-	bAddDesktopShortcut = false;
+	bAddToDesktop = true;
 	ProgramIconWidget = nullptr;
 
 	bCanCallOnCreate = true;

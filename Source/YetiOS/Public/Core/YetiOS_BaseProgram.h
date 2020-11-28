@@ -77,7 +77,7 @@ protected:
 	FVector2D OverrideWindowSize;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
-	uint8 bAddDesktopShortcut : 1;
+	uint8 bAddToDesktop : 1;
 
 	/* If true, user can only run one instance of this program. If false, user can create as many instances as they want. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
@@ -110,7 +110,7 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	UYetiOS_AppWidget* ProgramWidget;
 
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_FileBase* CurrentFileOpened;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -269,7 +269,7 @@ public:
 	FORCEINLINE UYetiOS_ProgramSettings* GetProgramSettings() const { return ProgramSettings; }
 	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.LoadSynchronous(); }
 	FORCEINLINE const bool IsSingleInstanceProgram() const { return bSingleInstanceOnly; }
-	FORCEINLINE const bool CanAddDesktopShortcut() const { return bAddDesktopShortcut; }
+	FORCEINLINE const bool CanAddToDesktop() const { return bAddToDesktop; }
 	FORCEINLINE const float GetProgramSpace() const { return ProgramSpace; }
 	FORCEINLINE TSubclassOf<UYetiOS_AppIconWidget> GetProgramIconWidgetClass() const { return ProgramIconWidgetClass; }
 	FORCEINLINE TSubclassOf<UYetiOS_AppWidget> GetProgramWidgetClass() const { return ProgramWidgetClass; }
