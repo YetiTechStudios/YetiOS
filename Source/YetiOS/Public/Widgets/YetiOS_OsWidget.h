@@ -48,7 +48,7 @@ public:
 	void BeginShutdownOS();
 	void BeginRestartOS();
 
-	void AddDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget);
+	void AddIconWidgetToDesktop(UYetiOS_AppIconWidget* InAppIconWidget);
 	void RemoveDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget);
 
 	void OnBatteryLevelChanged(const float& CurrentBatteryLevel);

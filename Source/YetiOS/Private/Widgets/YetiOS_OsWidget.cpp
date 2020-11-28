@@ -61,7 +61,7 @@ void UYetiOS_OsWidget::BeginRestartOS()
 	K2_OnBeginRestartingOS();
 }
 
-void UYetiOS_OsWidget::AddDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget)
+void UYetiOS_OsWidget::AddIconWidgetToDesktop(UYetiOS_AppIconWidget* InAppIconWidget)
 {
 	K2_OnAddDesktopShortcut(InAppIconWidget);
 }

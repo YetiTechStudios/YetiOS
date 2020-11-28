@@ -319,7 +319,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		printlog(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
 		if (NewProgram->CanAddDesktopShortcut())
 		{
-			OsWidget->AddDesktopShortcut(OutIconWidget);
+			OsWidget->AddIconWidgetToDesktop(OutIconWidget);
 		}
 		const FText Title = LOCTEXT("YetiOS_InstallProgramSuccess", "Installed Program.");
 		const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramUnknownErrorDescription", "{0} installed successfuly."), MyProgramName);
