@@ -82,6 +82,9 @@ enum class EYetiOsDeviceState : uint8
 	
 	/* Device is restarting. */
 	STATE_Restart						UMETA(DisplayName = "Restart"),
+
+	/** Device is in error state */
+	STATE_Error							UMETA(DisplayName = "Error"),
 	
 	/* Invalid state. */
 	STATE_None							UMETA(Hidden)
