@@ -20,6 +20,10 @@ class YETIOS_API UYetiOS_DirectoryBase : public UObject
 {
 	GENERATED_BODY()
 
+#if WITH_EDITORONLY_DATA
+	friend class UYetiOS_ThumbnailRenderer;
+#endif
+
 protected:
 
 	/* Name of this directory. */
