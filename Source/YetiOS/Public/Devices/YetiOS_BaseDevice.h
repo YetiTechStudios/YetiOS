@@ -171,6 +171,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
 	class UYetiOS_Motherboard* GetMotherboard() const { return DeviceMotherboard; }
 
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	class AYetiOS_DeviceManagerActor* GetDeviceManager() const;
+
 	/**
 	* public UYetiOS_BaseDevice::UpdateDeviceState
 	* Updates current device state to new state.

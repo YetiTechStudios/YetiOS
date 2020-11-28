@@ -145,6 +145,11 @@ void UYetiOS_BaseDevice::ShowBSOD(const FText InFaultingModuleName /*= FText::Ge
 	ChangeOnScreenWidget(BsodWidget);
 }
 
+class AYetiOS_DeviceManagerActor* UYetiOS_BaseDevice::GetDeviceManager() const
+{
+	return Cast<AYetiOS_DeviceManagerActor>(GetOuter());
+}
+
 const bool UYetiOS_BaseDevice::UpdateDeviceState(EYetiOsDeviceState InNewState)
 {
 	FYetiOsError OutErrorMessage;
