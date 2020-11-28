@@ -46,7 +46,7 @@ static const FText RUN_ERROR_CODE = LOCTEXT("YetiOS_RunProgramInstanceErrorCode"
 UYetiOS_Core::UYetiOS_Core()
 {
 	OsName = FText::GetEmpty();
-	OsVersion = FText::AsCultureInvariant("1.0.0.0");
+	OsVersion = FYetiOS_Version(1, 0, 0);
 	OsIcon = nullptr;
 	InstallationSpace = 10.f;
 	ReleaseState = EYetiOsOperatingSystemReleaseState::STATE_FullRelease;

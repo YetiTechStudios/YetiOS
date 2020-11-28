@@ -54,9 +54,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	FText OsName;
 
-	/* Version of this operating system. Eg: 0.1 or 1.2 or 1.2.3 or 1.0.57784.1 */
+	/* Version of this operating system. Eg: 0.1 or 1.2 or 1.2.3 */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
-	FText OsVersion;
+	FYetiOS_Version OsVersion;
 
 	/* Logo of this Operating System. Ex: Tux (mascot) penguin for Linux. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
@@ -371,10 +371,10 @@ public:
 	/**
 	* public UYetiOS_Core::GetOsVersion const
 	* Returns the operating system version.
-	* @return [const FText] Os version.
+	* @return [const FYetiOS_Version] Os version.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
-	const FText GetOsVersion() const { return OsVersion; }
+	FYetiOS_Version GetOsVersion() const { return OsVersion; }
 
 	/**
 	* public UYetiOS_Core::GetOsIcon const

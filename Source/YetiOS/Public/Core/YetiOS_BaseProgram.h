@@ -47,6 +47,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
 	FName ProgramIdentifier;
 
+	/** Version identifier. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
+	FYetiOS_Version ProgramVersion;
+
 	/* An icon for this program. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true", DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	TSoftObjectPtr<UObject> ProgramIcon;
@@ -218,6 +222,14 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")
 	class UYetiOS_AppIconWidget* GetProgramIconWidget() const { return ProgramIconWidget; }
+
+	/**
+	* public UYetiOS_BaseProgram::GetProgramVersion const
+	* Returns the program version.
+	* @return [FYetiOS_Version] Program version struct.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")	
+	FYetiOS_Version GetProgramVersion() const { return ProgramVersion; }
 
 private:
 
