@@ -22,6 +22,8 @@ class YETIOS_API UYetiOS_BaseDevice : public UObject
 	friend class UYetiOS_Core;
 	friend class UYetiOS_BaseHardware;
 
+	FTimerHandle TimerHandle_Restart;
+
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")

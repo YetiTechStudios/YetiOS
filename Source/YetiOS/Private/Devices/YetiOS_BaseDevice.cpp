@@ -240,8 +240,7 @@ const bool UYetiOS_BaseDevice::UpdateDeviceState(EYetiOsDeviceState InNewState, 
 					printlog(FString::Printf(TEXT("Save game state: %s"), bSaveSuccess ? *FString("Success!") : *FString("Failed :(")));
 					OperatingSystem->RestartOS();
 					const float TimeToRestart = FMath::RandRange(1.f, 5.f);
-					FTimerHandle TimerHandle_Dummy;
-					GetOuter()->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, this, &UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart, TimeToRestart, false);
+					GetOuter()->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Restart, this, &UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart, TimeToRestart, false);
 					printlog(FString::Printf(TEXT("%s restarts in %f seconds."), *DeviceName.ToString(), TimeToRestart));
 				}
 				break;
@@ -264,6 +263,9 @@ void UYetiOS_BaseDevice::OnFinishInstallingOperatingSystem()
 	bOperatingSystemInstalled = true;
 	printlog(FString::Printf(TEXT("%s installed on %s."), *OperatingSystem->GetOsName().ToString(), *DeviceName.ToString()));
 	UpdateDeviceState(EYetiOsDeviceState::STATE_Restart);
+	// We need to immediately restart so clear TimerHandle_Restart and manually call restart.
+	GetOuter()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Restart);
+	DestroyYetiDeviceAndRestart();
 	ChangeOnScreenWidget(DeviceWidget);
 }
 
