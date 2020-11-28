@@ -942,6 +942,32 @@ struct FYetiOS_DeviceClasses
 	TSubclassOf<class UYetiOS_PowerSupply> PowerSupplyClass;
 };
 
+USTRUCT()
+struct FYetiOS_RepoProgram
+{
+	GENERATED_USTRUCT_BODY();
+	
+public:
+	
+	/** WHether Program should be installed as part of the OS when Operating System is installed. */
+	UPROPERTY(EditAnywhere, Category = "Repo Program")
+	uint8 bInstallWithOS : 1;
+	
+	/** Program */
+	UPROPERTY(EditAnywhere, Category = "Repo Program")
+	TSubclassOf<class UYetiOS_BaseProgram> ProgramClass;
+
+	friend uint32 GetTypeHash(const FYetiOS_RepoProgram& Other)
+	{
+		return GetTypeHash(Other.bInstallWithOS);
+	}
+	
+	FYetiOS_RepoProgram()
+	{
+		bInstallWithOS = true;
+	}
+};
+
 
 template<typename TEnum>
 static FORCEINLINE const FString GetEnumAsString(const FString& Name, TEnum Value)
