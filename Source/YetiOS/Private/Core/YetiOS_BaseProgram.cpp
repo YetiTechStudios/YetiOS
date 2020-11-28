@@ -59,18 +59,39 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 			OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InCompatibleDeviceErrorDetailedException", "{0} is not compatible with this device."), ProxyProgram->ProgramName);
 			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, EYetiOsNotificationType::TYPE_Error);
 			InOS->CreateOsNotification(NewNotification);
-			return nullptr;
+			ProxyProgram->ConditionalBeginDestroy();
+			ProxyProgram = nullptr;
 		}
-
-		ProxyProgram->OwningOS = InOS;
-		ProxyProgram->bIsSystemInstalledProgram = bInstalledWithOS;
-
-		if (ProxyProgram->bCanCallOnCreate)
+		else
 		{
-			ProxyProgram->K2_OnCreate();
+			const bool bIsCompatible = ProxyProgram->IsCompatibleWithOS(InOS);
+			if (bIsCompatible == false)
+			{
+				const FText Title = FText::Format(LOCTEXT("YetiOS_RunProgramVersionError", "{0} incompatible."), ProxyProgram->ProgramName);
+				const FText Description = FText::Format(LOCTEXT("YetiOS_RunProgramVersionErrorDescription", "{0} is not compatible with this version of Operating System."), ProxyProgram->ProgramName);
+				const FText RunError = LOCTEXT("YetiOS_RunProgramVersionErrorCode", "ERR_RUN_PROGRAM");
+				const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RunError, EYetiOsNotificationType::TYPE_Error);
+				InOS->CreateOsNotification(NewNotification);
+				OutErrorMessage = GetErrorStruct(RunError, Title, Description);
+				printlog_error(FString::Printf(TEXT("%s not created. Incorrect version."), *ProxyProgram->ProgramName.ToString()));
+				ProxyProgram->ConditionalBeginDestroy();
+				ProxyProgram = nullptr;
+			}
+			else
+			{
+				ProxyProgram->OwningOS = InOS;
+				ProxyProgram->bIsSystemInstalledProgram = bInstalledWithOS;
+
+				if (ProxyProgram->bCanCallOnCreate)
+				{
+					ProxyProgram->K2_OnCreate();
+				}
+
+				printlog(FString::Printf(TEXT("%s created."), *ProxyProgram->ProgramName.ToString()));
+			}
 		}
 
-		printlog(FString::Printf(TEXT("%s created."), *ProxyProgram->ProgramName.ToString()));
+		
 		return ProxyProgram;
 	}
 
@@ -252,6 +273,16 @@ bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
 	}
 
 	return false;
+}
+
+bool UYetiOS_BaseProgram::IsCompatibleWithOS(class UYetiOS_Core* InOS) const
+{
+	if (bRequireMinimumOperatingSystemVersion)
+	{
+		return MinimumOperatingSystemVersionRequired < InOS->GetOsVersion();
+	}
+	
+	return true;
 }
 
 #undef printlog

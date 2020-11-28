@@ -193,6 +193,19 @@ public:
 	static UYetiOS_Core* CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage);
 
 	/**
+	* public static UYetiOS_Core::GetVersionString
+	* Returns a string representation of given version.
+	* @param InVersion [const struct FYetiOS_Version&] Version to get string from.
+	* @param bIgnorePatch [const bool] Ignore patch. Example: If true and version is 1.2.1, then return 1.2
+	* @return [FString] String representation of verison.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")	
+	static FString GetVersionString(const struct FYetiOS_Version& InVersion, const bool bIgnorePatch = false)
+	{
+		return InVersion.ToString(bIgnorePatch);
+	}
+
+	/**
 	* public static UYetiOS_Core::EvaluateMathExpression
 	* Evaluates the given expression. If expression failed, this will return false. Otherwise OutValue contains the result of the expression.
 	* @param InExpression [const FString&] Expression to evaluate.

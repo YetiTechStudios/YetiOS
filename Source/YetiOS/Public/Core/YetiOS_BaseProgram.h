@@ -51,6 +51,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
 	FYetiOS_Version ProgramVersion;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program", meta = (InlineEditConditionToggle))
+	uint8 bRequireMinimumOperatingSystemVersion : 1;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true", EditCondition = "bRequireMinimumOperatingSystemVersion"))
+	FYetiOS_Version MinimumOperatingSystemVersionRequired;
+
 	/* An icon for this program. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true", DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	TSoftObjectPtr<UObject> ProgramIcon;
@@ -284,6 +290,8 @@ protected:
 	void K2_OnOpenFile();
 	
 public:
+
+	bool IsCompatibleWithOS(class UYetiOS_Core* InOS) const;
 
 	FORCEINLINE UYetiOS_ProgramSettings* GetProgramSettings() const { return ProgramSettings; }
 	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.LoadSynchronous(); }

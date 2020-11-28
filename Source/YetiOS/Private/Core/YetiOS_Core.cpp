@@ -448,6 +448,20 @@ int32 UYetiOS_Core::AddRunningProgram(const class UYetiOS_BaseProgram* InNewProg
 		return INDEX_NONE;
 	}
 
+	if (InNewProgram->GetProgramVersion() < OsVersion)
+	{
+		const FText Title = FText::Format(LOCTEXT("YetiOS_RunProgramVersionError", "{0} incompatible."), MyProgramName);
+		const FText Description = FText::Format(LOCTEXT("YetiOS_RunProgramVersionErrorDescription", "{0} is not compatible with this version of Operating System."), MyProgramName);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
+		CreateOsNotification(NewNotification);
+
+		OutErrorMessage.ErrorCode = RUN_ERROR_CODE;
+		OutErrorMessage.ErrorException = Title;
+		OutErrorMessage.ErrorDetailedException = Description;
+
+		return INDEX_NONE;
+	}
+
 	int32 NewProcessID = FMath::RandRange(MIN_PROCES_ID_TO_GENERATE, MAX_PROCES_ID_TO_GENERATE);
 	TArray<int32> ProcessIDs;
 	RunningPrograms.GenerateKeyArray(ProcessIDs);
