@@ -70,6 +70,9 @@ public:
 
 	UYetiOS_BaseDevice();
 
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
+	static FText GetMonthName(const FDateTime& InDateTime);
+
 	/**
 	* public UYetiOS_BaseDevice::GetCastedDevice
 	* Helper function to return a pointer casted to specific device. Usage example: GetCastedDevice<UYetiOS_PortableDevice>(MyDevice).

@@ -47,6 +47,54 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 
 }
 
+FText UYetiOS_BaseDevice::GetMonthName(const FDateTime& InDateTime)
+{
+	EMonthOfYear Local_CurrentMonth = InDateTime.GetMonthOfYear();
+	FString Local_MonthName;
+	switch (Local_CurrentMonth)
+	{
+		case EMonthOfYear::January:
+			Local_MonthName = "January";
+			break;
+		case EMonthOfYear::February:
+			Local_MonthName = "February";
+			break;
+		case EMonthOfYear::March:
+			Local_MonthName = "March";
+			break;
+		case EMonthOfYear::April:
+			Local_MonthName = "April";
+			break;
+		case EMonthOfYear::May:
+			Local_MonthName = "May";
+			break;
+		case EMonthOfYear::June:
+			Local_MonthName = "June";
+			break;
+		case EMonthOfYear::July:
+			Local_MonthName = "July";
+			break;
+		case EMonthOfYear::August:
+			Local_MonthName = "August";
+			break;
+		case EMonthOfYear::September:
+			Local_MonthName = "September";
+			break;
+		case EMonthOfYear::October:
+			Local_MonthName = "October";
+			break;
+		case EMonthOfYear::November:
+			Local_MonthName = "November";
+			break;
+		case EMonthOfYear::December:
+			Local_MonthName = "December";
+			break;
+		default:
+			break;
+	}
+	return FText::FromString(Local_MonthName);
+}
+
 void UYetiOS_BaseDevice::OnCreateDevice()
 {
 	bBsodHappened = false;
