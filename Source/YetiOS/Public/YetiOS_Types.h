@@ -4,6 +4,7 @@
 
 #include "UObject/Package.h"
 #include "Templates/SubclassOf.h"
+#include <string>
 #include "YetiOS_Types.generated.h"
 
 #define ENUM_TO_STRING(EnumClassName, ValueOfEnum)				GetEnumAsString<EnumClassName>(FString(TEXT(#EnumClassName)), ValueOfEnum)
@@ -776,6 +777,135 @@ public:
 	}
 };
 
+USTRUCT(BlueprintType)
+struct FYetiOS_Version
+{
+	GENERATED_USTRUCT_BODY();
+
+	private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	uint8 Major;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	uint8 Minor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	uint8 Patch;
+
+public:
+
+	FORCEINLINE const FString ToString() const
+	{
+		return ToString(false);
+	}
+
+	FORCEINLINE const FString ToString(const bool bIgnorePatch) const
+	{
+		return FString::Printf(TEXT("%i.%i.%i"), Major, Minor, Patch);
+	}
+
+	FORCEINLINE bool operator==(const FYetiOS_Version& Other) const
+	{
+		return Internal_IsSameVersion(FYetiOS_Version(Major, Minor, Patch), Other);
+	}
+
+	FORCEINLINE bool operator<(const FYetiOS_Version& Other) const
+	{
+		return Internal_IsVersionOneSmaller(FYetiOS_Version(Major, Minor, Patch), Other);
+	}
+
+	FORCEINLINE bool operator>(const FYetiOS_Version& Other) const
+	{
+		return Internal_IsVersionTwoSmaller(FYetiOS_Version(Major, Minor, Patch), Other);
+	}
+
+private:
+
+	static FORCEINLINE bool Internal_IsSameVersion(const FYetiOS_Version& VersionOne, const FYetiOS_Version& VersionTwo)
+	{
+		return Internal_VersionCompare(VersionOne, VersionTwo) == 0;
+	}
+
+	static FORCEINLINE bool Internal_IsVersionOneSmaller(const FYetiOS_Version& VersionOne, const FYetiOS_Version& VersionTwo)
+	{
+		return Internal_VersionCompare(VersionOne, VersionTwo) < 0;
+	}
+
+	static FORCEINLINE bool Internal_IsVersionTwoSmaller(const FYetiOS_Version& VersionOne, const FYetiOS_Version& VersionTwo)
+	{
+		return Internal_VersionCompare(VersionOne, VersionTwo) > 0;
+	}
+
+private:
+
+	static FORCEINLINE_DEBUGGABLE const int32 Internal_VersionCompare(const FYetiOS_Version& VersionOne, const FYetiOS_Version& VersionTwo)
+	{
+		std::string v1 = std::string(TCHAR_TO_UTF8(*VersionOne.ToString()));
+		std::string v2 = std::string(TCHAR_TO_UTF8(*VersionTwo.ToString()));
+		int32 vnum1 = 0, vnum2 = 0;
+
+		for (int32 i = 0, j = 0; (i < v1.length() || j < v2.length());)
+		{
+			while (i < v1.length() && v1[i] != '.')
+			{
+				vnum1 = vnum1 * 10 + (v1[i] - '0');
+				i++;
+			}
+
+			while (j < v2.length() && v2[j] != '.')
+			{
+				vnum2 = vnum2 * 10 + (v2[j] - '0');
+				j++;
+			}
+
+			if (vnum1 > vnum2)
+			{
+				return 1;
+			}
+
+			if (vnum2 > vnum1)
+			{
+				return -1;
+			}
+
+			vnum1 = vnum2 = 0;
+			i++;
+			j++;
+		}
+
+		return 0;
+	}
+
+public:
+
+	FYetiOS_Version()
+	{
+		Major = 1;
+		Minor = Patch = 0;
+	}
+
+	FYetiOS_Version(const uint8 NewMajor)
+	{
+		Major = NewMajor;
+		Minor = Patch = 0;
+	}
+
+	FYetiOS_Version(const uint8 NewMajor, const uint8 NewMinor)
+	{
+		Major = NewMajor;
+		Minor = NewMinor;
+		Patch = 0;
+	}
+
+	FYetiOS_Version(const uint8 NewMajor, const uint8 NewMinor, const uint8 NewPatch)
+	{
+		Major = NewMajor;
+		Minor = NewMinor;
+		Patch = NewPatch;
+	}
+};
+
 USTRUCT()
 struct FYetiOsDeviceSaveLoad
 {
@@ -794,7 +924,7 @@ struct FYetiOsOperatingSystemSaveLoad
 	GENERATED_USTRUCT_BODY();
 	
 	UPROPERTY()
-	FText SaveLoad_OSVersion;
+	struct FYetiOS_Version SaveLoad_OSVersion;
 
 	UPROPERTY()
 	TArray<FYetiOsUser> SaveLoad_OsUsers;
