@@ -39,7 +39,7 @@ struct FYetiOsNotificationSettings
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnProgramInstalled, class UYetiOS_BaseProgram*)
 
-UCLASS(Abstract, Blueprintable, DisplayName = "Operating System")
+UCLASS(hidedropdown, Blueprintable, DisplayName = "Operating System")
 class YETIOS_API UYetiOS_Core : public UObject
 {
 	GENERATED_BODY()

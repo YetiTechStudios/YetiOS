@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(hidedropdown)
 class YETIOS_API UYetiOS_FileWidget : public UYetiOS_UserWidget
 {
 	GENERATED_BODY()

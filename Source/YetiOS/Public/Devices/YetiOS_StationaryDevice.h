@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Abstract, Blueprintable, DisplayName = "Stationary Device")
+UCLASS(hidedropdown, Blueprintable, DisplayName = "Stationary Device")
 class YETIOS_API UYetiOS_StationaryDevice : public UYetiOS_BaseDevice
 {
 	GENERATED_BODY()

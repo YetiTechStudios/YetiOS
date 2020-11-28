@@ -7,7 +7,7 @@
 #include "YetiOS_FileBase.generated.h"
 
 
-UCLASS(Abstract, Blueprintable, DisplayName = "File")
+UCLASS(hidedropdown, Blueprintable, DisplayName = "File")
 class YETIOS_API UYetiOS_FileBase : public UObject
 {
 	GENERATED_BODY()

@@ -7,7 +7,7 @@
 #include "YetiOS_PortableDevice.generated.h"
 
 
-UCLASS(Abstract, Blueprintable, DisplayName = "Portable Device")
+UCLASS(hidedropdown, Blueprintable, DisplayName = "Portable Device")
 class YETIOS_API UYetiOS_PortableDevice : public UYetiOS_BaseDevice
 {
 	GENERATED_BODY()

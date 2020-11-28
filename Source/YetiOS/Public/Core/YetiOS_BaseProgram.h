@@ -32,7 +32,7 @@ YetiOS_BaseProgram.h
 * Description:
 Base class for creating new programs.
 *************************************************************************/
-UCLASS(Abstract, Blueprintable, DisplayName = "Base Program")
+UCLASS(hidedropdown, Blueprintable, DisplayName = "Base Program")
 class YETIOS_API UYetiOS_BaseProgram : public UObject
 {
 	GENERATED_BODY()
