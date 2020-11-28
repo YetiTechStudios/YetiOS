@@ -317,7 +317,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		NewProgram->AddProgramIconWidget(OutIconWidget);
 		InstalledPrograms.Add(NewProgram);
 		printlog(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
-		if (NewProgram->CanAddDesktopShortcut())
+		if (NewProgram->CanAddToDesktop())
 		{
 			OsWidget->AddIconWidgetToDesktop(OutIconWidget);
 		}

@@ -35,7 +35,6 @@ void UYetiOS_AppWidget::SetFileWidget(class UYetiOS_FileWidget* InFileWidget)
 	if (FileWidget)
 	{
 		FileWidget->RemoveFromParent();
-		FileWidget->ConditionalBeginDestroy();
 	}
 	FileWidget = InFileWidget;
 	K2_OnFileWidgetSet();

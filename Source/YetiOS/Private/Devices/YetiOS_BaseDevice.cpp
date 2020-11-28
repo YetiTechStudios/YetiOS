@@ -150,7 +150,6 @@ void UYetiOS_BaseDevice::ChangeOnScreenWidget(class UUserWidget* InNewWidget /*=
 	if (OnScreenWidget && OnScreenWidget->IsInViewport())
 	{
 		OnScreenWidget->RemoveFromParent();
-		OnScreenWidget->ConditionalBeginDestroy();
 	}
 
 	OnScreenWidget = nullptr;
