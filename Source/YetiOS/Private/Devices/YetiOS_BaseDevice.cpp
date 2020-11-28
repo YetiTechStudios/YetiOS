@@ -19,6 +19,7 @@
 #include "Runtime/Launch/Resources/Version.h"
 #include "Hardware/YetiOS_Motherboard.h"
 #include "Hardware/YetiOS_HardDisk.h"
+#include "Misc/DateTime.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
@@ -152,15 +153,11 @@ void UYetiOS_BaseDevice::ChangeOnScreenWidget(class UUserWidget* InNewWidget /*=
 		OnScreenWidget->RemoveFromParent();
 	}
 
-	OnScreenWidget = nullptr;
+	OnScreenWidget = InNewWidget;
 	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());
-	if (InNewWidget)
+	if (OnScreenWidget && OwningDeviceManager->AddWidgetsToScreen())
 	{
-		OnScreenWidget = InNewWidget;
-		if (OwningDeviceManager->AddWidgetsToScreen())
-		{
-			OnScreenWidget->AddToViewport();
-		}
+		OnScreenWidget->AddToViewport();
 	}
 	
 	OwningDeviceManager->OnWidgetChanged(OnScreenWidget);
