@@ -105,6 +105,12 @@ public:
 	bool IsHidden() const { return bIsHidden; }
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
+	bool IsDeletable() const { return bIsDeletable; }
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
+	bool IsMovable() const { return bIsMovable; }
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
 	class UYetiOS_FileIconWidget* GetFileIconWidget() const { return FileIconWidget; }
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
