@@ -263,6 +263,13 @@ protected:
 	**/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "On Load Settings")	
 	void K2_OnSettingsLoad();
+
+	/**
+	* protected UYetiOS_BaseProgram::K2_OnOpenFile
+	* Event called when a file is opened.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Program", DisplayName = "On Open File")	
+	void K2_OnOpenFile();
 	
 public:
 

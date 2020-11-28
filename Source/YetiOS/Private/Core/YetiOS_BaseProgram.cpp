@@ -213,12 +213,16 @@ bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
 			UYetiOS_FileBase* TempFileCreated = NewObject<UYetiOS_FileBase>(InFileToOpen->GetParentDirectory(), InFileToOpen->GetClass());
 			OutProgram->CurrentFileOpened = TempFileCreated;
 			OutProgram->ProgramWidget->SetFileWidget(OutProgram->CurrentFileOpened->GetFileWidget());
+			OutProgram->K2_OnOpenFile();
 			return true;
 		}
+
+		return false;
 	}
 
 	CurrentFileOpened = InFileToOpen;
 	ProgramWidget->SetFileWidget(CurrentFileOpened->GetFileWidget());
+	K2_OnOpenFile();
 	return true;
 }
 
