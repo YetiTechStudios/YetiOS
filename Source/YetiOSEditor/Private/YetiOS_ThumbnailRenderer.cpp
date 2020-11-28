@@ -6,6 +6,8 @@
 #include "ThumbnailRendering/ThumbnailManager.h"
 #include "Core/YetiOS_BaseProgram.h"
 #include "Core/YetiOS_FileBase.h"
+#include "Core/YetiOS_Core.h"
+#include "Misc/YetiOS_ProgramsRepository.h"
 
 void UYetiOS_ThumbnailRenderer::Draw(UObject* Object, int32 X, int32 Y, uint32 Width, uint32 Height, FRenderTarget* Viewport, FCanvas* Canvas, bool bAdditionalViewFamily)
 {
@@ -45,6 +47,16 @@ void UYetiOS_ThumbnailRenderer::Draw(UObject* Object, int32 X, int32 Y, uint32 W
 
 			return;
 		}
+
+		const UYetiOS_Core* OS = GetDefaultObjectOfClass<UYetiOS_Core>(Blueprint->GeneratedClass);
+		if (OS)
+		{
+			DrawTextItem(Canvas, FVector2D(10.f, 10.f), "Name", OS->GetOsName().ToString());
+			DrawTextItem(Canvas, FVector2D(10.f, 30.f), "Version", UYetiOS_Core::GetVersionString(OS->GetOsVersion()));
+			DrawTextItem(Canvas, FVector2D(10.f, 50.f), "Supported Devices", FString::FromInt(OS->CompatibleDevices.Num()));
+
+			return;
+		}
 	}
 
 	Super::Draw(Object, X, Y, Width, Height, Viewport, Canvas, bAdditionalViewFamily);
@@ -65,6 +77,10 @@ bool UYetiOS_ThumbnailRenderer::CanVisualizeAsset(UObject* Object)
 			return true;
 		}
 		else if (GetDefaultObjectOfClass<UYetiOS_FileBase>(Blueprint->GeneratedClass))
+		{
+			return true;
+		}
+		else if (GetDefaultObjectOfClass<UYetiOS_Core>(Blueprint->GeneratedClass))
 		{
 			return true;
 		}
@@ -129,6 +145,12 @@ UTexture2D* UYetiOS_ThumbnailRenderer::GetTextureFromGeneratedClass(UClass* Clas
 		if (BaseFile)
 		{
 			return Cast<UTexture2D>(BaseFile->GetFileIcon());
+		}
+
+		const UYetiOS_Core* OS = GetDefaultObjectOfClass<UYetiOS_Core>(Class);
+		if (OS)
+		{
+			return Cast<UTexture2D>(OS->GetOsIcon());
 		}
 	}
 

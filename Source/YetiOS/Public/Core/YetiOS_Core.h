@@ -46,6 +46,10 @@ class YETIOS_API UYetiOS_Core : public UObject
 	
 	friend class UYetiOS_BaseDevice;
 	
+#if WITH_EDITORONLY_DATA
+	friend class UYetiOS_ThumbnailRenderer;
+#endif
+	
 	FTimerHandle TimerHandle_OsInstallation;
 	
 private:
