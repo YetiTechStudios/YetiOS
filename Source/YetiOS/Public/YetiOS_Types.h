@@ -840,7 +840,7 @@ struct FYetiOsProgramSaveLoad
 	GENERATED_USTRUCT_BODY();
 	
 	UPROPERTY()
-	TSubclassOf<UYetiOS_BaseProgram> SaveLoad_ProgramClass;
+	TSubclassOf<class UYetiOS_BaseProgram> SaveLoad_ProgramClass;
 	
 	UPROPERTY()
 	FText SaveLoad_ProgramName;
