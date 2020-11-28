@@ -178,6 +178,7 @@ public:
 	* @return [const bool] True if state was changed.
 	**/
 	const bool UpdateDeviceState(EYetiOsDeviceState InNewState);
+	const bool UpdateDeviceState(EYetiOsDeviceState InNewState, FYetiOsError& OutErrorMessage);
 
 	/**
 	* virtual public UYetiOS_BaseDevice::OnFinishInstallingOperatingSystem
