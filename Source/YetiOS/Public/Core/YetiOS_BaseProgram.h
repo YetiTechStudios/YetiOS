@@ -267,7 +267,7 @@ protected:
 public:
 
 	FORCEINLINE UYetiOS_ProgramSettings* GetProgramSettings() const { return ProgramSettings; }
-	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.Get(); }
+	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.LoadSynchronous(); }
 	FORCEINLINE const bool IsSingleInstanceProgram() const { return bSingleInstanceOnly; }
 	FORCEINLINE const bool CanAddDesktopShortcut() const { return bAddDesktopShortcut; }
 	FORCEINLINE const float GetProgramSpace() const { return ProgramSpace; }
