@@ -3,11 +3,19 @@
 #include "YetiOSEditorModule.h"
 #include "Editor/LevelEditor/Public/LevelEditor.h"
 #include "YetiOSEditorCommands.h"
+#include "YetiOS_ThumbnailRenderer.h"
+DEFINE_LOG_CATEGORY_STATIC(LogYetiOs, All, All)
+
+#define printlog(Param1)				UE_LOG(LogYetiOs, Log, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "FYetiOSEditorModule"
 
 void FYetiOSEditorModule::StartupModule()
 {
+	UThumbnailManager::Get().UnregisterCustomRenderer(UBlueprint::StaticClass());
+	UThumbnailManager::Get().RegisterCustomRenderer(UBlueprint::StaticClass(), UYetiOS_ThumbnailRenderer::StaticClass());
+	printlog("Registered new thumbnail renderer for UBlueprint.");
+
 	YetiOsCommands = Internal_CreateCommands();
 	Internal_CreateMenuBarEntry();
 }
