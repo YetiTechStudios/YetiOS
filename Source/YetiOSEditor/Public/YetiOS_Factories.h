@@ -74,7 +74,7 @@ class FAssetTypeActions_DeviceManager : public FAssetTypeActions_YetiOsBase
 
 class FAssetTypeActions_ProgramsRepository : public FAssetTypeActions_YetiOsBase
 {
-	virtual FColor GetTypeColor() const override { return FColor(12, 34, 56); }
+	virtual FColor GetTypeColor() const override { return FColor(56, 43, 21); }
 	virtual FText GetName() const override { return FText::FromString("Operating System Programs Collection"); }
 	virtual FText GetAssetDescription(const FAssetData& AssetData) const override { return FText::FromString("Constructs a asset where you can put all your programs for your Operating System."); }
 	virtual UClass* GetSupportedClass() const override { return UYetiOS_ProgramsRepository::StaticClass(); }
