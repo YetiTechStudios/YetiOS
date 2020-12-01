@@ -197,6 +197,30 @@ public:
 	static UYetiOS_Core* CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage);
 
 	/**
+	* public static UYetiOS_Core::CloseDialogWidget
+	* Closes the given dialog widget and removes it from CurrentDialogWidgets set.
+	* @param InOS [UYetiOS_Core*] OS to remove the dialog widget from.
+	* @param InDialogWidget [UYetiOS_DialogWidget*] Dialog widget to remove.
+	* @return [const bool] True if the dialog was removed.
+	**/
+	static const bool CloseDialogWidget(UYetiOS_Core* InOS, UYetiOS_DialogWidget* InDialogWidget);
+
+	/**
+	* public static UYetiOS_Core::OpenDialogWidget
+	* Opens a dialog box with title and message. You can use this to simulate the effect of Messagebox, OpenFileDialog etc.
+	* @param InOS [UYetiOS_Core*] Operating System reference.
+	* @param InDialogWidgetClass [TSubclassOf<class UYetiOS_DialogWidget>] Dialog widget class.
+	* @param DialogClass [TSubclassOf<class UYetiOS_BaseProgram>] Dialog program to open.
+	* @param InMessage [const FText&] Message to display.
+	* @param InTitle [FText] Title to display.
+	* @param OverrideWindowSize [const FVector2D&] Overrides the size of window. If -1, it will use auto size. If 0, automatically calculates the size relative to viewport. If > 0, use it as size.
+	* @param bIsModalDialog [const bool] Should this dialog be a modal dialog?
+	* @return [class UYetiOS_DialogWidget*] Reference to the newly created dialog widget.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global")
+	static class UYetiOS_DialogWidget* OpenDialogWidget(UYetiOS_Core* InOS, TSubclassOf<class UYetiOS_DialogWidget> InDialogWidgetClass, TSubclassOf<class UYetiOS_BaseDialogProgram> DialogClass, const FText& InMessage, FText InTitle = INVTEXT("Dialog"), const FVector2D& OverrideWindowSize = FVector2D::ZeroVector, const bool bIsModalDialog = true, EYetiOS_DialogType InDialogType = EYetiOS_DialogType::Ok);
+
+	/**
 	* public static UYetiOS_Core::GetVersionString
 	* Returns a string representation of given version.
 	* @param InVersion [const struct FYetiOS_Version&] Version to get string from.
@@ -666,7 +690,7 @@ public:
 	* @param OutDesktopDir [UYetiOS_DirectoryBase*&] Gets a reference to Desktop directory.
 	* @return [bool] True if desktop directory is available.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
 	bool GetDesktopDirectory(UYetiOS_DirectoryBase*& OutDesktopDir) const;
 
 protected:

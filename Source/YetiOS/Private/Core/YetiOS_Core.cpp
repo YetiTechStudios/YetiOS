@@ -23,6 +23,8 @@
 #include "Hardware/YetiOS_HardDisk.h"
 #include "Core/YetiOS_FileBase.h"
 #include "Misc/YetiOS_ProgramsRepository.h"
+#include "Widgets/YetiOS_DialogWidget.h"
+#include "Core/YetiOS_BaseDialogProgram.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
@@ -85,6 +87,58 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 
 	OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_NullOperatingSystemErrorCode", "NO_VALID_OPERATING_SYSTEM");
 	OutErrorMessage.ErrorException = LOCTEXT("YetiOS_NullOperatingSystemErrorException", "Operating system class is NULL.");
+	return nullptr;
+}
+
+const bool UYetiOS_Core::CloseDialogWidget(UYetiOS_Core* InOS, UYetiOS_DialogWidget* InDialogWidget)
+{
+	if (InOS && InDialogWidget)
+	{
+		InOS->CurrentDialogWidgets.RemoveSwap(InDialogWidget);
+		InDialogWidget->RemoveFromParent();
+		return true;
+	}
+
+	return false;
+}
+
+class UYetiOS_DialogWidget* UYetiOS_Core::OpenDialogWidget(UYetiOS_Core* InOS, TSubclassOf<class UYetiOS_DialogWidget> InDialogWidgetClass, TSubclassOf<class UYetiOS_BaseDialogProgram> DialogClass, const FText& InMessage, FText InTitle /*= INVTEXT("Dialog")*/, const FVector2D& OverrideWindowSize /*= FVector2D::ZeroVector*/, const bool bIsModalDialog /*= true*/, EYetiOS_DialogType InDialogType /*= EYetiOS_DialogType::Ok*/)
+{
+	if (DialogClass)
+	{
+		FYetiOsError OutError;
+		UYetiOS_BaseProgram* Local_InstalledProgram = nullptr;
+		UYetiOS_BaseDialogProgram* Local_InstalledDialogProgram = nullptr;
+		if (InOS->IsProgramInstalled(DialogClass->GetDefaultObject<UYetiOS_BaseDialogProgram>()->GetProgramIdentifierName(), Local_InstalledProgram, OutError))
+		{
+			Local_InstalledDialogProgram = Cast<UYetiOS_BaseDialogProgram>(Local_InstalledProgram);
+		}
+		else
+		{
+			UYetiOS_AppIconWidget* OutIcon;
+			Local_InstalledDialogProgram = Cast<UYetiOS_BaseDialogProgram>(InOS->InstallProgram(DialogClass, OutError, OutIcon));
+		}
+
+		UYetiOS_DialogWidget* ProxyDialog = UYetiOS_DialogWidget::Internal_CreateDialogWidget(InOS, Local_InstalledDialogProgram, InDialogWidgetClass, bIsModalDialog, InDialogType);
+		if (ProxyDialog)
+		{
+			if (OverrideWindowSize.IsZero() == false)
+			{
+				Local_InstalledDialogProgram->SetOverrideWindowSize(OverrideWindowSize);
+			}
+
+			Local_InstalledDialogProgram->StartProgram(OutError);
+			Local_InstalledDialogProgram->Internal_SetDialogWidget(ProxyDialog);
+			UYetiOS_DraggableWindowWidget* Local_OwningWindow = Local_InstalledDialogProgram->GetOwningWindow();
+			Local_OwningWindow->AddWidget(ProxyDialog);
+			Local_OwningWindow->BringWindowToFront();
+			InOS->CurrentDialogWidgets.Add(ProxyDialog);
+			ProxyDialog->K2_OnSetTitle(InTitle);
+			ProxyDialog->K2_OnSetMessage(InMessage);
+			return ProxyDialog;
+		}
+	}
+
 	return nullptr;
 }
 
