@@ -14,6 +14,31 @@ class UYetiOS_DirectoryRoot;
 class UYetiOS_BaseProgram;
 
 UENUM(BlueprintType)
+enum class EYetiOS_DialogType : uint8
+{
+	None			UMETA(Hidden),
+	Ok,
+	OkCancel,
+	YesNo,
+	YesNoCancel,
+	RetryCancel,
+	AbortRetryIgnore
+};
+
+UENUM(BlueprintType)
+enum class EYetiOS_DialogResult : uint8
+{
+	None			UMETA(Hidden),
+	Abort,
+	Cancel,
+	Ignore,
+	No,
+	Ok,
+	Retry,
+	Yes
+};
+
+UENUM(BlueprintType)
 enum class EYetiOsNotificationType : uint8
 {
 	TYPE_Info							UMETA(DisplayName = "Info"),
