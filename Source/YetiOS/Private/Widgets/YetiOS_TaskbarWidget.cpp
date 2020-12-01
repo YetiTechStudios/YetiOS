@@ -15,7 +15,7 @@ UYetiOS_TaskbarWidget* UYetiOS_TaskbarWidget::Internal_CreateTaskbarWidget(const
 	return ProxyWidget;
 }
 
-void UYetiOS_TaskbarWidget::AddProgramToTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget)
+void UYetiOS_TaskbarWidget::AddWindowToTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget)
 {
 	K2_OnWindowAdded(InWindowWidget);
 }

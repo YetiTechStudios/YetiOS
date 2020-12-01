@@ -24,7 +24,7 @@ private:
 
 public:
 
-	void AddProgramToTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget);
+	void AddWindowToTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget);
 	void RemoveProgramFromTaskbar(class UYetiOS_DraggableWindowWidget* InWindowWidget);
 
 protected:
