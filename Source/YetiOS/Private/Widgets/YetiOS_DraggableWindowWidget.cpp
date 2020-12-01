@@ -239,12 +239,14 @@ void UYetiOS_DraggableWindowWidget::CloseWindow()
 	RemoveFromParent();
 }
 
-void UYetiOS_DraggableWindowWidget::BringWindowToFront()
+bool UYetiOS_DraggableWindowWidget::BringWindowToFront()
 {
 	if (OwningOS)
 	{
-		OwningOS->UpdateWindowZOrder(this);
+		return OwningOS->UpdateWindowZOrder(this);
 	}
+
+	return false;
 }
 
 bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)

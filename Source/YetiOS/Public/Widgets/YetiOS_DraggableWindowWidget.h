@@ -103,10 +103,8 @@ public:
 
 	void CloseWindow();
 
-protected:
+	bool BringWindowToFront();
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Base Program")
-	void BringWindowToFront();
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Base Program")
 	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
@@ -117,7 +115,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Program Added")
 	void K2_OnProgramAdded(const UUserWidget* AddedUserWidget);
 
-	/* Event called when resizing is started. Only called if Enable Drag is true. */
+	/* Event called when dragging is started. Only called if Enable Drag is true. */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Drag Start")
 	void K2_OnDragStart(const FPointerEvent& InMouseEvent);
 
