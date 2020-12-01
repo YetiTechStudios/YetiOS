@@ -86,6 +86,11 @@ void UYetiOS_OsWidget::ReceiveNotification(const FYetiOsNotification InNotificat
 	K2_OnReceivedNotification(InNotification);
 }
 
+class UYetiOS_DraggableWindowWidget* UYetiOS_OsWidget::CreateNewWindow(class UYetiOS_BaseProgram* InProgram, class UYetiOS_UserWidget* InWidget, const FVector2D& OverrideSize)
+{
+	return K2_CreateWindow(InProgram, InWidget, OverrideSize);
+}
+
 bool UYetiOS_OsWidget::ChangePassword(FYetiOsUser& InNewUser, const FText InNewPassword)
 {
 	if (OwningOS)

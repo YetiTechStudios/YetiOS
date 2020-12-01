@@ -56,6 +56,8 @@ public:
 
 	void ReceiveNotification(const FYetiOsNotification InNotification);
 
+	class UYetiOS_DraggableWindowWidget* CreateNewWindow(class UYetiOS_BaseProgram* InProgram, class UYetiOS_UserWidget* InWidget, const FVector2D& OverrideSize);
+
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
 	const float GetDelayTime(const float InMin = 0.01, const float InMax = 0.2) const;
 
@@ -114,6 +116,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, BlueprintCallable, Category = "Yeti OS Widget", DisplayName = "LoginUser")
 	void K2_LoginUser(const FYetiOsUser& UserToLogin);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, BlueprintCallable, Category = "Yeti OS Widget", DisplayName = "CreateNewWindow")
-	void K2_CreateNewWindow(class UYetiOS_BaseProgram* InProgram, class UYetiOS_AppWidget* InProgramWidget, const FVector2D& OverrideSize);
+protected:
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, BlueprintCallable, Category = "Yeti OS Widget", DisplayName = "CreateWindow")
+	class UYetiOS_DraggableWindowWidget* K2_CreateWindow(class UYetiOS_BaseProgram* InProgram, class UYetiOS_UserWidget* InWidget, const FVector2D& OverrideSize);
 };
