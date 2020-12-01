@@ -30,12 +30,7 @@ void UYetiOS_AppWidget::DestroyProgramWidget()
 	RemoveFromParent();
 }
 
-void UYetiOS_AppWidget::SetFileWidget(class UYetiOS_FileWidget* InFileWidget)
 {
-	if (FileWidget)
 	{
-		FileWidget->RemoveFromParent();
 	}
-	FileWidget = InFileWidget;
-	K2_OnFileWidgetSet();
 }
