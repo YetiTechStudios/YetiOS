@@ -110,10 +110,7 @@ public:
 	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Draggable Window")
-	void AddProgramWidget(class UYetiOS_AppWidget* InWidget);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Program Added")
-	void K2_OnProgramAdded(const UUserWidget* AddedUserWidget);
 
 	/* Event called when dragging is started. Only called if Enable Drag is true. */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Drag Start")

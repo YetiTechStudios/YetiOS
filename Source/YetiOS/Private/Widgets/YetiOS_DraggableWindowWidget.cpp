@@ -260,25 +260,8 @@ bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVi
 	return false;	
 }
 
-void UYetiOS_DraggableWindowWidget::AddProgramWidget(class UYetiOS_AppWidget* InWidget)
 {
-	OwningOS = OwningProgram->GetOwningOS();
-	ProgramCanvas->AddChildToCanvas(InWidget);
-	InWidget->SetWindow(this);
-	K2_OnProgramAdded(InWidget);
-	
-	UYetiOS_Taskbar* OutTaskbar;
-	if (OwningOS->GetTaskbar(OutTaskbar))
 	{
-		OutTaskbar->GetTaskbarWidget()->AddProgramToTaskbar(this);
-	}
 
-	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
-	if (OsSystemSettings)
-	{
-		K2_OnThemeChanged(OsSystemSettings->GetCurrentTheme());
-		K2_OnShowProgramIcon(OsSystemSettings->GetShowProgramIcon());
-		OnThemeChangedDelegateHandle = OsSystemSettings->OnThemeModeChanged.AddUFunction(this, FName("K2_OnThemeChanged"));
-		OnShowProgramIconDelegateHandle = OsSystemSettings->OnShowProgramIconChanged.AddUFunction(this, FName("K2_OnShowProgramIcon"));
 	}
 }
