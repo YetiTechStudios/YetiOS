@@ -45,6 +45,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS App Widget")
 	inline class UYetiOS_DraggableWindowWidget* GetOwningWindow() const { return OwningWindow; }
+	void OpenFile(class UYetiOS_FileBase* InFile);
 
 protected:
 
@@ -54,5 +55,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS App Widget", DisplayName = "On File Widget Set")
 	void K2_OnFileWidgetSet();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS App Widget", DisplayName = "On File Open")
+	void K2_OnFileOpen(class UYetiOS_FileBase* OpenedFile);
 	
 };

@@ -188,6 +188,13 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 	OwningOS->CloseRunningProgram(this, OutErrorMessage);
 	ProcessID = INDEX_NONE;
 
+	if (ProgramWidget)
+	{
+		ProgramWidget->OpenFile(nullptr);
+		ProgramWidget->DestroyProgramWidget();
+		ProgramWidget = nullptr;
+	}
+
 	if (CurrentFileOpened)
 	{
 		CurrentFileOpened->CloseFile();
@@ -232,6 +239,7 @@ bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
 			// We need to create a temp file as new to avoid issues since the same UObject or its child maybe referenced elsewhere.			
 			UYetiOS_FileBase* TempFileCreated = NewObject<UYetiOS_FileBase>(InFileToOpen->GetParentDirectory(), InFileToOpen->GetClass());
 			OutProgram->CurrentFileOpened = TempFileCreated;
+			OutProgram->ProgramWidget->OpenFile(OutProgram->CurrentFileOpened);
 			OutProgram->K2_OnOpenFile();
 			return true;
 		}
@@ -240,6 +248,7 @@ bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
 	}
 
 	CurrentFileOpened = InFileToOpen;
+	ProgramWidget->OpenFile(CurrentFileOpened);
 	K2_OnOpenFile();
 	return true;
 }

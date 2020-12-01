@@ -5,6 +5,7 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Widgets/YetiOS_DraggableWindowWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Core/YetiOS_FileBase.h"
 
 
 UYetiOS_AppWidget* UYetiOS_AppWidget::Internal_CreateAppWidget(const class UYetiOS_BaseProgram* InParentProgram)
@@ -30,7 +31,18 @@ void UYetiOS_AppWidget::DestroyProgramWidget()
 	RemoveFromParent();
 }
 
+void UYetiOS_AppWidget::OpenFile(class UYetiOS_FileBase* InFile)
 {
+	if (InFile)
 	{
+		if (FileWidget)
+		{
+			FileWidget->RemoveFromParent();
+		}
+
+		FileWidget = InFile->GetFileWidget();
+		K2_OnFileWidgetSet();
 	}
+
+	K2_OnFileOpen(InFile);
 }
