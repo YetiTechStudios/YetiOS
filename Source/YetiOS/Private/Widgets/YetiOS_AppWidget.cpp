@@ -10,11 +10,16 @@
 
 UYetiOS_AppWidget* UYetiOS_AppWidget::Internal_CreateAppWidget(const class UYetiOS_BaseProgram* InParentProgram)
 {
-	APlayerController* MyController = UGameplayStatics::GetPlayerController(InParentProgram, 0);
-	UYetiOS_AppWidget* ProxyWidget = CreateWidget<UYetiOS_AppWidget>(MyController, InParentProgram->GetProgramWidgetClass());
-	ProxyWidget->OwningProgram = const_cast<UYetiOS_BaseProgram*>(InParentProgram);
-	ProxyWidget->OwningOS = InParentProgram->GetOwningOS();
-	return ProxyWidget;
+	if (InParentProgram->GetProgramWidgetClass())
+	{
+		APlayerController* MyController = UGameplayStatics::GetPlayerController(InParentProgram, 0);
+		UYetiOS_AppWidget* ProxyWidget = CreateWidget<UYetiOS_AppWidget>(MyController, InParentProgram->GetProgramWidgetClass());
+		ProxyWidget->OwningProgram = const_cast<UYetiOS_BaseProgram*>(InParentProgram);
+		ProxyWidget->SetOperatingSystem(InParentProgram->GetOwningOS());
+		return ProxyWidget;
+	}
+
+	return nullptr;
 }
 
 void UYetiOS_AppWidget::Internal_OnChangeVisibilityState(EYetiOsProgramVisibilityState InNewState)
@@ -24,7 +29,6 @@ void UYetiOS_AppWidget::Internal_OnChangeVisibilityState(EYetiOsProgramVisibilit
 
 void UYetiOS_AppWidget::DestroyProgramWidget()
 {
-	OwningWindow->CloseWindow();
 	OwningWindow = nullptr;
 	OwningProgram = nullptr;
 	OwningOS = nullptr;	

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "YetiOS_UserWidget.h"
 #include "YetiOS_AppWidget.generated.h"
 
 /**
  * 
  */
 UCLASS(Abstract)
-class YETIOS_API UYetiOS_AppWidget : public UUserWidget
+class YETIOS_API UYetiOS_AppWidget : public UYetiOS_UserWidget
 {
 	GENERATED_BODY()
 	
@@ -22,29 +22,17 @@ private:
 	class UYetiOS_BaseProgram* OwningProgram;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS App Widget", meta = (AllowPrivateAccess = "true"))
-	class UYetiOS_Core* OwningOS;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS App Widget", meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_FileWidget* FileWidget;
-
-	UPROPERTY()
-	class UYetiOS_DraggableWindowWidget* OwningWindow;
 
 private:
 
 	static UYetiOS_AppWidget* Internal_CreateAppWidget(const class UYetiOS_BaseProgram* InParentProgram);
-
-private:
 
 	void Internal_OnChangeVisibilityState(EYetiOsProgramVisibilityState InNewState);
 
 public:
 
 	void DestroyProgramWidget();
-	void SetWindow(class UYetiOS_DraggableWindowWidget* InWindow) { OwningWindow = InWindow; }
-
-	UFUNCTION(BlueprintPure, Category = "Yeti OS App Widget")
-	inline class UYetiOS_DraggableWindowWidget* GetOwningWindow() const { return OwningWindow; }
 	void OpenFile(class UYetiOS_FileBase* InFile);
 
 protected:
