@@ -782,7 +782,7 @@ struct FYetiOS_Version
 {
 	GENERATED_USTRUCT_BODY();
 
-	private:
+private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	uint8 Major;
@@ -802,6 +802,11 @@ public:
 
 	FORCEINLINE const FString ToString(const bool bIgnorePatch) const
 	{
+		if (bIgnorePatch)
+		{
+			return FString::Printf(TEXT("%i.%i"), Major, Minor);
+		}
+
 		return FString::Printf(TEXT("%i.%i.%i"), Major, Minor, Patch);
 	}
 
