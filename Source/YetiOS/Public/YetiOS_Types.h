@@ -946,6 +946,9 @@ struct FYetiOsDeviceSaveLoad
 
 	UPROPERTY()
 	float SaveLoad_BatteryLevel;
+
+	UPROPERTY()
+	int64 SaveLoad_RemainingSpace;
 };
 
 USTRUCT()
@@ -958,9 +961,6 @@ struct FYetiOsOperatingSystemSaveLoad
 
 	UPROPERTY()
 	TArray<FYetiOsUser> SaveLoad_OsUsers;
-
-	UPROPERTY()
-	float SaveLoad_RemainingSpace;
 };
 
 USTRUCT()

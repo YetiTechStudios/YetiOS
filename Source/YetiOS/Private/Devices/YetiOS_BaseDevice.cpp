@@ -402,6 +402,7 @@ void UYetiOS_BaseDevice::LoadSavedData(const class UYetiOS_SaveGame* InLoadGameI
 	{
 		printlog_veryverbose("Loading device save data...");
 		bOperatingSystemInstalled = InLoadGameInstance->GetDeviceLoadData().bSaveLoad_OsInstalled;
+		DeviceMotherboard->GetHardDisk()->Internal_UpdateRemainingSpace(InLoadGameInstance->GetDeviceLoadData().SaveLoad_RemainingSpace);
 	}
 }
 

@@ -736,7 +736,6 @@ void UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveG
 		printlog_veryverbose("Loading OS save data...");
 		OsVersion = LoadGameInstance->GetOsLoadData().SaveLoad_OSVersion;
 		OsUsers = LoadGameInstance->GetOsLoadData().SaveLoad_OsUsers;
-		RemainingSpace = LoadGameInstance->GetOsLoadData().SaveLoad_RemainingSpace;
 		if (GetRootDirectory())
 		{
 			TArray<FYetiOsDirectorySaveLoad> SavedDirectories = LoadGameInstance->GetDirectoriesData();

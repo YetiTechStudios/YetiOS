@@ -7,6 +7,8 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
 #include "Devices/YetiOS_PortableDevice.h"
+#include "Hardware/YetiOS_Motherboard.h"
+#include "Hardware/YetiOS_HardDisk.h"
 #include "Templates/SubclassOf.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -33,6 +35,7 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 			UYetiOS_SaveGame* SaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
 			SaveGameInstance->SaveVersion = SAVE_VERSION;
 			SaveGameInstance->DeviceData.bSaveLoad_OsInstalled = InDevice->IsOperatingSystemInstalled();
+			SaveGameInstance->DeviceData.SaveLoad_RemainingSpace = InDevice->GetMotherboard()->GetHardDisk()->GetRemainingSpace();
 
 			const UYetiOS_PortableDevice* MyPortableDevice = Cast<UYetiOS_PortableDevice>(InDevice);
 			if (MyPortableDevice)
@@ -45,7 +48,6 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 			{
 				SaveGameInstance->OsData.SaveLoad_OsUsers = OperatingSystem->GetAllUsers();
 				SaveGameInstance->OsData.SaveLoad_OSVersion = OperatingSystem->GetOsVersion();
-				SaveGameInstance->OsData.SaveLoad_RemainingSpace = OperatingSystem->GetRemainingSpace();
 				const TArray<const UYetiOS_DirectoryBase*> AllDirectories = OperatingSystem->GetAllCreatedDirectories();
 
 				for (const auto& It : AllDirectories)
