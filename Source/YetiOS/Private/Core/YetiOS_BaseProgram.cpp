@@ -30,6 +30,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	bCanRunOnPortableDevice = true;
 	bIsSystemInstalledProgram = false;
 	bAddToDesktop = true;
+	bCreateInstallationNotification = true;
 	ProgramIconWidget = nullptr;
 
 	bCanCallOnCreate = true;

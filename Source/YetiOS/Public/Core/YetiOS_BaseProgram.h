@@ -89,6 +89,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
 	uint8 bAddToDesktop : 1;
 
+	/** If true, then call CreateOsNotification after installation. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
+	uint8 bCreateInstallationNotification : 1;
+
 	/* If true, user can only run one instance of this program. If false, user can create as many instances as they want. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
 	uint8 bSingleInstanceOnly : 1;
@@ -304,5 +308,6 @@ public:
 	FORCEINLINE const FName GetProgramIdentifierName() const { return ProgramIdentifier; }
 	FORCEINLINE const bool IsSystemInstalledProgram() const { return bIsSystemInstalledProgram; }
 	FORCEINLINE const bool CanSaveSettings() const { return ProgramSettings != nullptr && SaveMethod != EProgramSaveMethod::DoNotSave; }
+	FORCEINLINE const bool CanShowPostInstallNotification() const { return bCreateInstallationNotification; }
 	FORCEINLINE const EYetiOsProgramVisibilityState GetCurrentVisibilityState() const { return CurrentVisibilityState; }
 };

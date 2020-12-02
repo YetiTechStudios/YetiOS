@@ -375,10 +375,15 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		{
 			OsWidget->AddIconWidgetToDesktop(OutIconWidget);
 		}
-		const FText Title = LOCTEXT("YetiOS_InstallProgramSuccess", "Installed Program.");
-		const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramUnknownErrorDescription", "{0} installed successfuly."), MyProgramName);
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, FText::FromString("INSTALL_SUCCESS"), EYetiOsNotificationType::TYPE_Info);
-		CreateOsNotification(NewNotification);
+		
+		if (NewProgram->CanShowPostInstallNotification())
+		{
+			const FText Title = LOCTEXT("YetiOS_InstallProgramSuccess", "Installed Program.");
+			const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramUnknownErrorDescription", "{0} installed successfuly."), MyProgramName);
+			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, FText::FromString("INSTALL_SUCCESS"), EYetiOsNotificationType::TYPE_Info);
+			CreateOsNotification(NewNotification);
+		}
+
 		NewProgram->ProgramInstalled();
 		OnProgramInstalled.Broadcast(NewProgram);
 		return NewProgram;
