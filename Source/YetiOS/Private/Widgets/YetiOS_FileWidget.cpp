@@ -7,8 +7,13 @@
 
 UYetiOS_FileWidget* UYetiOS_FileWidget::CreateFileWidget(TSubclassOf<UYetiOS_FileWidget> FileWidgetClass, class UYetiOS_FileBase* InOwningFile)
 {
-	APlayerController* MyPlayerController = UGameplayStatics::GetPlayerController(InOwningFile, 0);
-	UYetiOS_FileWidget* ProxyWidget = CreateWidget<UYetiOS_FileWidget>(MyPlayerController, FileWidgetClass);
-	ProxyWidget->OwningFile = InOwningFile;
-	return ProxyWidget;
+	if (FileWidgetClass)
+	{
+		APlayerController* MyPlayerController = UGameplayStatics::GetPlayerController(InOwningFile, 0);
+		UYetiOS_FileWidget* ProxyWidget = CreateWidget<UYetiOS_FileWidget>(MyPlayerController, FileWidgetClass);
+		ProxyWidget->OwningFile = InOwningFile;
+		return ProxyWidget;
+	}
+
+	return nullptr;
 }
