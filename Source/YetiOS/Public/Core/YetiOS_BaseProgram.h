@@ -300,6 +300,12 @@ public:
 
 	bool IsCompatibleWithOS(class UYetiOS_Core* InOS) const;
 
+	FORCEINLINE void SetOverrideWindowSize(const FVector2D& NewWindowSize)
+	{
+		bOverrideWindowSize = true;
+		OverrideWindowSize = NewWindowSize;
+	}
+
 	FORCEINLINE UYetiOS_ProgramSettings* GetProgramSettings() const { return ProgramSettings; }
 	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.LoadSynchronous(); }
 	FORCEINLINE const bool IsSingleInstanceProgram() const { return bSingleInstanceOnly; }
