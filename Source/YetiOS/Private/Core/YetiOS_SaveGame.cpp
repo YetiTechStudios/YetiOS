@@ -21,7 +21,7 @@ static const float SAVE_VERSION = 2.0;
 
 UYetiOS_SaveGame::UYetiOS_SaveGame()
 {
-	SaveSlotName = "YetiTechYetiOsPlugin";
+	SaveSlotName = "YetiTech_OperatingSystemSimulator";
 	UserIndex = 0;
 }
 
