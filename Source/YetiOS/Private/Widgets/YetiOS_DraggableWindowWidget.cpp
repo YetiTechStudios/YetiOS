@@ -17,6 +17,8 @@
 #include "Misc/YetiOS_SystemSettings.h"
 #include "Core/YetiOS_Taskbar.h"
 #include "Widgets/YetiOS_TaskbarWidget.h"
+#include "Widgets/YetiOS_AppWidget.h"
+#include "Widgets/YetiOS_DialogWidget.h"
 
 
 UYetiOS_DraggableWindowWidget::UYetiOS_DraggableWindowWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -260,8 +262,29 @@ bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVi
 	return false;	
 }
 
+void UYetiOS_DraggableWindowWidget::AddWidget(class UYetiOS_UserWidget* InUserWidget)
 {
+	if (InUserWidget)
 	{
+		OwningOS = InUserWidget->GetOwningOS();
+		ProgramCanvas->AddChildToCanvas(InUserWidget);
+		InUserWidget->SetWindow(this);
 
+		UYetiOS_Taskbar* OutTaskbar;
+		if (OwningOS->GetTaskbar(OutTaskbar))
+		{
+			OutTaskbar->GetTaskbarWidget()->AddWindowToTaskbar(this);
+		}
+
+		UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+		if (OsSystemSettings)
+		{
+			K2_OnThemeChanged(OsSystemSettings->GetCurrentTheme());
+			K2_OnShowProgramIcon(OsSystemSettings->GetShowProgramIcon());
+			OnThemeChangedDelegateHandle = OsSystemSettings->OnThemeModeChanged.AddUFunction(this, FName("K2_OnThemeChanged"));
+			OnShowProgramIconDelegateHandle = OsSystemSettings->OnShowProgramIconChanged.AddUFunction(this, FName("K2_OnShowProgramIcon"));
+		}
+
+		K2_OnWidgetAdded(InUserWidget);
 	}
 }

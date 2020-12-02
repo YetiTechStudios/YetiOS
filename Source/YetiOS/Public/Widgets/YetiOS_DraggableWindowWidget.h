@@ -105,12 +105,20 @@ public:
 
 	bool BringWindowToFront();
 
-
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Base Program")
-	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
+protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Draggable Window")
+	virtual bool ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState);
 
+public:
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Draggable Window")
+	void AddWidget(class UYetiOS_UserWidget* InUserWidget);
+
+protected:
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Widget Added")
+	void K2_OnWidgetAdded(const UYetiOS_UserWidget* InWidget);
 
 	/* Event called when dragging is started. Only called if Enable Drag is true. */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Drag Start")
