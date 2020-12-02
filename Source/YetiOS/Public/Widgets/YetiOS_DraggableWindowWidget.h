@@ -137,4 +137,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Show Program Icon")
 	void K2_OnShowProgramIcon(const bool bShow);
 
+public:
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, BlueprintCallable, Category = "Yeti OS Draggable Window", DisplayName = "Update Window Text")
+	void K2_OnUpdateWindowText(const FText& NewText);
+
 };
