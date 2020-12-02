@@ -21,6 +21,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS User Widget", meta = (ExposeOnSpawn = "true"))
 	class UYetiOS_Core* OwningOS;
 
+	UPROPERTY()
+	class UYetiOS_DraggableWindowWidget* OwningWindow;
+
 public:
 
 	virtual void NativeConstruct() override;
@@ -28,6 +31,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS User Widget")
 	void SetOperatingSystem(UYetiOS_Core* InOS);
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS User Widget")
+	void SetWindow(class UYetiOS_DraggableWindowWidget* InWindow) { OwningWindow = InWindow; }
+
+	UFUNCTION(BlueprintPure, Category = "Yeti OS User Widget")
+	inline class UYetiOS_DraggableWindowWidget* GetOwningWindow() const { return OwningWindow; }
 
 protected:
 
