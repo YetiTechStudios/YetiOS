@@ -410,7 +410,7 @@ public:
 	**/
 	void DestroyOS();
 
-	void UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow);
+	const bool UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow);
 
 	/**
 	* public UYetiOS_Core::GetOsVersion const

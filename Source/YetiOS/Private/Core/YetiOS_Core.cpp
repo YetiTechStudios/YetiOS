@@ -368,7 +368,6 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 	{
 		Internal_ConsumeSpace(NewProgram->GetProgramSpace());
 		OutIconWidget = UYetiOS_AppIconWidget::CreateProgramIconWidget(NewProgram, OutErrorMessage);
-		NewProgram->AddProgramIconWidget(OutIconWidget);
 		InstalledPrograms.Add(NewProgram);
 		printlog(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
 		if (NewProgram->CanAddToDesktop())
@@ -637,14 +636,17 @@ void UYetiOS_Core::DestroyOS()
 	ConditionalBeginDestroy();
 }
 
-void UYetiOS_Core::UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow)
+const bool UYetiOS_Core::UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow)
 {
-	if (InWindow)
-	{
+	if (InWindow && IsModalDialogOpen() == false)
+	{		
 		CurrentZOrder++;
 		UCanvasPanelSlot* Slot = UWidgetLayoutLibrary::SlotAsCanvasSlot(InWindow);
 		Slot->SetZOrder(CurrentZOrder);
+		return true;
 	}
+
+	return false;
 }
 
 UYetiOS_CPU* UYetiOS_Core::GetMainCpu() const
