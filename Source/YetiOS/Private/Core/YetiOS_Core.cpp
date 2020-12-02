@@ -968,6 +968,21 @@ bool UYetiOS_Core::GetDesktopDirectory(UYetiOS_DirectoryBase*& OutDesktopDir) co
 	return bIsValid;
 }
 
+bool UYetiOS_Core::IsModalDialogOpen() const
+{
+	bool bModalDialogOpen = false;
+	for (const auto& It : CurrentDialogWidgets)
+	{
+		if (It->IsModalDialog())
+		{
+			bModalDialogOpen = true;
+			break;
+		}
+	}
+
+	return bModalDialogOpen;
+}
+
 const TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetInstalledPrograms(const bool bSystemProgramsOnly /*= false*/) const
 {
 	if (bSystemProgramsOnly)

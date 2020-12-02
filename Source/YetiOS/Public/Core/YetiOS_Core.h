@@ -172,6 +172,9 @@ private:
 	UPROPERTY()
 	class UWorld* OsWorld;
 
+	UPROPERTY()
+	TArray<class UYetiOS_DialogWidget*> CurrentDialogWidgets;
+
 	class FYetiOsNotificationManager* NotificationManager;
 
 	int32 CurrentZOrder;
@@ -692,6 +695,14 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")
 	bool GetDesktopDirectory(UYetiOS_DirectoryBase*& OutDesktopDir) const;
+
+	/**
+	* public UYetiOS_Core::IsModalDialogOpen const
+	* Returns true if currently opened dialog widget is modal or not. If there is no dialog widget open, this will return false.
+	* @return [bool] True if dialog widget is modal.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	bool IsModalDialogOpen() const;
 
 protected:
 
