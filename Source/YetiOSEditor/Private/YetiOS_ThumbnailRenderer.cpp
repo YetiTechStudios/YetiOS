@@ -32,6 +32,7 @@ void UYetiOS_ThumbnailRenderer::Draw(UObject* Object, int32 X, int32 Y, uint32 W
 			DrawTextItem(Canvas, FVector2D(10.f, 10.f), "Name", BaseProgram->GetProgramName().ToString());
 			DrawTextItem(Canvas, FVector2D(10.f, 30.f), "Identifier", BaseProgram->GetProgramIdentifierName().ToString());
 			DrawTextItem(Canvas, FVector2D(10.f, 50.f), "Add to Desktop", BaseProgram->CanAddToDesktop() ? "Yes" : "No");
+			DrawTextItem(Canvas, FVector2D(10.f, 70.f), "Size", FString::Printf(TEXT("%s MB"), *FString::SanitizeFloat(BaseProgram->GetProgramSpace())));
 
 			return;
 		}
@@ -40,7 +41,7 @@ void UYetiOS_ThumbnailRenderer::Draw(UObject* Object, int32 X, int32 Y, uint32 W
 		if (BaseFile)
 		{
 			DrawTextItem(Canvas, FVector2D(10.f, 10.f), "Name", BaseFile->GetFilename(true).ToString());
-			DrawTextItem(Canvas, FVector2D(10.f, 30.f), "Size", FString::FromInt(FMath::TruncToInt(BaseFile->GetFileSize())));
+			DrawTextItem(Canvas, FVector2D(10.f, 30.f), "Size", FString::Printf(TEXT("%s MB"), *FString::SanitizeFloat(BaseFile->GetFileSize())));
 			DrawTextItem(Canvas, FVector2D(10.f, 50.f), "", BaseFile->IsHidden() ? "Hidden" : "Not hidden");
 			DrawTextItem(Canvas, FVector2D(10.f, 70.f), "", BaseFile->IsDeletable() ? "Deletable" : "Not deletable");
 			DrawTextItem(Canvas, FVector2D(10.f, 90.f), "", BaseFile->IsMovable() ? "Movable" : "Not movable");
@@ -54,6 +55,7 @@ void UYetiOS_ThumbnailRenderer::Draw(UObject* Object, int32 X, int32 Y, uint32 W
 			DrawTextItem(Canvas, FVector2D(10.f, 10.f), "Name", OS->GetOsName().ToString());
 			DrawTextItem(Canvas, FVector2D(10.f, 30.f), "Version", UYetiOS_Core::GetVersionString(OS->GetOsVersion()));
 			DrawTextItem(Canvas, FVector2D(10.f, 50.f), "Supported Devices", FString::FromInt(OS->CompatibleDevices.Num()));
+			DrawTextItem(Canvas, FVector2D(10.f, 70.f), "Size", FString::Printf(TEXT("%s MB"), *FString::SanitizeFloat(OS->InstallationSpaceInMB)));
 
 			return;
 		}
