@@ -66,9 +66,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	class UObject* OsIcon;
 
-	/* How much space does this OS need to install on HDD. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (UIMin = "1", ClampMin = "1", UIMax = "10"))
-	float InstallationSpace;
+	/* How much space (in mega bytes) does this OS need to install on HDD. Default 10000 means 10 GB. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (UIMin = "1000", ClampMin = "1000", UIMax = "20000"))
+	float InstallationSpaceInMB;
 
 	/* A collection of programs which user can install from a "repo" simulating the effect of "sudo apt-get install program-identifier". */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
@@ -129,10 +129,6 @@ private:
 	/* Auto calculated time to install based on different factors. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, AdvancedDisplay)
 	float CalculatedInstallationTime;
-
-	/* Remaining HDD space (in GB) */
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	float RemainingSpace;
 
 	/* The device that this OS is running on. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
@@ -732,7 +728,6 @@ public:
 	FORCEINLINE UYetiOS_OsWidget* GetOsWidget() const { return OsWidget; }	
 
 	FORCEINLINE class UObject* GetDefaultIcon() const { return DefaultIcon; }
-	FORCEINLINE const float GetRemainingSpace() const { return RemainingSpace; }
 	FORCEINLINE const TArray<const UYetiOS_DirectoryBase*> GetAllCreatedDirectories() const { return AllCreatedDirectories; }
 	FORCEINLINE const FText GetRootCommand() const { return RootCommand; }
 	FORCEINLINE class USoundBase* GetNotificationSound(const FYetiOsNotification& InNotification) const

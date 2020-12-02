@@ -61,9 +61,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true", DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	TSoftObjectPtr<UObject> ProgramIcon;
 
-	/* How much space does this program consume once installed. */
+	/* How much space (in Megabyte) does this program consume once installed. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Program")
-	float ProgramSpace;
+	float ProgramSpaceInMB;
 
 	/* An icon widget that represents this program. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
@@ -310,7 +310,7 @@ public:
 	FORCEINLINE UObject* GetProgramIcon() const { return ProgramIcon.LoadSynchronous(); }
 	FORCEINLINE const bool IsSingleInstanceProgram() const { return bSingleInstanceOnly; }
 	FORCEINLINE const bool CanAddToDesktop() const { return bAddToDesktop; }
-	FORCEINLINE const float GetProgramSpace() const { return ProgramSpace; }
+	FORCEINLINE const float GetProgramSpace() const { return ProgramSpaceInMB; }
 	FORCEINLINE TSubclassOf<UYetiOS_AppIconWidget> GetProgramIconWidgetClass() const { return ProgramIconWidgetClass; }
 	FORCEINLINE TSubclassOf<UYetiOS_AppWidget> GetProgramWidgetClass() const { return ProgramWidgetClass; }
 	FORCEINLINE const FText GetProgramName() const { return ProgramName; }

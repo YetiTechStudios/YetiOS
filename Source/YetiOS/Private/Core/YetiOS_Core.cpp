@@ -50,7 +50,7 @@ UYetiOS_Core::UYetiOS_Core()
 	OsName = FText::GetEmpty();
 	OsVersion = FYetiOS_Version(1, 0, 0);
 	OsIcon = nullptr;
-	InstallationSpace = 10.f;
+	InstallationSpaceInMB = 10000.f;
 	ReleaseState = EYetiOsOperatingSystemReleaseState::STATE_FullRelease;
 	MinInstallationTime = 10.f;
 	MaxInstallationTime = 60.f;
@@ -75,7 +75,6 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 			ProxyOS->Taskbar = UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
 			ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
 			ProxyOS->InstalledPrograms.Empty();
-			ProxyOS->RemainingSpace = InParentDevice->GetHardDisk()->GetHddCapacity();
 			return ProxyOS;
 		}
 
@@ -217,7 +216,7 @@ const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, FYetiOsEr
 			}
 			else
 			{
-				if (Internal_ConsumeSpace(InstallationSpace))
+				if (GetOwningDevice()->GetMotherboard()->GetHardDisk()->ConsumeSpace(InstallationSpaceInMB))
 				{
 					static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
 					static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
@@ -347,7 +346,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		}
 	}
 
-	if (DefaultConstructed->GetProgramSpace() > RemainingSpace)
+	if (GetOwningDevice()->GetMotherboard()->GetHardDisk()->HasEnoughSpace(DefaultConstructed->GetProgramSpace()) == false)
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_InstallProgramNoSpaceError", "Not enough space for {0}."), MyProgramName);
 		const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramNoSpaceErrorDescription", "Not enough space to install {0}. Free up space by uninstalling existing apps or expand your storage."), MyProgramName);		
@@ -366,7 +365,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 	UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(this, InProgramToInstall, OutErrorMessage, bIsPredefinedProgram);
 	if (NewProgram)
 	{
-		Internal_ConsumeSpace(NewProgram->GetProgramSpace());
+		GetOwningDevice()->GetMotherboard()->GetHardDisk()->ConsumeSpace(NewProgram->GetProgramSpace());
 		OutIconWidget = UYetiOS_AppIconWidget::CreateProgramIconWidget(NewProgram, OutErrorMessage);
 		InstalledPrograms.Add(NewProgram);
 		printlog(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
@@ -710,17 +709,6 @@ TSubclassOf<class UYetiOS_BaseProgram> UYetiOS_Core::Internal_FindProgramFromPac
 	}
 
 	return ProgramClassToReturn;
-}
-
-const bool UYetiOS_Core::Internal_ConsumeSpace(float InSpaceToConsume)
-{
-	if (InSpaceToConsume < RemainingSpace)
-	{
-		RemainingSpace -= InSpaceToConsume;
-		return true;
-	}
-
-	return false;
 }
 
 void UYetiOS_Core::Internal_InstallStartupPrograms()

@@ -7,6 +7,9 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Widgets/YetiOS_FileWidget.h"
 #include "Widgets/YetiOS_FileIconWidget.h"
+#include "Devices/YetiOS_BaseDevice.h"
+#include "Hardware/YetiOS_Motherboard.h"
+#include "Hardware/YetiOS_HardDisk.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsFile, All, All)
@@ -21,7 +24,7 @@ UYetiOS_FileBase::UYetiOS_FileBase()
 	Name = FText::GetEmpty();
 	Extension  = FText::AsCultureInvariant("");
 	Icon = nullptr;
-	Size = 0.f;
+	FileSizeInMB = 0.f;
 	bIsHidden = false;
 	bIsDeletable = true;
 	bIsMovable = true;
@@ -47,6 +50,12 @@ UYetiOS_FileBase* UYetiOS_FileBase::CreateFile(class UYetiOS_DirectoryBase* InPa
 				bSuccess = false;
 				break;
 			}
+		}
+
+		if (InParentDirectory->GetOwningOS()->GetOwningDevice()->GetMotherboard()->GetHardDisk()->HasEnoughSpace(ProxyFile->FileSizeInMB) == false)
+		{
+			ErrorString = FString::Printf(TEXT("Not enough space to create %s."), *ProxyFile->GetFilename(true).ToString());
+			bSuccess = false;
 		}
 	}
 	else
