@@ -23,11 +23,17 @@ UYetiOS_AppIconWidget* UYetiOS_AppIconWidget::CreateProgramIconWidget(class UYet
 	UYetiOS_Core* MyOS = MyDevice->GetOperatingSystem();
 	if (MyOS && !MyOS->IsPendingKill())
 	{
+		if (InCreatedProgram->GetProgramIconWidgetClass() == nullptr)
+		{
+			return nullptr;
+		}
+
 		APlayerController* MyController = UGameplayStatics::GetPlayerController(InCreatedProgram, 0);
 		UYetiOS_AppIconWidget* ProxyWidget = CreateWidget<UYetiOS_AppIconWidget>(MyController, InCreatedProgram->GetProgramIconWidgetClass());
 		ProxyWidget->SetOperatingSystem(MyOS);
 		ProxyWidget->BaseProgram = InCreatedProgram;
 		ProxyWidget->ProgramClass = InCreatedProgram->GetClass();
+		InCreatedProgram->AddProgramIconWidget(ProxyWidget);
 		return ProxyWidget;
 	}
 
