@@ -22,7 +22,9 @@ void UYetiOS_UserWidget::NativeDestruct()
 		if (OsSystemSettings)
 		{
 			OsSystemSettings->OnThemeModeChanged.Remove(OnThemeChangedDelegateHandle);
+			OsSystemSettings->OnColorSchemeChanged.Remove(OnColorSchemeChangedDelegateHandle);
 			OnThemeChangedDelegateHandle.Reset();
+			OnColorSchemeChangedDelegateHandle.Reset();
 		}
 	}
 	Super::NativeDestruct();
@@ -40,6 +42,8 @@ void UYetiOS_UserWidget::SetOperatingSystem(UYetiOS_Core* InOS)
 	if (OsSystemSettings)
 	{
 		K2_OnThemeChanged(OsSystemSettings->GetCurrentTheme());
+		K2_OnColorSchemeChanged(OsSystemSettings->GetCurrentCollectionName());
 		OnThemeChangedDelegateHandle = OsSystemSettings->OnThemeModeChanged.AddUFunction(this, FName("K2_OnThemeChanged"));
+		OnColorSchemeChangedDelegateHandle = OsSystemSettings->OnColorSchemeChanged.AddUFunction(this, FName("K2_OnColorSchemeChanged"));
 	}
 }

@@ -15,6 +15,7 @@ class YETIOS_API UYetiOS_UserWidget : public UUserWidget
 	GENERATED_BODY()
 
 	FDelegateHandle OnThemeChangedDelegateHandle;
+	FDelegateHandle OnColorSchemeChangedDelegateHandle;
 
 protected:
 
@@ -45,5 +46,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS User Widget", DisplayName = "On Theme Changed")
 	void K2_OnThemeChanged(const EYetiOsThemeMode InNewTheme);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS User Widget", DisplayName = "On Color Scheme Changed")
+	void K2_OnColorSchemeChanged(const FName& InNewColorScheme);
+
+public:
+
+	FORCEINLINE class UYetiOS_Core* GetOwningOS() const { return OwningOS; }
 	
 };

@@ -45,13 +45,26 @@ UYetiOS_SystemSettings* UYetiOS_SystemSettings::CreateSystemSettings(class UYeti
 	return ProxyObject;
 }
 
-const bool UYetiOS_SystemSettings::UpdateTheme(EYetiOsThemeMode NewMode)
+bool UYetiOS_SystemSettings::UpdateTheme(EYetiOsThemeMode NewMode)
 {
 	if (CurrentTheme != NewMode)
 	{
 		printlog_vv(FString::Printf(TEXT("Current theme changed from %s to %s"), *ENUM_TO_STRING(EYetiOsThemeMode, CurrentTheme), *ENUM_TO_STRING(EYetiOsThemeMode, NewMode)));
 		CurrentTheme = NewMode;
 		OnThemeModeChanged.Broadcast(CurrentTheme);
+		return true;
+	}
+
+	return false;
+}
+
+bool UYetiOS_SystemSettings::UpdateColorScheme(const FName& NewColorScheme)
+{
+	if (CurrentCollectionName.IsEqual(NewColorScheme, ENameCase::IgnoreCase) == false)
+	{
+		printlog_vv(FString::Printf(TEXT("Current color scheme changed from %s to %s"), *CurrentCollectionName.ToString(), *NewColorScheme.ToString()));
+		CurrentCollectionName = NewColorScheme;
+		OnColorSchemeChanged.Broadcast(CurrentCollectionName);
 		return true;
 	}
 
@@ -112,9 +125,16 @@ FYetiOsColorCollection UYetiOS_SystemSettings::GetColorCollectionFromTheme(EYeti
 	return ThemeColors[(int32)InTheme];
 }
 
-FLinearColor UYetiOS_SystemSettings::GetColorFromCurrent(EYetiOsColorTypes InColorType)
+FLinearColor UYetiOS_SystemSettings::GetColorFromCurrent(EYetiOsColorTypes InColorType) const
 {
 	return GetColorOfTypeFromCollection(CurrentCollectionName, InColorType);
+}
+
+FYetiOsColorCollection UYetiOS_SystemSettings::GetColorScheme(const FName& InCollectionName) const
+{
+	FYetiOsColorCollection OutCollection;
+	GetColorCollection(InCollectionName, OutCollection);
+	return OutCollection;
 }
 
 #undef printlog

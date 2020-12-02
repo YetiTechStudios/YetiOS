@@ -8,6 +8,7 @@
 #include "YetiOS_SystemSettings.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnThemeModeChanged, EYetiOsThemeMode)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnColorSchemeChanged, const FName&)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnShowProgramIconChanged, const bool)
 
 UCLASS(Blueprintable, BlueprintType, hidedropdown, DisplayName = "System Settings")
@@ -19,23 +20,25 @@ class YETIOS_API UYetiOS_SystemSettings : public USaveGame
 
 private:
 
-	UPROPERTY(EditDefaultsOnly, Category = "System Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS System Settings")
 	uint8 bShowProgramIconOnWindows : 1;
 
-	UPROPERTY(EditDefaultsOnly, Category = "System Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS System Settings")
 	EYetiOsThemeMode CurrentTheme;
 
-	UPROPERTY(EditDefaultsOnly, Category = "System Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS System Settings")
 	FYetiOsColorCollection ThemeColors[(int32)EYetiOsThemeMode::MAX];
 
-	UPROPERTY(EditDefaultsOnly, Category = "System Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS System Settings")
 	TArray<FYetiOsColorCollection> ColorCollections;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS System Settings", meta= (AllowPrivateAccess = "true"))
 	FName CurrentCollectionName;
 
 public:
 
 	FOnThemeModeChanged OnThemeModeChanged;
+	FOnColorSchemeChanged OnColorSchemeChanged;
 	FOnShowProgramIconChanged OnShowProgramIconChanged;
 
 protected:
@@ -50,10 +53,13 @@ public:
 	* public UYetiOS_SystemSettings::UpdateTheme
 	* Updates the current theme mode to new one.
 	* @param NewMode [EThemeMode] New theme mode to switch to.
-	* @return [const bool] Returns true if theme was changed. False otherwise.
+	* @return [bool] Returns true if theme was changed. False otherwise.
 	**/
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS System Settings")
-	const bool UpdateTheme(EYetiOsThemeMode NewMode);
+	bool UpdateTheme(EYetiOsThemeMode NewMode);
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS System Settings")
+	bool UpdateColorScheme(const FName& NewColorScheme);
 
 	/**
 	* public UYetiOS_SystemSettings::ToggleShowProgramIconOnWindows
@@ -122,5 +128,12 @@ public:
 	* @return [FLinearColor] Color of given type.
 	**/
 	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS System Settings")	
-	FLinearColor GetColorFromCurrent(EYetiOsColorTypes InColorType);
+	FLinearColor GetColorFromCurrent(EYetiOsColorTypes InColorType) const;
+
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Yeti OS System Settings")
+	FYetiOsColorCollection GetColorScheme(const FName& InCollectionName) const;
+
+public:
+
+	FORCEINLINE const FName GetCurrentCollectionName() const { return CurrentCollectionName; }
 };
