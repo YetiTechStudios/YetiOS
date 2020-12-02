@@ -10,6 +10,7 @@
 #include "Misc/YetiOS_ProgramSettings.h"
 #include "Core/YetiOS_FileBase.h"
 #include "Core/YetiOS_DirectoryBase.h"
+#include "Widgets/YetiOS_DraggableWindowWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseProgram, All, All)
 
@@ -118,7 +119,7 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::Internal_StartProgram(UYetiOS_BaseProg
 		ProxyProgram->bIsSystemInstalledProgram = Program->bIsSystemInstalledProgram;
 		ProxyProgram->ProgramWidget = UYetiOS_AppWidget::Internal_CreateAppWidget(ProxyProgram);
 		ProxyProgram->ProcessID = MyProcessID;
-		ProxyProgram->OwningOS->GetOsWidget()->K2_CreateNewWindow(ProxyProgram, ProxyProgram->ProgramWidget, ProxyProgram->bOverrideWindowSize ? ProxyProgram->OverrideWindowSize : FVector2D::ZeroVector);
+		ProxyProgram->OwningWindow = ProxyProgram->OwningOS->GetOsWidget()->CreateNewWindow(ProxyProgram, ProxyProgram->ProgramWidget, ProxyProgram->bOverrideWindowSize ? ProxyProgram->OverrideWindowSize : FVector2D::ZeroVector);
 		printlog(FString::Printf(TEXT("Executing program %s..."), *ProxyProgram->ProgramName.ToString()));
 		if (ProxyProgram->bCanCallOnStart)
 		{
@@ -167,7 +168,10 @@ bool UYetiOS_BaseProgram::ChangeVisibilityState(const EYetiOsProgramVisibilitySt
 	if (CurrentVisibilityState != InNewState)
 	{
 		CurrentVisibilityState = InNewState;
-		ProgramWidget->Internal_OnChangeVisibilityState(CurrentVisibilityState);
+		if (ProgramWidget)
+		{
+			ProgramWidget->Internal_OnChangeVisibilityState(CurrentVisibilityState);
+		}
 		return true;
 	}
 
@@ -221,8 +225,8 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 		ProgramSettings = nullptr;
 	}
 
-	ProgramWidget->DestroyProgramWidget();
-	ProgramWidget = nullptr;
+	OwningWindow->CloseWindow();
+	OwningWindow = nullptr;
 
 	printlog(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
 	ConditionalBeginDestroy();

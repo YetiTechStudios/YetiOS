@@ -143,6 +143,9 @@ protected:
 
 	UPROPERTY()
 	UYetiOS_AppIconWidget* ProgramIconWidget;
+
+	UPROPERTY()
+	class UYetiOS_DraggableWindowWidget* OwningWindow;
 	
 public:
 
@@ -310,4 +313,5 @@ public:
 	FORCEINLINE const bool CanSaveSettings() const { return ProgramSettings != nullptr && SaveMethod != EProgramSaveMethod::DoNotSave; }
 	FORCEINLINE const bool CanShowPostInstallNotification() const { return bCreateInstallationNotification; }
 	FORCEINLINE const EYetiOsProgramVisibilityState GetCurrentVisibilityState() const { return CurrentVisibilityState; }
+	FORCEINLINE class UYetiOS_DraggableWindowWidget* GetOwningWindow() const { return OwningWindow; }
 };
