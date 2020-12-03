@@ -734,6 +734,7 @@ void UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveG
 	if (LoadGameInstance)
 	{
 		printlog_veryverbose("Loading OS save data...");
+		GetOwningDevice()->GetMotherboard()->GetHardDisk()->ConsumeSpace(InstallationSpaceInMB);
 		OsVersion = LoadGameInstance->GetOsLoadData().SaveLoad_OSVersion;
 		OsUsers = LoadGameInstance->GetOsLoadData().SaveLoad_OsUsers;
 		if (GetRootDirectory())
@@ -763,6 +764,8 @@ void UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveG
 			UYetiOS_AppIconWidget* OutWidget;
 			InstallProgram(It.SaveLoad_ProgramClass, OutErrorMessage, OutWidget);
 		}
+
+		GetOwningDevice()->GetMotherboard()->GetHardDisk()->Internal_UpdateRemainingSpace(LoadGameInstance->GetDeviceLoadData().SaveLoad_RemainingSpace);
 	}
 }
 

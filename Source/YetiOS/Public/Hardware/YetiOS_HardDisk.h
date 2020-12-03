@@ -12,7 +12,7 @@ class YETIOS_API UYetiOS_HardDisk : public UYetiOS_DeviceHardware
 {
 	GENERATED_BODY()
 
-	friend class UYetiOS_BaseDevice;
+	friend class UYetiOS_Core;
 
 private:
 
