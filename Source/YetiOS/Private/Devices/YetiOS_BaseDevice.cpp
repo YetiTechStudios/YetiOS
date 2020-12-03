@@ -267,22 +267,21 @@ void UYetiOS_BaseDevice::OnFinishInstallingOperatingSystem()
 
 void UYetiOS_BaseDevice::DestroyYetiDevice()
 {
-	if (OperatingSystem)
-	{
-		OperatingSystem->DestroyOS();
-		OperatingSystem = nullptr;
-	}
-
-	DeviceWidget = nullptr;
-	BsodWidget = nullptr;
-	ChangeOnScreenWidget();
-	printlog_veryverbose(FString::Printf(TEXT("Destroyed device '%s'"), *DeviceName.ToString()));
+	Internal_DestroyDevice();
 	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());	
 	OwningDeviceManager->OnCurrentDeviceDestroyed();
 	ConditionalBeginDestroy();
 }
 
 void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
+{
+	Internal_DestroyDevice();
+	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());
+	OwningDeviceManager->RestartDevice(this);
+	ConditionalBeginDestroy();
+}
+
+void UYetiOS_BaseDevice::Internal_DestroyDevice()
 {
 	if (OperatingSystem)
 	{
@@ -294,9 +293,6 @@ void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
 	BsodWidget = nullptr;
 	ChangeOnScreenWidget();
 	printlog_veryverbose(FString::Printf(TEXT("Destroyed device '%s'"), *DeviceName.ToString()));
-	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());
-	OwningDeviceManager->RestartDevice(this);
-	ConditionalBeginDestroy();
 }
 
 void UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved)

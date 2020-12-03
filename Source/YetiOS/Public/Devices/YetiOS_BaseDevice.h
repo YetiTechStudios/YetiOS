@@ -212,6 +212,7 @@ public:
 
 private:
 
+	void Internal_DestroyDevice();
 	void Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved);
 	void Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware);
 
