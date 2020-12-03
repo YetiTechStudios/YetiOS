@@ -109,8 +109,8 @@ enum class EYetiOsDeviceState : uint8
 	/* Device is restarting. */
 	STATE_Restart						UMETA(DisplayName = "Restart"),
 
-	/** Device is in error state */
-	STATE_Error							UMETA(DisplayName = "Error"),
+	/** Device is in bsod state */
+	STATE_BSOD							UMETA(DisplayName = "Blue Screen"),
 	
 	/* Invalid state. */
 	STATE_None							UMETA(Hidden)

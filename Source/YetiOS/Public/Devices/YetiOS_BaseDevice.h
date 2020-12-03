@@ -322,7 +322,7 @@ protected:
 public:
 
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
-	FORCEINLINE const bool IsInBsodState() const { return CurrentDeviceState == EYetiOsDeviceState::STATE_Error; }
+	FORCEINLINE const bool IsInBsodState() const { return CurrentDeviceState == EYetiOsDeviceState::STATE_BSOD; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
 	FORCEINLINE const FYetiOS_DeviceClasses& GetDeviceClasses() const { return DeviceClasses; }
 	FORCEINLINE TSubclassOf<class UYetiOS_SaveGame> GetSaveGameClass() const { return SaveGameClass; }

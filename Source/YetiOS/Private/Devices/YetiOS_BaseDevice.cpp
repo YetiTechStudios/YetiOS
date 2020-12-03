@@ -182,7 +182,7 @@ void UYetiOS_BaseDevice::ShowBSOD(const FText InFaultingModuleName /*= FText::Ge
 	{
 		BsodWidget = UYetiOS_BsodWidget::CreateBsodWidget(this, BsodWidgetClass, InFaultingModuleName, InExceptionName, InDetailedException);
 	}
-	UpdateDeviceState(EYetiOsDeviceState::STATE_Error);
+	UpdateDeviceState(EYetiOsDeviceState::STATE_BSOD);
 }
 
 class AYetiOS_DeviceManagerActor* UYetiOS_BaseDevice::GetDeviceManager() const
@@ -212,7 +212,7 @@ const bool UYetiOS_BaseDevice::UpdateDeviceState(EYetiOsDeviceState InNewState, 
 					ChangeOnScreenWidget(OperatingSystem->GetOsWidget());
 					if (OperatingSystem->StartOperatingSystem(bOperatingSystemInstalled, OutErrorMessage) == false)
 					{
-						UpdateDeviceState(EYetiOsDeviceState::STATE_Error);
+						UpdateDeviceState(EYetiOsDeviceState::STATE_BSOD);
 						return false;
 					}
 				}
@@ -240,7 +240,7 @@ const bool UYetiOS_BaseDevice::UpdateDeviceState(EYetiOsDeviceState InNewState, 
 					printlog(FString::Printf(TEXT("%s restarts in %f seconds."), *DeviceName.ToString(), TimeToRestart));
 				}
 				break;
-			case EYetiOsDeviceState::STATE_Error:
+			case EYetiOsDeviceState::STATE_BSOD:
 				printlog(FString::Printf(TEXT("%s is in error state."), *DeviceName.ToString()));
 				{
 					ChangeOnScreenWidget(BsodWidget);
