@@ -27,12 +27,12 @@ UYetiOS_SaveGame::UYetiOS_SaveGame()
 
 const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 {
-	if (InDevice)
+	if (InDevice && InDevice->GetSaveGameClass())
 	{
 		const AYetiOS_DeviceManagerActor* MyDeviceManager = Cast<AYetiOS_DeviceManagerActor>(InDevice->GetOuter());
 		if (MyDeviceManager && MyDeviceManager->CanSaveGame())
 		{
-			UYetiOS_SaveGame* SaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
+			UYetiOS_SaveGame* SaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(InDevice->GetSaveGameClass()));
 			SaveGameInstance->SaveVersion = SAVE_VERSION;
 			SaveGameInstance->DeviceData.bSaveLoad_OsInstalled = InDevice->IsOperatingSystemInstalled();
 			SaveGameInstance->DeviceData.SaveLoad_RemainingSpace = InDevice->GetMotherboard()->GetHardDisk()->GetRemainingSpace();
@@ -92,23 +92,30 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 	return false;
 }
 
-const UYetiOS_SaveGame* UYetiOS_SaveGame::LoadGame()
+const UYetiOS_SaveGame* UYetiOS_SaveGame::LoadGame(const class UYetiOS_BaseDevice* InDevice)
 {
-	UYetiOS_SaveGame* Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
-	const FString MySaveSlotName = Local_SaveLoadInstance->SaveSlotName;
-	const uint32 MyUserIndex = Local_SaveLoadInstance->UserIndex;
-	Local_SaveLoadInstance->ConditionalBeginDestroy();
-	Local_SaveLoadInstance = nullptr;
+	UYetiOS_SaveGame* Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(InDevice->GetSaveGameClass()));
+	if (Local_SaveLoadInstance)
+	{
+		const FString MySaveSlotName = Local_SaveLoadInstance->SaveSlotName;
+		const uint32 MyUserIndex = Local_SaveLoadInstance->UserIndex;
+		Local_SaveLoadInstance->ConditionalBeginDestroy();
+		Local_SaveLoadInstance = nullptr;
 
-	if (UGameplayStatics::DoesSaveGameExist(MySaveSlotName, MyUserIndex))
-	{		
-		Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::LoadGameFromSlot(MySaveSlotName, MyUserIndex));
-		if (Local_SaveLoadInstance->SaveVersion != SAVE_VERSION)
+		if (UGameplayStatics::DoesSaveGameExist(MySaveSlotName, MyUserIndex))
 		{
-			printlog_error(FString::Printf(TEXT("Failed to load save game. Version mismatch. Loaded save version: %f. Expected version: %f"), Local_SaveLoadInstance->SaveVersion, SAVE_VERSION));
-			Local_SaveLoadInstance->ConditionalBeginDestroy();
-			Local_SaveLoadInstance = nullptr;
+			Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::LoadGameFromSlot(MySaveSlotName, MyUserIndex));
+			if (Local_SaveLoadInstance->SaveVersion != SAVE_VERSION)
+			{
+				printlog_error(FString::Printf(TEXT("Failed to load save game. Version mismatch. Loaded save version: %f. Expected version: %f"), Local_SaveLoadInstance->SaveVersion, SAVE_VERSION));
+				Local_SaveLoadInstance->ConditionalBeginDestroy();
+				Local_SaveLoadInstance = nullptr;
+			}
 		}
+	}
+	else
+	{
+		printlog_error("Failed to load game. Load Game Instance was null.");
 	}
 
 	return Local_SaveLoadInstance;

@@ -41,6 +41,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_BsodWidget> BsodWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
+	TSubclassOf<class UYetiOS_SaveGame> SaveGameClass;
+
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bOperatingSystemInstalled : 1;
 
@@ -325,6 +328,7 @@ public:
 	FORCEINLINE const bool IsInBsodState() const { return bBsodHappened; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
 	FORCEINLINE const FYetiOS_DeviceClasses& GetDeviceClasses() const { return DeviceClasses; }
+	FORCEINLINE TSubclassOf<class UYetiOS_SaveGame> GetSaveGameClass() const { return SaveGameClass; }
 	
 	static FORCEINLINE const TSet<FString> GetImageExtensions()
 	{

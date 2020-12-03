@@ -43,7 +43,7 @@ public:
 	UYetiOS_SaveGame();
 
 	static const bool SaveGame(const class UYetiOS_BaseDevice* InDevice);
-	static const UYetiOS_SaveGame* LoadGame();
+	static const UYetiOS_SaveGame* LoadGame(const class UYetiOS_BaseDevice* InDevice);
 
 	FORCEINLINE const FYetiOsDeviceSaveLoad GetDeviceLoadData() const { return DeviceData; }
 	FORCEINLINE const FYetiOsOperatingSystemSaveLoad GetOsLoadData() const { return OsData; }

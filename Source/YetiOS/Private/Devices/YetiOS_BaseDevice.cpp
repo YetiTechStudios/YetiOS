@@ -45,7 +45,7 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 	OperatingSystem = nullptr;
 	DeviceWidget = nullptr;
 	CurrentDeviceState = EYetiOsDeviceState::STATE_None;
-
+	SaveGameClass = UYetiOS_SaveGame::StaticClass();
 }
 
 FText UYetiOS_BaseDevice::GetMonthName(const FDateTime& InDateTime)
@@ -117,7 +117,7 @@ EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorM
 		return EYetiOsDeviceStartResult::DEVICESTART_HardwareFail;
 	}
 
-	const UYetiOS_SaveGame* LoadGameInstance = UYetiOS_SaveGame::LoadGame();
+	const UYetiOS_SaveGame* LoadGameInstance = UYetiOS_SaveGame::LoadGame(this);
 	LoadSavedData(LoadGameInstance);
 
 	if (OperatingSystem == nullptr)
