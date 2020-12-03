@@ -255,6 +255,7 @@ bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
 	CurrentFileOpened = InFileToOpen;
 	ProgramWidget->OpenFile(CurrentFileOpened);
 	K2_OnOpenFile();
+	OwningWindow->BringWindowToFront();
 	return true;
 }
 
