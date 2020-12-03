@@ -48,9 +48,6 @@ private:
 	uint8 bOperatingSystemInstalled : 1;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	uint8 bBsodHappened : 1;
-
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Motherboard* DeviceMotherboard;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
@@ -325,7 +322,7 @@ protected:
 public:
 
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
-	FORCEINLINE const bool IsInBsodState() const { return bBsodHappened; }
+	FORCEINLINE const bool IsInBsodState() const { return CurrentDeviceState == EYetiOsDeviceState::STATE_Error; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
 	FORCEINLINE const FYetiOS_DeviceClasses& GetDeviceClasses() const { return DeviceClasses; }
 	FORCEINLINE TSubclassOf<class UYetiOS_SaveGame> GetSaveGameClass() const { return SaveGameClass; }

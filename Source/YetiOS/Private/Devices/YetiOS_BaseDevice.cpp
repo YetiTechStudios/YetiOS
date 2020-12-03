@@ -41,7 +41,6 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 {
 	DeviceName = FText::GetEmpty();
 	bOperatingSystemInstalled = false;
-	bBsodHappened = false;
 	OperatingSystem = nullptr;
 	DeviceWidget = nullptr;
 	CurrentDeviceState = EYetiOsDeviceState::STATE_None;
@@ -98,7 +97,7 @@ FText UYetiOS_BaseDevice::GetMonthName(const FDateTime& InDateTime)
 
 void UYetiOS_BaseDevice::OnCreateDevice()
 {
-	bBsodHappened = false;
+	UpdateDeviceState(EYetiOsDeviceState::STATE_None);
 	DeviceWidget = UYetiOS_DeviceWidget::Internal_CreateDeviceWidget(this);
 	ChangeOnScreenWidget(DeviceWidget);
 	printlog_veryverbose(FString::Printf(TEXT("Device %s created."), *DeviceName.ToString()));
@@ -106,7 +105,6 @@ void UYetiOS_BaseDevice::OnCreateDevice()
 
 EYetiOsDeviceStartResult UYetiOS_BaseDevice::StartDevice(FYetiOsError& OutErrorMessage)
 {
-	bBsodHappened = false;
 	OutErrorMessage = FYetiOsError();
 	printlog(FString::Printf(TEXT("Trying to start %s"), *DeviceName.ToString()));
 
@@ -180,13 +178,11 @@ void UYetiOS_BaseDevice::RestartYetiDevice()
 
 void UYetiOS_BaseDevice::ShowBSOD(const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
 {
-	bBsodHappened = true;
 	if (BsodWidget == nullptr && BsodWidgetClass)
 	{
 		BsodWidget = UYetiOS_BsodWidget::CreateBsodWidget(this, BsodWidgetClass, InFaultingModuleName, InExceptionName, InDetailedException);
 	}
-
-	ChangeOnScreenWidget(BsodWidget);
+	UpdateDeviceState(EYetiOsDeviceState::STATE_Error);
 }
 
 class AYetiOS_DeviceManagerActor* UYetiOS_BaseDevice::GetDeviceManager() const
@@ -247,7 +243,7 @@ const bool UYetiOS_BaseDevice::UpdateDeviceState(EYetiOsDeviceState InNewState, 
 			case EYetiOsDeviceState::STATE_Error:
 				printlog(FString::Printf(TEXT("%s is in error state."), *DeviceName.ToString()));
 				{
-
+					ChangeOnScreenWidget(BsodWidget);
 				}
 			default:
 				break;
