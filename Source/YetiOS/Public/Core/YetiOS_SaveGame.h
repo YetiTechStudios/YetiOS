@@ -10,20 +10,20 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class YETIOS_API UYetiOS_SaveGame : public USaveGame
 {
 	GENERATED_BODY()
 	
 private:
 
-	UPROPERTY(VisibleAnywhere, Category = Debug)
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Save Game")
 	FString SaveSlotName;
 
-	UPROPERTY(VisibleAnywhere, Category = Debug)
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Save Game")
 	uint32 UserIndex;
 
-	UPROPERTY(VisibleAnywhere, Category = Debug)
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	float SaveVersion;
 
 	UPROPERTY()
