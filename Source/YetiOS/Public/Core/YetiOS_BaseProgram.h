@@ -170,14 +170,19 @@ public:
 
 	virtual void ProgramInstalled();
 
+	/** @See StartProgram(UYetiOS_BaseProgram*& OutProgram, FYetiOsError& OutErrorMessage) */
+	virtual const bool StartProgram();
+
+	/** @See StartProgram(UYetiOS_BaseProgram*& OutProgram, FYetiOsError& OutErrorMessage) */
+	virtual const bool StartProgram(FYetiOsError& OutErrorMessage);
+
 	/**
 	* virtual public UYetiOS_BaseProgram::StartProgram
 	* Start this program and add to running list in Operating System.
+	* @param OutProgram [UYetiOS_BaseProgram*&] Outputs a reference to the newly started program.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
 	* @return [const bool] True if the program was started successfully.
 	**/
-	virtual const bool StartProgram(FYetiOsError& OutErrorMessage);
-
 	virtual const bool StartProgram(UYetiOS_BaseProgram*& OutProgram, FYetiOsError& OutErrorMessage);
 
 	/**

@@ -145,6 +145,13 @@ void UYetiOS_BaseProgram::ProgramInstalled()
 	}
 }
 
+const bool UYetiOS_BaseProgram::StartProgram()
+{
+	UYetiOS_BaseProgram* OutProgram;
+	FYetiOsError OutError;
+	return StartProgram(OutProgram, OutError);
+}
+
 const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 {
 	UYetiOS_BaseProgram* OutProgram;
