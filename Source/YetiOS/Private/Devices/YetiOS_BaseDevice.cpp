@@ -45,6 +45,7 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 	DeviceWidget = nullptr;
 	CurrentDeviceState = EYetiOsDeviceState::STATE_None;
 	SaveGameClass = UYetiOS_SaveGame::StaticClass();
+	bForceGarbageCollectionWhenDeviceIsDestroyed = false;
 }
 
 FText UYetiOS_BaseDevice::GetMonthName(const FDateTime& InDateTime)
@@ -271,6 +272,10 @@ void UYetiOS_BaseDevice::DestroyYetiDevice()
 	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());	
 	OwningDeviceManager->OnCurrentDeviceDestroyed();
 	ConditionalBeginDestroy();
+	if (bForceGarbageCollectionWhenDeviceIsDestroyed && GEngine)
+	{
+		GEngine->ForceGarbageCollection(true);
+	}
 }
 
 void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
@@ -279,6 +284,10 @@ void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
 	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());
 	OwningDeviceManager->RestartDevice(this);
 	ConditionalBeginDestroy();
+	if (bForceGarbageCollectionWhenDeviceIsDestroyed && GEngine)
+	{
+		GEngine->ForceGarbageCollection(true);
+	}
 }
 
 void UYetiOS_BaseDevice::Internal_DestroyDevice()

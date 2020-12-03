@@ -44,6 +44,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
 	TSubclassOf<class UYetiOS_SaveGame> SaveGameClass;
 
+	/** Forces GC to run when this device is destroyed or restarted. If you experience any hitches, try disabling this. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
+	uint8 bForceGarbageCollectionWhenDeviceIsDestroyed : 1;
+
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bOperatingSystemInstalled : 1;
 
