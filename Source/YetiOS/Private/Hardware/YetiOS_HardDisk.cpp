@@ -39,7 +39,7 @@ bool UYetiOS_HardDisk::Internal_ConsumeSpace(const int64& InSpaceInBytes)
 		RemainingSpaceInBytes -= InSpaceInBytes;
 		const float ConvertedToMB = float(InSpaceInBytes) / 1000000.f;
 		const float ConvertedToGB = float(RemainingSpaceInBytes) / 1000000000.f;
-		printlog_veryverbose(FString::Printf(TEXT("%s mb (%i) consumed. Remaining %s GB (%i)."), *FString::SanitizeFloat(ConvertedToMB), InSpaceInBytes, *FString::SanitizeFloat(ConvertedToGB), RemainingSpaceInBytes));
+		printlog_veryverbose(FString::Printf(TEXT("%s mb (%lld) consumed. Remaining %f GB (%lld)."), *FString::SanitizeFloat(ConvertedToMB), InSpaceInBytes, ConvertedToGB, RemainingSpaceInBytes));
 		return true;
 	}
 
