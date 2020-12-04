@@ -95,6 +95,16 @@ enum class EDirectoryType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EYetiOSTimeFormat : uint8
+{
+	Default,
+	Short,
+	Medium,
+	Long,
+	Full
+};
+
+UENUM(BlueprintType)
 enum class EYetiOsDeviceState : uint8
 {	
 	/* Device is starting. */

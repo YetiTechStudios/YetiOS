@@ -156,9 +156,27 @@ TArray<class UYetiOS_DirectoryBase*> UYetiOS_Core::GetSystemDirectories(class UY
 	return TArray<UYetiOS_DirectoryBase*>();
 }
 
-const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
+const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime, EYetiOSTimeFormat TimeFormat /*= EYetiOSTimeFormat::Medium*/)
 {
-	return FText::AsTime(InDateTime, EDateTimeStyle::Short, FText::GetInvariantTimeZone());
+	EDateTimeStyle::Type DateTimeType = EDateTimeStyle::Default;
+	switch (TimeFormat)
+	{
+		case EYetiOSTimeFormat::Short:
+			DateTimeType = EDateTimeStyle::Short;
+			break;
+		case EYetiOSTimeFormat::Medium:
+			DateTimeType = EDateTimeStyle::Medium;
+			break;
+		case EYetiOSTimeFormat::Long:
+			DateTimeType = EDateTimeStyle::Long;
+			break;
+		case EYetiOSTimeFormat::Full:
+			DateTimeType = EDateTimeStyle::Full;
+			break;
+		default:
+			break;
+	}
+	return FText::AsTime(InDateTime, DateTimeType, FText::GetInvariantTimeZone());
 }
 
 bool UYetiOS_Core::GetColorCollectionOfTheme(class UYetiOS_Core* InOS, EYetiOsThemeMode InTheme, FYetiOsColorCollection& OutCollection)

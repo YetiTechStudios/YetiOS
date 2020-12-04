@@ -250,10 +250,11 @@ public:
 	* Converts a passed in date & time to a text, formatted as a time using an invariant timezone. This will use the given date & time as-is, so it's assumed to already be in the correct timezone.
 	* Returns time in short style. Example: 1:00 PM
 	* @param InDateTime [const FDateTime&] Time to convert.
+	* @param TimeFormat [EYetiOSTimeFormat] Formats the time. Example: Hour:Minutes, Hour:Minutes:Seconds, Hour:Minutes:Seconds <TimeZone>
 	* @return [const FText] Time as text. Example: 1:00 PM
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Global")
-	static const FText GetTimeAsText(const FDateTime& InDateTime);
+	static const FText GetTimeAsText(const FDateTime& InDateTime, EYetiOSTimeFormat TimeFormat = EYetiOSTimeFormat::Medium);
 
 	/**
 	* public static UYetiOS_Core::GetColorCollectionOfTheme
