@@ -7,10 +7,14 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_DeviceManagerActor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClockTimerTick);
+
 UCLASS(hidedropdown, Blueprintable, hideCategories = (Rendering, Input, Actor, LOD, Cooking, Collision, Tick, Replication))
 class YETIOS_API AYetiOS_DeviceManagerActor : public AActor
 {
 	GENERATED_BODY()
+
+	FTimerHandle TimerHandle_ClockTick;
 	
 private:
 
@@ -42,6 +46,9 @@ private:
 	class UYetiOS_BaseDevice* CurrentDevice;
 	
 public:	
+
+	UPROPERTY(BlueprintAssignable, Category = "Yeti OS Device Manager|Delegates")
+	FOnClockTimerTick OnClockTick;
 	
 	AYetiOS_DeviceManagerActor();
 
@@ -112,6 +119,18 @@ protected:
 	**/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti Device Manager", DisplayName = "OnCurrentDeviceDestroyed")	
 	void K2_OnCurrentDeviceDestroyed();
+
+	/**
+	* protected AYetiOS_DeviceManagerActor::K2_OnClockTimerTick
+	* Event called every second as long as this device manager is alive.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti Device Manager", DisplayName = "On Clock Timer Tick")
+	void K2_OnClockTimerTick();
+
+private:
+
+	UFUNCTION()
+	void Internal_OnClockTimerTick();
 
 public:
 

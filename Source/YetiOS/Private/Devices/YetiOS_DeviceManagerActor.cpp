@@ -47,10 +47,15 @@ void AYetiOS_DeviceManagerActor::BeginPlay()
 		FYetiOsError ErrorMessage;
 		CreateDevice(ErrorMessage);
 	}
+
+	Internal_OnClockTimerTick();
+	GetWorldTimerManager().SetTimer(TimerHandle_ClockTick, this, &AYetiOS_DeviceManagerActor::Internal_OnClockTimerTick, 1.f, true);
 }
 
 void AYetiOS_DeviceManagerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	OnClockTick.Clear();
+	GetWorldTimerManager().ClearTimer(TimerHandle_ClockTick);
 	Super::EndPlay(EndPlayReason);
 
 	FString EndReasonString = "Unknown";
@@ -132,6 +137,12 @@ void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)
 
 	OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_CurrentDeviceCreateErrorCode", "ERR_CREATE_DEVICE");
 	OutErrorMessage.ErrorException = LOCTEXT("YetiOS_CurrentDeviceCreateException", "Current device was already created or Device class was null");
+}
+
+void AYetiOS_DeviceManagerActor::Internal_OnClockTimerTick()
+{
+	K2_OnClockTimerTick();
+	OnClockTick.Broadcast();
 }
 
 #undef printlog
