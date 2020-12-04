@@ -908,7 +908,7 @@ struct FYetiOsDirectorySaveLoad
 	TSet<class UYetiOS_FileBase*> SaveLoad_Files;
 
 	UPROPERTY()
-	TArray<TSubclassOf<UYetiOS_DirectoryBase>> SaveLoad_ChildDirectoryClasses;
+	TArray<TSubclassOf<class UYetiOS_DirectoryBase>> SaveLoad_ChildDirectoryClasses;
 
 };
 
