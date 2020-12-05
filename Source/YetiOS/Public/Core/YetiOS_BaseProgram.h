@@ -200,6 +200,8 @@ public:
 	**/
 	void AddProgramIconWidget(class UYetiOS_AppIconWidget* InIconWidget);
 
+	virtual bool OpenFile(class UYetiOS_FileBase* InFileToOpen, const bool bInForceOpenInSameInstance);
+
 	/**
 	* virtual public UYetiOS_BaseProgram::CloseProgram
 	* Close this program.
@@ -207,9 +209,6 @@ public:
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
 	virtual void CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown = false);
-
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Program")
-	virtual bool OpenFile(class UYetiOS_FileBase* InFileToOpen);
 
 	/**
 	* public UYetiOS_BaseProgram::GetProgramWidget const

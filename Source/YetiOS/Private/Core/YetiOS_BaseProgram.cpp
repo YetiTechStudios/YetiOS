@@ -190,6 +190,46 @@ void UYetiOS_BaseProgram::AddProgramIconWidget(class UYetiOS_AppIconWidget* InIc
 	ProgramIconWidget = InIconWidget;
 }
 
+bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen, const bool bInForceOpenInSameInstance)
+{
+	bool bLocal_ShouldStartProgram = true;
+
+	if (InFileToOpen->CanOpenInSameInstance())
+	{
+		bLocal_ShouldStartProgram = IsRunning() == false;
+	}
+	else
+	{
+		if (bInForceOpenInSameInstance)
+		{
+			bLocal_ShouldStartProgram = false;
+		}
+	}
+
+	if (bLocal_ShouldStartProgram)
+	{
+		UYetiOS_BaseProgram* OutProgram;
+		FYetiOsError OutError;
+		if (StartProgram(OutProgram, OutError))
+		{
+			// We need to create a temp file as new to avoid issues since the same UObject or its child maybe referenced elsewhere.			
+			UYetiOS_FileBase* TempFileCreated = NewObject<UYetiOS_FileBase>(InFileToOpen->GetParentDirectory(), InFileToOpen->GetClass());
+			OutProgram->CurrentFileOpened = TempFileCreated;
+			OutProgram->ProgramWidget->OpenFile(OutProgram->CurrentFileOpened);
+			OutProgram->K2_OnOpenFile();
+			return true;
+		}
+
+		return false;
+	}
+
+	CurrentFileOpened = InFileToOpen;
+	ProgramWidget->OpenFile(CurrentFileOpened);
+	K2_OnOpenFile();
+	OwningWindow->BringWindowToFront();
+	return true;
+}
+
 void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown /*= false*/)
 {
 	if (bCanCallOnClose)
@@ -237,33 +277,6 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 
 	printlog(FString::Printf(TEXT("Program %s closed."), *ProgramName.ToString()));
 	ConditionalBeginDestroy();
-}
-
-bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen)
-{
-	const bool bLocal_ShouldStartProgram = InFileToOpen->CanOpenInSameInstance() ? IsRunning() == false : true;
-	if (bLocal_ShouldStartProgram)
-	{
-		UYetiOS_BaseProgram* OutProgram;
-		FYetiOsError OutError;
-		if (StartProgram(OutProgram, OutError))
-		{
-			// We need to create a temp file as new to avoid issues since the same UObject or its child maybe referenced elsewhere.			
-			UYetiOS_FileBase* TempFileCreated = NewObject<UYetiOS_FileBase>(InFileToOpen->GetParentDirectory(), InFileToOpen->GetClass());
-			OutProgram->CurrentFileOpened = TempFileCreated;
-			OutProgram->ProgramWidget->OpenFile(OutProgram->CurrentFileOpened);
-			OutProgram->K2_OnOpenFile();
-			return true;
-		}
-
-		return false;
-	}
-
-	CurrentFileOpened = InFileToOpen;
-	ProgramWidget->OpenFile(CurrentFileOpened);
-	K2_OnOpenFile();
-	OwningWindow->BringWindowToFront();
-	return true;
 }
 
 bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
