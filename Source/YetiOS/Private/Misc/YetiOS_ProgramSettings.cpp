@@ -5,6 +5,8 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Core/YetiOS_Core.h"
+#include "Devices/YetiOS_BaseDevice.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsProgramSettings, All, All)
 
@@ -37,14 +39,16 @@ UYetiOS_ProgramSettings* UYetiOS_ProgramSettings::CreateSettings(const class UYe
 UYetiOS_ProgramSettings* UYetiOS_ProgramSettings::LoadSettings(const class UYetiOS_BaseProgram* InParentProgram)
 {
 	UYetiOS_ProgramSettings* Local_LoadInstance = Cast<UYetiOS_ProgramSettings>(UGameplayStatics::CreateSaveGameObject(UYetiOS_ProgramSettings::StaticClass()));
-	const FString LoadSlotName = InParentProgram->GetProgramIdentifierName().ToString();
+	Local_LoadInstance->ParentProgramIdentifier = InParentProgram->GetProgramIdentifierName();
+	Local_LoadInstance->OwningProgram = const_cast<UYetiOS_BaseProgram*>(InParentProgram);
+	const FString LoadSlotName = Local_LoadInstance->Internal_GetSaveSlotName();
 	const int32 LoadUserIndex = Local_LoadInstance->UserIndex;
 
 	if (UGameplayStatics::DoesSaveGameExist(LoadSlotName, LoadUserIndex))
 	{
 		Local_LoadInstance = Cast<UYetiOS_ProgramSettings>(UGameplayStatics::LoadGameFromSlot(LoadSlotName, LoadUserIndex));
+		Local_LoadInstance->ParentProgramIdentifier = InParentProgram->GetProgramIdentifierName();
 		Local_LoadInstance->OwningProgram = const_cast<UYetiOS_BaseProgram*>(InParentProgram);
-		Local_LoadInstance->Internal_SetSaveSlotName();
 		return Local_LoadInstance;
 	}
 
@@ -82,8 +86,8 @@ void UYetiOS_ProgramSettings::Destroy()
 
 void UYetiOS_ProgramSettings::Internal_SetSaveSlotName()
 {
-	ParentProgramIdentifier = OwningProgram->GetProgramIdentifierName();
-	SaveSlotName = ParentProgramIdentifier.ToString(); // FString::Printf(TEXT("%s_%s"), *ParentProgramIdentifier.ToString(), FGuid::NewGuid().ToString(EGuidFormats::Short));
+	ParentProgramIdentifier = OwningProgram->GetProgramIdentifierName();	
+	SaveSlotName = Internal_GetSaveSlotName();
 }
 
 class UYetiOS_BaseProgram* UYetiOS_ProgramSettings::GetOwningProgram() const
@@ -100,6 +104,11 @@ bool UYetiOS_ProgramSettings::K2_CanSave_Implementation() const
 	}
 
 	return false;
+}
+
+const FString UYetiOS_ProgramSettings::Internal_GetSaveSlotName() const
+{
+	return FString::Printf(TEXT("%s_%s"), *ParentProgramIdentifier.ToString(), *OwningProgram->GetOwningOS()->GetOwningDevice()->GetDeviceName().ToString());
 }
 
 #undef printlog

@@ -90,4 +90,8 @@ protected:
 	**/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Program Settings", DisplayName = "Pre Save")	
 	void K2_PreSave();
+
+private:
+
+	inline const FString Internal_GetSaveSlotName() const;
 };
