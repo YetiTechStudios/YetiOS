@@ -26,9 +26,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS File", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	class UObject* Icon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS File", AdvancedDisplay = "true", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
-	mutable class UObject* OverrideDefaultIcon;
-
 	/** Size in MB */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS File", meta = (UIMin = "0", ClampMin = "0", UIMax = "10000"))
 	float FileSizeInMB;
@@ -96,9 +93,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
 	class UObject* GetFileIcon() const { return Icon; }
-
-	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
-	class UObject* GetDefaultIcon();
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
 	float GetFileSize() const { return FileSizeInMB; }

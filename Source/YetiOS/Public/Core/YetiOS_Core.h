@@ -114,10 +114,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<UYetiOS_DirectoryBase> TemplateDirectory;
 
-	/** An icon object that represents a file if no associated program is found. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
-	class UObject* DefaultIcon;
-
 	/* Minimum time to install. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (UIMin = "5", ClampMin = "1", UIMax = "60", ClampMax = "120"))
 	float MinInstallationTime;
@@ -728,7 +724,6 @@ public:
 	/* Returns a reference to the Operating system widget created using OsWidgetClass. */
 	FORCEINLINE UYetiOS_OsWidget* GetOsWidget() const { return OsWidget; }	
 
-	FORCEINLINE class UObject* GetDefaultIcon() const { return DefaultIcon; }
 	FORCEINLINE const TArray<const UYetiOS_DirectoryBase*> GetAllCreatedDirectories() const { return AllCreatedDirectories; }
 	FORCEINLINE const FText GetRootCommand() const { return RootCommand; }
 	FORCEINLINE class USoundBase* GetNotificationSound(const FYetiOsNotification& InNotification) const

@@ -137,20 +137,6 @@ FText UYetiOS_FileBase::GetFilename(const bool bWithExtension) const
 	return Name;
 }
 
-class UObject* UYetiOS_FileBase::GetDefaultIcon()
-{
-	if (OverrideDefaultIcon == nullptr)
-	{
-		UYetiOS_Core* Local_OwningOS = GetParentDirectory()->GetOwningOS();
-		if (Local_OwningOS)
-		{
-			OverrideDefaultIcon = Local_OwningOS->GetDefaultIcon();
-		}
-	}
-
-	return OverrideDefaultIcon;
-}
-
 class UYetiOS_FileWidget* UYetiOS_FileBase::GetFileWidget()
 {
 	if (FileWidget == nullptr)
