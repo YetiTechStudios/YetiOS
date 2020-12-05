@@ -161,6 +161,11 @@ class UYetiOS_FileWidget* UYetiOS_FileBase::GetFileWidget()
 	return FileWidget;
 }
 
+class UYetiOS_DirectoryBase* UYetiOS_FileBase::GetParentDirectory() const
+{
+	return Cast<class UYetiOS_DirectoryBase>(GetOuter());
+}
+
 const bool UYetiOS_FileBase::IsAssociatedProgramInstalled() const
 {
 	if (AssociatedProgram)

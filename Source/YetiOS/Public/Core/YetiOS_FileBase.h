@@ -121,6 +121,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
 	class UYetiOS_FileWidget* GetFileWidget();
 
+	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
+	class UYetiOS_DirectoryBase* GetParentDirectory() const;
+
 	const bool IsAssociatedProgramInstalled() const;
 
 private:
@@ -145,7 +148,6 @@ public:
 
 public:
 
-	FORCEINLINE class UYetiOS_DirectoryBase* GetParentDirectory() const { return Cast<class UYetiOS_DirectoryBase>(GetOuter()); }
 	FORCEINLINE TSubclassOf<class UYetiOS_FileIconWidget> GetFileIconWidgetClass() const { return FileIconWidgetClass; }
 	FORCEINLINE const bool CanOpenInSameInstance() const {; return bOpenInSameInstance; }
 	FORCEINLINE const bool IsSameFile(const UYetiOS_FileBase* OtherFile) const
