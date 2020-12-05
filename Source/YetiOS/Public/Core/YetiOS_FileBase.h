@@ -80,8 +80,10 @@ public:
 
 	static UYetiOS_FileBase* CreateFile(class UYetiOS_DirectoryBase* InParentDirectory, TSubclassOf<UYetiOS_FileBase> FileClass, FYetiOsError& OutErrorMessage);
 
-	virtual bool OpenFile(FYetiOsError& OutErrorMessage);
 	virtual void CloseFile();
+
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS File")
+	virtual bool OpenFile(FYetiOsError& OutErrorMessage, const bool bInForceOpenInSameInstance = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS File")
 	virtual bool RenameFile(const FText& InNewName);
