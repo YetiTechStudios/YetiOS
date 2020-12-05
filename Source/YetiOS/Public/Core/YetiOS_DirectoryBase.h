@@ -151,10 +151,11 @@ public:
 	/**
 	* public UYetiOS_Directory::GetDirectoryFiles const
 	* Returns files in this directory.
+	* @param WithExtension [const FString] Extension to filter by. Set this to * or . or leave empty to get all files.
 	* @return [TSet<class UYetiOS_FileBase*>] List of file objects.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
-	TSet<class UYetiOS_FileBase*> GetDirectoryFiles() const { return Files; }
+	TSet<class UYetiOS_FileBase*> GetDirectoryFiles(const FString WithExtension = "*") const;
 
 	/**
 	* public UYetiOS_Directory::IsHidden const

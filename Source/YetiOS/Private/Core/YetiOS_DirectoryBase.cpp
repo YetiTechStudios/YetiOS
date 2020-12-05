@@ -129,6 +129,25 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetDirectoryFromPath(const FString
 	return nullptr;
 }
 
+TSet<class UYetiOS_FileBase*> UYetiOS_DirectoryBase::GetDirectoryFiles(const FString WithExtension /*= "*"*/) const
+{
+	if (WithExtension == "" || WithExtension == "*" || WithExtension == ".")
+	{
+		return Files;
+	}
+
+	TSet<UYetiOS_FileBase*> OutSet;
+	for (const auto& It : Files)
+	{
+		if (It->GetFileExtension().ToString().Equals(WithExtension, ESearchCase::IgnoreCase))
+		{
+			OutSet.Add(It);
+		}
+	}
+
+	return OutSet;
+}
+
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::CreateChildDirectory(class UYetiOS_Core* InOwningOS, TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass, FYetiOsError& OutErrorMessage, const FText& InDirectoryName, const bool bCreateHidden /*= false*/, const bool bForceCreate /*= false*/)
 {
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> TargetArray;
