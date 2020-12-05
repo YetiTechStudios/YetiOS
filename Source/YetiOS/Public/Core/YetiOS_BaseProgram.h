@@ -97,6 +97,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Yeti OS Base Program", meta = (AllowPrivateAccess = "true"))
 	uint8 bSingleInstanceOnly : 1;
 
+	/** Some programs might need access to its settings class before they are started. 
+	* For example, to determine if the program itself should start automatically when os is started. In this case, you need to enable this.
+	* @See: K2_OnSettingsLoad. In Blueprints: On Load Settings
+	*/
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
+	uint8 bCreateSettingsOnProgramCreation : 1;
+
 	/* If true, then this program can run on portable device. */
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
 	uint8 bCanRunOnPortableDevice : 1;

@@ -83,6 +83,10 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 			{
 				ProxyProgram->OwningOS = InOS;
 				ProxyProgram->bIsSystemInstalledProgram = bInstalledWithOS;
+				if (ProxyProgram->bCreateSettingsOnProgramCreation)
+				{
+					ProxyProgram->Internal_LoadProgramSettings();
+				}
 
 				if (ProxyProgram->bCanCallOnCreate)
 				{
