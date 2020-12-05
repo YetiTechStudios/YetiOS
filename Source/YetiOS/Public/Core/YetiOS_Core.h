@@ -46,7 +46,7 @@ class YETIOS_API UYetiOS_Core : public UObject
 	
 	friend class UYetiOS_BaseDevice;
 	
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 	friend class UYetiOS_ThumbnailRenderer;
 #endif
 	
