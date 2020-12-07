@@ -25,8 +25,8 @@ UYetiOS_SystemSettings* UYetiOS_SystemSettings::CreateSystemSettings(class UYeti
 {
 	if (InCore == nullptr)
 	{
-		printlog_error("Create System Settings failed. Reason: NULL OS.")
-			return nullptr;
+		printlog_error("Create System Settings failed. Reason: NULL OS.");
+		return nullptr;
 	}
 
 	if (InCore->GetSystemSettingsClass() == NULL)
