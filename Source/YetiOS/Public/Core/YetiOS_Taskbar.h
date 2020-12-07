@@ -44,12 +44,12 @@ protected:
 public:
 
 	/**
-	* public UYetiOS_Taskbar::TogglePeekPreview
-	* Enables peek to preview desktop feature. Similar to show desktop button at the end of the taskbar in Microsoft Windows.
+	* public UYetiOS_Taskbar::PeekDesktop
+	* Peek preview desktop feature. Similar to show desktop button at the end of the taskbar in Microsoft Windows.
 	* @param bEnable [const bool] Enable or disable peek preview.
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Taskbar")
-	void TogglePeekPreview(const bool bEnable);
+	void PeekDesktop(const bool bEnable);
 
 	/**
 	* public UYetiOS_Taskbar::IsPeekPreviewEnabled const

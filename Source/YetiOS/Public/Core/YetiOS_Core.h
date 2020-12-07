@@ -38,6 +38,7 @@ struct FYetiOsNotificationSettings
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnProgramInstalled, class UYetiOS_BaseProgram*)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPeekPreview, const bool)
 
 UCLASS(hidedropdown, Blueprintable, DisplayName = "Operating System")
 class YETIOS_API UYetiOS_Core : public UObject
@@ -176,6 +177,7 @@ private:
 public:
 
 	FOnProgramInstalled OnProgramInstalled;
+	FOnPeekPreview OnPeekPreview;
 
 	UYetiOS_Core();
 

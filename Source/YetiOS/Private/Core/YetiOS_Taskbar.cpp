@@ -44,9 +44,12 @@ UYetiOS_Taskbar* UYetiOS_Taskbar::CreateTaskbar(class UYetiOS_Core* InCore)
 	return ProxyObject;
 }
 
-void UYetiOS_Taskbar::TogglePeekPreview(const bool bEnable)
+void UYetiOS_Taskbar::PeekDesktop(const bool bEnable)
 {
-	bEnablePeekPreview = bEnable;
+	if (bEnablePeekPreview)
+	{
+		GetOwningOS()->OnPeekPreview.Broadcast(bEnable);
+	}
 }
 
 class UYetiOS_Core* UYetiOS_Taskbar::GetOwningOS() const

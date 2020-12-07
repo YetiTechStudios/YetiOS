@@ -240,6 +240,9 @@ EYetiOsProgramVisibilityState UYetiOS_DraggableWindowWidget::GetCurrentVisibilit
 
 void UYetiOS_DraggableWindowWidget::CloseWindow()
 {
+	OwningOS->OnPeekPreview.Remove(OnPeekPreviewDelegateHandle);
+	OnPeekPreviewDelegateHandle.Reset();
+
 	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
 	if (OsSystemSettings)
 	{
@@ -268,6 +271,11 @@ bool UYetiOS_DraggableWindowWidget::BringWindowToFront()
 	}
 
 	return false;
+}
+
+void UYetiOS_DraggableWindowWidget::OnPeekPreview(const bool bBegin)
+{
+	bBegin ? K2_OnBeginPeekPreview() : K2_OnEndPeekPreview();
 }
 
 bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
@@ -304,6 +312,7 @@ void UYetiOS_DraggableWindowWidget::AddWidget(class UYetiOS_UserWidget* InUserWi
 			OnShowProgramIconDelegateHandle = OsSystemSettings->OnShowProgramIconChanged.AddUFunction(this, FName("K2_OnShowProgramIcon"));
 		}
 
+		OnPeekPreviewDelegateHandle = OwningOS->OnPeekPreview.AddUObject(this, &UYetiOS_DraggableWindowWidget::OnPeekPreview);
 		K2_OnWidgetAdded(InUserWidget);
 	}
 }

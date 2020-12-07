@@ -16,6 +16,7 @@ class YETIOS_API UYetiOS_DraggableWindowWidget : public UUserWidget
 
 	FDelegateHandle OnThemeChangedDelegateHandle;
 	FDelegateHandle OnShowProgramIconDelegateHandle;
+	FDelegateHandle OnPeekPreviewDelegateHandle;
 	
 private:
 
@@ -104,6 +105,7 @@ public:
 	void CloseWindow();
 
 	bool BringWindowToFront();
+	void OnPeekPreview(const bool bBegin);
 
 protected:
 
@@ -136,6 +138,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Show Program Icon")
 	void K2_OnShowProgramIcon(const bool bShow);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On Begin Peek Preview")
+	void K2_OnBeginPeekPreview();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Draggable Window", DisplayName = "On End Peek Preview")
+	void K2_OnEndPeekPreview();
 
 public:
 
