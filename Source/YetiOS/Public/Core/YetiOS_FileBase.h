@@ -83,7 +83,7 @@ public:
 	virtual bool OpenFile(FYetiOsError& OutErrorMessage, const bool bInForceOpenInSameInstance = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS File")
-	virtual bool RenameFile(const FText& InNewName);
+	virtual bool RenameFile(const FText& InNewName, FYetiOsError& OutErrorMessage);
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
 	FText GetFilename(const bool bWithExtension) const;

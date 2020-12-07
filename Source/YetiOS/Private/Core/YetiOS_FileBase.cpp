@@ -198,11 +198,23 @@ void UYetiOS_FileBase::Internal_OnAssociatedProgramInstalled(class UYetiOS_BaseP
 	}
 }
 
-bool UYetiOS_FileBase::RenameFile(const FText& InNewName)
+bool UYetiOS_FileBase::RenameFile(const FText& InNewName, FYetiOsError& OutErrorMessage)
 {
 	if (InNewName.EqualToCaseIgnored(Name))
 	{
 		return false;
+	}
+
+	const TSet<UYetiOS_FileBase*>& AllFilesInParent = GetParentDirectory()->GetDirectoryFiles();
+	for (const auto& It : AllFilesInParent)
+	{
+		if (It->IsSameFile(this))
+		{
+			const FString Title = "File Exists";
+			const FString Description = FString::Printf(TEXT("File '%s' alrady exists in directory '%s'."), *GetFilename(true).ToString(), *GetParentDirectory()->GetDirectoryName().ToString());
+			OutErrorMessage = GetErrorStruct(FText::FromString("ERR_FILE_EXISTS"), FText::FromString(Title), FText::FromString(Description));
+			return false;
+		}
 	}
 
 	Name = InNewName;
