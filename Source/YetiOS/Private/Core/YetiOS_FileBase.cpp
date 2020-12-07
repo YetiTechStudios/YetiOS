@@ -57,6 +57,12 @@ UYetiOS_FileBase* UYetiOS_FileBase::CreateFile(class UYetiOS_DirectoryBase* InPa
 			ErrorString = FString::Printf(TEXT("Not enough space to create %s."), *ProxyFile->GetFilename(true).ToString());
 			bSuccess = false;
 		}
+
+		if (InParentDirectory->CanCreateNewFile() == false)
+		{
+			ErrorString = FString::Printf(TEXT("Permission denied %s in %s."), *ProxyFile->GetFilename(true).ToString(), *InParentDirectory->GetDirectoryName().ToString());
+			bSuccess = false;
+		}
 	}
 	else
 	{
