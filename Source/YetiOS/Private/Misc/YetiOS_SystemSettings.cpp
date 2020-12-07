@@ -32,30 +32,6 @@ UYetiOS_SystemSettings::UYetiOS_SystemSettings()
 	CurrentCollectionName = NAME_None;
 }
 
-UYetiOS_SystemSettings* UYetiOS_SystemSettings::CreateSystemSettings(class UYetiOS_Core* InCore)
-{
-	if (InCore == nullptr)
-	{
-		printlog_error("Create System Settings failed. Reason: NULL OS.");
-		return nullptr;
-	}
-
-	if (InCore->GetSystemSettingsClass() == NULL)
-	{
-		printlog_error(FString::Printf(TEXT("Create System Settings failed. Reason: No settings class provided for %s."), *InCore->GetOsName().ToString()));
-		return nullptr;
-	}
-
-	const FString SystemSettingsName = FString::Printf(TEXT("SystemSettings_%s"), *InCore->GetOsName().ToString());
-	UYetiOS_SystemSettings* ProxyObject = NewObject<UYetiOS_SystemSettings>(InCore, InCore->GetSystemSettingsClass(), *SystemSettingsName);
-	if (ProxyObject->ColorCollections.IsValidIndex(0))
-	{
-		ProxyObject->CurrentCollectionName = ProxyObject->ColorCollections[0].CollectionName;
-	}
-	printlog(FString::Printf(TEXT("System settings created: %s"), *SystemSettingsName));
-	return ProxyObject;
-}
-
 bool UYetiOS_SystemSettings::UpdateTheme(EYetiOsThemeMode NewMode)
 {
 	if (CurrentTheme != NewMode)

@@ -86,9 +86,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<class UYetiOS_OsWidget> OsWidgetClass;
 
-	/** Class that defines system settings. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
-	TSubclassOf<class UYetiOS_SystemSettings> SystemSettingsClass;
 
 	/** Class that defines system taskbar. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
@@ -718,9 +716,6 @@ public:
 
 	/* Returns the UMG class for OS widget. */
 	FORCEINLINE TSubclassOf<class UYetiOS_OsWidget> GetOsWidgetClass() const { return OsWidgetClass; }
-
-	/** Returns the system settings class. */
-	FORCEINLINE TSubclassOf<class UYetiOS_SystemSettings> GetSystemSettingsClass() const { return SystemSettingsClass; }
 
 	/** Returns the taskbar class */
 	FORCEINLINE TSubclassOf<class UYetiOS_Taskbar> GetTaskbarClass() const { return TaskbarClass; }

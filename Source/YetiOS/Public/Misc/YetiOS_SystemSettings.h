@@ -11,7 +11,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnThemeModeChanged, EYetiOsThemeMode)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnColorSchemeChanged, const FName&)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnShowProgramIconChanged, const bool)
 
-UCLASS(Blueprintable, BlueprintType, hidedropdown, DisplayName = "System Settings")
+UCLASS(BlueprintType, hidedropdown, DisplayName = "System Settings")
 class YETIOS_API UYetiOS_SystemSettings : public UObject
 {
 	GENERATED_BODY()
@@ -40,10 +40,6 @@ public:
 	FOnThemeModeChanged OnThemeModeChanged;
 	FOnColorSchemeChanged OnColorSchemeChanged;
 	FOnShowProgramIconChanged OnShowProgramIconChanged;
-
-protected:
-
-	static UYetiOS_SystemSettings* CreateSystemSettings(class UYetiOS_Core* InCore);
 
 public:
 
