@@ -29,6 +29,7 @@ void UYetiOS_AppWidget::Internal_OnChangeVisibilityState(EYetiOsProgramVisibilit
 
 void UYetiOS_AppWidget::DestroyProgramWidget()
 {
+	UnbindEvents();
 	OwningWindow = nullptr;
 	OwningProgram = nullptr;
 	OwningOS = nullptr;	

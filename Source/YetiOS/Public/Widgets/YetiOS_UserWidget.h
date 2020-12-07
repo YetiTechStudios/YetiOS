@@ -41,6 +41,8 @@ public:
 
 protected:
 
+	void UnbindEvents();
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS User Widget", DisplayName = "On Operating System Set")
 	void K2_SetOperatingSystem(UYetiOS_Core* OS);
 
