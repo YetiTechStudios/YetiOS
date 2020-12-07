@@ -49,11 +49,6 @@ void UYetiOS_Taskbar::TogglePeekPreview(const bool bEnable)
 	bEnablePeekPreview = bEnable;
 }
 
-void UYetiOS_Taskbar::ToggleSmallIcons(const bool bEnable)
-{
-	bUseSmallIcons = bEnable;
-}
-
 class UYetiOS_Core* UYetiOS_Taskbar::GetOwningOS() const
 {
 	return OwningOS.Get();

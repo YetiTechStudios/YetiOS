@@ -20,10 +20,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Taskbar")
 	uint8 bEnablePeekPreview : 1;
 
-	/** Uses smaller taskbar. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Taskbar")
-	uint8 bUseSmallIcons : 1;	
-
 	/** Widget that represents the taskbar. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Taskbar")
 	TSubclassOf<class UYetiOS_TaskbarWidget> TaskbarWidgetClass;
@@ -56,26 +52,11 @@ public:
 	void TogglePeekPreview(const bool bEnable);
 
 	/**
-	* public UYetiOS_Taskbar::ToggleSmallIcons
-	* Enables smaller icons which makes the taskbar smaller as well.
-	* @param bEnable [const bool] Enable or disable smaller icons.
-	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Taskbar")
-	void ToggleSmallIcons(const bool bEnable);
-
-	/**
 	* public UYetiOS_Taskbar::IsPeekPreviewEnabled const
 	* Returns true if peek preview options is enabled.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Taskbar")
 	bool IsPeekPreviewEnabled() const { return bEnablePeekPreview; }
-
-	/**
-	* public UYetiOS_Taskbar::IsUsingSmallerIcons const
-	* Returns true if taskbar is using smaller icons.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Taskbar")	
-	bool IsUsingSmallerIcons() const { return bUseSmallIcons; }
 
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Taskbar")
 	UYetiOS_TaskbarWidget* GetTaskbarWidget() const { return TaskbarWidget; }
