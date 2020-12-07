@@ -13,6 +13,7 @@
 #include "Devices/YetiOS_StationaryDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
 #include "Misc/YetiOS_ProgramsRepository.h"
+#include "Misc/YetiOS_SystemSettings.h"
 #include "YetiOS_Factories.generated.h"
 
 static EAssetTypeCategories::Type YetiOS_AssetCategory;
@@ -76,8 +77,16 @@ class FAssetTypeActions_ProgramsRepository : public FAssetTypeActions_YetiOsBase
 {
 	virtual FColor GetTypeColor() const override { return FColor(56, 43, 21); }
 	virtual FText GetName() const override { return FText::FromString("Operating System Programs Collection"); }
-	virtual FText GetAssetDescription(const FAssetData& AssetData) const override { return FText::FromString("Constructs a asset where you can put all your programs for your Operating System."); }
+	virtual FText GetAssetDescription(const FAssetData& AssetData) const override { return FText::FromString("Constructs an asset where you can put all your programs for your Operating System."); }
 	virtual UClass* GetSupportedClass() const override { return UYetiOS_ProgramsRepository::StaticClass(); }
+};
+
+class FAssetTypeActions_SystemSettings : public FAssetTypeActions_YetiOsBase
+{
+	virtual FColor GetTypeColor() const override { return FColor(112, 134, 156); }
+	virtual FText GetName() const override { return FText::FromString("Operating System Settings"); }
+	virtual FText GetAssetDescription(const FAssetData& AssetData) const override { return FText::FromString("Constructs an asset that acts as Settings for your Operating System."); }
+	virtual UClass* GetSupportedClass() const override { return UYetiOS_SystemSettings::StaticClass(); }
 };
 
 UCLASS()
@@ -179,6 +188,19 @@ class YETIOSEDITOR_API UYetiOS_ProgramsRepository_Factory : public UFactory
 public:
 
 	UYetiOS_ProgramsRepository_Factory();
+
+	virtual UObject* FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
+
+};
+
+UCLASS()
+class YETIOSEDITOR_API UYetiOS_SystemSettings_Factory : public UFactory
+{
+	GENERATED_BODY()
+
+public:
+
+	UYetiOS_SystemSettings_Factory();
 
 	virtual UObject* FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
 

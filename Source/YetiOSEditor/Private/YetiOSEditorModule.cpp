@@ -35,6 +35,7 @@ void FYetiOSEditorModule::StartupModule()
 	TSharedRef<IAssetTypeActions> Category_StationaryDevice = MakeShareable(new FAssetTypeActions_StationaryDevice);
 	TSharedRef<IAssetTypeActions> Category_DeviceManager = MakeShareable(new FAssetTypeActions_DeviceManager);
 	TSharedRef<IAssetTypeActions> Category_ProgramsRepository = MakeShareable(new FAssetTypeActions_ProgramsRepository);
+	TSharedRef<IAssetTypeActions> Category_SystemSettings = MakeShareable(new FAssetTypeActions_SystemSettings);
 
 	AssetTools.RegisterAssetTypeActions(Category_BaseDirectory);
 	AssetTools.RegisterAssetTypeActions(Category_BaseFile);
@@ -44,6 +45,7 @@ void FYetiOSEditorModule::StartupModule()
 	AssetTools.RegisterAssetTypeActions(Category_StationaryDevice);
 	AssetTools.RegisterAssetTypeActions(Category_DeviceManager);
 	AssetTools.RegisterAssetTypeActions(Category_ProgramsRepository);
+	AssetTools.RegisterAssetTypeActions(Category_SystemSettings);
 	
 	printlog("Registered Content Browser extensions.");
 }

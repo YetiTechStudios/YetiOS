@@ -14,7 +14,11 @@
 		return FKismetEditorUtilities::CreateBlueprint(ClassName::StaticClass(), InParent, InName, BPTYPE_Normal, BlueprintClass, BlueprintGeneratedClass, CallingContext);\
  }
 
-#define YETI_CREATE_OBJECT(ClassName) check(InClass->IsChildOf(ClassName::StaticClass())); return NewObject<ClassName>(InParent, InClass, InName, Flags|RF_Transactional, Context);
+#define YETI_CREATE_OBJECT(ClassName)\
+{\
+	check(InClass->IsChildOf(ClassName::StaticClass()));\
+	return NewObject<ClassName>(InParent, InClass, InName, Flags|RF_Transactional, Context);\
+}
 
 UYetiOS_BaseProgram_Factory::UYetiOS_BaseProgram_Factory()
 {
@@ -25,9 +29,6 @@ UYetiOS_BaseProgram_Factory::UYetiOS_BaseProgram_Factory()
 
 UObject* UYetiOS_BaseProgram_Factory::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
 {
-	/*check(InClass->IsChildOf(UYetiOS_BaseProgram::StaticClass()));
-	return NewObject<UYetiOS_BaseProgram>(InParent, InClass, InName, Flags|RF_Transactional, Context);*/
-
 	YETI_CREATE_BLUEPRINT(UYetiOS_BaseProgram);
 }
 
@@ -113,4 +114,16 @@ UYetiOS_ProgramsRepository_Factory::UYetiOS_ProgramsRepository_Factory()
 UObject* UYetiOS_ProgramsRepository_Factory::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
 {
 	YETI_CREATE_OBJECT(UYetiOS_ProgramsRepository);
+}
+
+UYetiOS_SystemSettings_Factory::UYetiOS_SystemSettings_Factory()
+{
+	SupportedClass = UYetiOS_SystemSettings::StaticClass();
+	bEditAfterNew = true;
+	bCreateNew = true;
+}
+
+UObject* UYetiOS_SystemSettings_Factory::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
+{
+	YETI_CREATE_OBJECT(UYetiOS_SystemSettings);
 }
