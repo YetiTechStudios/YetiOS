@@ -16,7 +16,18 @@ UYetiOS_SystemSettings::UYetiOS_SystemSettings()
 	CurrentTheme = EYetiOsThemeMode::Light;
 
 	ThemeColors[0].CollectionName = "Light";
+	ThemeColors[0].SystemColors.Add(EYetiOsColorTypes::PrimaryColor, FLinearColor(0.693, 0.693, 0.693));
+	ThemeColors[0].SystemColors.Add(EYetiOsColorTypes::SecondayColor, FLinearColor(0.9, 0.9, 0.9));
+	ThemeColors[0].SystemColors.Add(EYetiOsColorTypes::AccentOne, FLinearColor(0.871, 0.871, 0.871));
+	ThemeColors[0].SystemColors.Add(EYetiOsColorTypes::AccentTwo, FLinearColor(0.964, 0.964, 0.964));
+	ThemeColors[0].SystemColors.Add(EYetiOsColorTypes::AccentThree, FLinearColor(0.05, 0.05, 0.05));
+
 	ThemeColors[1].CollectionName = "Dark";
+	ThemeColors[1].SystemColors.Add(EYetiOsColorTypes::PrimaryColor, FLinearColor(0.007, 0.007, 0.007));
+	ThemeColors[1].SystemColors.Add(EYetiOsColorTypes::SecondayColor, FLinearColor(0.014, 0.014, 0.014));
+	ThemeColors[1].SystemColors.Add(EYetiOsColorTypes::AccentOne, FLinearColor(0.03, 0.03, 0.03));
+	ThemeColors[1].SystemColors.Add(EYetiOsColorTypes::AccentTwo, FLinearColor(0.018, 0.018, 0.018));
+	ThemeColors[1].SystemColors.Add(EYetiOsColorTypes::AccentThree, FLinearColor(0.038, 0.038, 0.038));
 
 	CurrentCollectionName = NAME_None;
 }
