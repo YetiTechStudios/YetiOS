@@ -538,7 +538,7 @@ int32 UYetiOS_Core::AddRunningProgram(const class UYetiOS_BaseProgram* InNewProg
 		return INDEX_NONE;
 	}
 
-	if (InNewProgram->GetProgramVersion() < OsVersion)
+	if (InNewProgram->IsCompatibleWithOS(this) == false)
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_RunProgramVersionError", "{0} incompatible."), MyProgramName);
 		const FText Description = FText::Format(LOCTEXT("YetiOS_RunProgramVersionErrorDescription", "{0} is not compatible with this version of Operating System."), MyProgramName);
