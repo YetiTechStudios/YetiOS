@@ -86,7 +86,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<class UYetiOS_OsWidget> OsWidgetClass;
 
+	/* Reference to the settings object. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	class UYetiOS_SystemSettings* SystemSettings;
 
 	/** Class that defines system taskbar. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
@@ -131,10 +133,6 @@ private:
 	/* Reference to the OS widget. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_OsWidget* OsWidget;
-
-	/* Reference to the settings class. */
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	class UYetiOS_SystemSettings* SystemSettings;
 
 	/* List of actively running programs. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)

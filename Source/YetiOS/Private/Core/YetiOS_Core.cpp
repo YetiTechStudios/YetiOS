@@ -68,6 +68,14 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 		UYetiOS_Core* ProxyOS = NewObject<UYetiOS_Core>(InParentDevice, InParentDevice->OperatingSystemClass);
 		if (ProxyOS->GetCompatibleDeviceClasses().Contains(InParentDevice->GetClass()))
 		{
+			if (ProxyOS->SystemSettings)
+			{
+				if (ProxyOS->SystemSettings->ColorCollections.IsValidIndex(0))
+				{
+					ProxyOS->SystemSettings->CurrentCollectionName = ProxyOS->SystemSettings->ColorCollections[0].CollectionName;
+				}
+			}
+
 			ProxyOS->Device = InParentDevice;
 			ProxyOS->OsWorld = InParentDevice->GetWorld();
 			ProxyOS->bIsPreInstalled = InParentDevice->IsOperatingSystemPreInstalled();
