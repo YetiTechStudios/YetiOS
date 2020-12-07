@@ -111,26 +111,30 @@ void UYetiOS_FileBase::CloseFile()
 
 bool UYetiOS_FileBase::OpenFile(FYetiOsError& OutErrorMessage, const bool bInForceOpenInSameInstance /*= false*/)
 {
-	checkf(GetParentDirectory(), TEXT("File requires a valid reference to directory to open"));
-	bIsOpen = AssociatedProgram != nullptr;
-	UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
-	if (bIsOpen == false)
+	if (ensureMsgf(GetParentDirectory() != nullptr, TEXT("File requires a valid reference to directory to open")))
 	{
-		const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
-		bIsOpen = Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutErrorMessage);
+		bIsOpen = AssociatedProgram != nullptr;
+		UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
+		if (bIsOpen == false)
+		{
+			const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
+			bIsOpen = Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutErrorMessage);
+		}
+
+		if (bIsOpen)
+		{
+			bIsOpen = AssociatedProgram->OpenFile(this, bInForceOpenInSameInstance);
+		}
+		else
+		{
+			FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode);
+			Local_OS->CreateOsNotification(NewNotification);
+		}
+
+		return bIsOpen;
 	}
 
-	if (bIsOpen)
-	{
-		bIsOpen = AssociatedProgram->OpenFile(this, bInForceOpenInSameInstance);
-	}
-	else
-	{
-		FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode);
-		Local_OS->CreateOsNotification(NewNotification);
-	}
-
-	return bIsOpen;
+	return false;
 }
 
 FText UYetiOS_FileBase::GetFilename(const bool bWithExtension) const
