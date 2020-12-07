@@ -21,7 +21,6 @@ UYetiOS_DirectoryBase::UYetiOS_DirectoryBase()
 	bCanCreateNewFile = true;
 	bIsHidden = false;
 	ParentDirectory = nullptr;
-	bIsSystemDirectory = false;
 	DirectoryType = EDirectoryType::Other;
 }
 
@@ -275,11 +274,10 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 				{
 					ChildDirectory->DirectoryName = CheckDirectoryName;
 				}
-				ChildDirectory->bIsSystemDirectory = false;
+
 				ChildDirectories.Add(ChildDirectory);
-				if (ChildDirectory->DirectoryType != EDirectoryType::Other)
+				if (ChildDirectory->IsSystemDirectory())
 				{
-					ChildDirectory->bIsSystemDirectory = true;
 					InOwningOS->GetRootDirectory()->AddSystemDirectory(ChildDirectory);
 				}
 				ReturnResult.Add(ChildDirectory);

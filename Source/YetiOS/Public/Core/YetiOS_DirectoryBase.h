@@ -71,9 +71,6 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OwningOS;
 
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	uint8 bIsSystemDirectory : 1;
-
 public:
 
 	UYetiOS_DirectoryBase();
@@ -264,6 +261,7 @@ public:
 
 	inline const bool HasChildDirectory(const FText& InDirectoryName, UYetiOS_DirectoryBase*& OutFoundDirectory, const bool bIgnoreCase = true) const;
 
+	FORCEINLINE const bool IsSystemDirectory() const { return DirectoryType != EDirectoryType::Other; }
 	FORCEINLINE const bool CanCreateNewFile() const { return bCanCreateNewFile; }
 	FORCEINLINE const TArray<TSubclassOf<UYetiOS_DirectoryBase>> GetChildDirectories() const { return ChildDirectoryClasses; }
 	FORCEINLINE const EDirectoryType GetDirectoryType() const  { return DirectoryType; }
