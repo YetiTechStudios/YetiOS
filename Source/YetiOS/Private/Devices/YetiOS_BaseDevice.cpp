@@ -20,6 +20,7 @@
 #include "Hardware/YetiOS_Motherboard.h"
 #include "Hardware/YetiOS_HardDisk.h"
 #include "Misc/DateTime.h"
+#include "Engine/Engine.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
