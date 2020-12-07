@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/SaveGame.h"
 #include "YetiOS_Types.h"
+#include "UObject/Object.h"
 #include "YetiOS_SystemSettings.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnThemeModeChanged, EYetiOsThemeMode)
@@ -12,7 +12,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnColorSchemeChanged, const FName&)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnShowProgramIconChanged, const bool)
 
 UCLASS(Blueprintable, BlueprintType, hidedropdown, DisplayName = "System Settings")
-class YETIOS_API UYetiOS_SystemSettings : public USaveGame
+class YETIOS_API UYetiOS_SystemSettings : public UObject
 {
 	GENERATED_BODY()
 
