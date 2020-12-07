@@ -44,6 +44,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
 	TSubclassOf<class UYetiOS_SaveGame> SaveGameClass;
 
+	/** If true, then skip installation of operating system simulating the effect that OS is pre-installed */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
+	uint8 bOperatingSystemIsPreInstalled : 1;
+
 	/** Forces GC to run when this device is destroyed or restarted. If you experience any hitches, try disabling this. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
 	uint8 bForceGarbageCollectionWhenDeviceIsDestroyed : 1;
@@ -326,6 +330,7 @@ protected:
 
 public:
 
+	FORCEINLINE const bool IsOperatingSystemPreInstalled() const { return bOperatingSystemIsPreInstalled; }
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
 	FORCEINLINE const bool IsInBsodState() const { return CurrentDeviceState == EYetiOsDeviceState::STATE_BSOD; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }

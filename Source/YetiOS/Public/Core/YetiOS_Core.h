@@ -161,6 +161,10 @@ private:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Taskbar* Taskbar;
 
+	/** True if this Operating System was preinstalled with the device. */
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	uint8 bIsPreInstalled : 1;
+
 	UPROPERTY()
 	class UWorld* OsWorld;
 

@@ -260,10 +260,20 @@ void UYetiOS_BaseDevice::OnFinishInstallingOperatingSystem()
 	bOperatingSystemInstalled = true;
 	printlog(FString::Printf(TEXT("%s installed on %s."), *OperatingSystem->GetOsName().ToString(), *DeviceName.ToString()));
 	UpdateDeviceState(EYetiOsDeviceState::STATE_Restart);
-	// We need to immediately restart so clear TimerHandle_Restart and manually call restart.
+
+	// We need to immediately restart so clear TimerHandle_Restart
+	printlog(FString::Printf(TEXT("Clear restart timer for %s."), *DeviceName.ToString()));
 	GetOuter()->GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Restart);
-	DestroyYetiDeviceAndRestart();
-	ChangeOnScreenWidget(DeviceWidget);
+
+	if (bOperatingSystemIsPreInstalled)
+	{
+		UpdateDeviceState(EYetiOsDeviceState::STATE_Running);
+	}
+	else
+	{		
+		DestroyYetiDeviceAndRestart();
+		ChangeOnScreenWidget(DeviceWidget);
+	}
 }
 
 void UYetiOS_BaseDevice::DestroyYetiDevice()

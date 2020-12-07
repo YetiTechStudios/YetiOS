@@ -70,6 +70,7 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 		{
 			ProxyOS->Device = InParentDevice;
 			ProxyOS->OsWorld = InParentDevice->GetWorld();
+			ProxyOS->bIsPreInstalled = InParentDevice->IsOperatingSystemPreInstalled();
 			ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
 			ProxyOS->SystemSettings = UYetiOS_SystemSettings::CreateSystemSettings(ProxyOS);
 			ProxyOS->Taskbar = UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
@@ -236,18 +237,25 @@ const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, FYetiOsEr
 			{
 				if (GetOwningDevice()->GetMotherboard()->GetHardDisk()->ConsumeSpace(InstallationSpaceInMB))
 				{
-					static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
-					static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
-					static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "INSTALL_START");
-					const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
-					CreateOsNotification(NewNotification);
+					if (bIsPreInstalled)
+					{
+						Internal_FinishOperatingSystemInstallation();
+					}
+					else
+					{
+						static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
+						static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
+						static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "INSTALL_START");
+						const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
+						CreateOsNotification(NewNotification);
 
-					CalculatedInstallationTime = FMath::RandRange(MinInstallationTime, MaxInstallationTime);
+						CalculatedInstallationTime = FMath::RandRange(MinInstallationTime, MaxInstallationTime);
 
-					printlog(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
-					OsWidget->StartOsInstallation(CalculatedInstallationTime);
+						printlog(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
+						OsWidget->StartOsInstallation(CalculatedInstallationTime);
 
-					OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
+						OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
+					}
 
 					bSuccess = true;
 				}
@@ -679,15 +687,17 @@ const bool UYetiOS_Core::HasValidRootDirectoryClass() const
 
 void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 {
-	static const FText Title = LOCTEXT("YetiOS_FinishInstallation", "Finish Installation.");
-	static const FText Description = LOCTEXT("YetiOS_FinishInstallationDescription", "Operating system installation finished on device.");
-	static const FText Code = LOCTEXT("YetiOS_FinishInstallationCode", "INSTALL_FINISH");
-	const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
-	CreateOsNotification(NewNotification);
-
 	Internal_InstallStartupPrograms();
 
-	printlog(Description.ToString());
+	if (bIsPreInstalled == false)
+	{
+		static const FText Title = LOCTEXT("YetiOS_FinishInstallation", "Finish Installation.");
+		static const FText Description = LOCTEXT("YetiOS_FinishInstallationDescription", "Operating system installation finished on device.");
+		static const FText Code = LOCTEXT("YetiOS_FinishInstallationCode", "INSTALL_FINISH");
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
+		CreateOsNotification(NewNotification);
+		printlog(Description.ToString());
+	}
 
 	OsWidget->FinishOsInstallation();
 	Device->OnFinishInstallingOperatingSystem();
