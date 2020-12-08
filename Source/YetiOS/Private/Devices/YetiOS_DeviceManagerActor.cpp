@@ -11,10 +11,12 @@
 #include "UnrealEd/Public/Dialogs/Dialogs.h"
 #include "Components/SceneComponent.h"
 #endif
+#include "Engine/Engine.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDeviceManager, All, All)
 
 #define printlog(Param1)		UE_LOG(LogYetiOsDeviceManager, Log, TEXT("%s"), *FString(Param1))
+#define printlog_warn(Param1)	UE_LOG(LogYetiOsDeviceManager, Warning, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "YetiOS"
 
@@ -97,8 +99,17 @@ void AYetiOS_DeviceManagerActor::OnWidgetChanged(class UUserWidget* InNewWidget)
 
 void AYetiOS_DeviceManagerActor::OnCurrentDeviceDestroyed()
 {
+	const bool bGC = CurrentDevice->CanGarbageCollect();
+	CurrentDevice->ConditionalBeginDestroy();
 	CurrentDevice = nullptr;
 	K2_OnCurrentDeviceDestroyed();
+
+	if (bGC && GEngine)
+	{
+		GEngine->ForceGarbageCollection(true);
+		printlog_warn("Forced garbage collection on device destroyed.");
+	}
+
 	if (bExitGameWhenDeviceIsDestroyed)
 	{
 #if WITH_EDITOR
@@ -115,8 +126,9 @@ void AYetiOS_DeviceManagerActor::OnCurrentDeviceDestroyed()
 
 void AYetiOS_DeviceManagerActor::RestartDevice()
 {
-	check(InDevice == CurrentDevice);
-	CurrentDevice = nullptr;
+	const bool bGC = CurrentDevice->CanGarbageCollect();
+	CurrentDevice->ConditionalBeginDestroy();
+	CurrentDevice = nullptr;	
 
 	FTimerDelegate CreateDeviceDelegate;
 	FTimerHandle TimerHandle_Dummy;
@@ -124,6 +136,12 @@ void AYetiOS_DeviceManagerActor::RestartDevice()
 	FYetiOsError ErrorMessage;
 	CreateDeviceDelegate.BindUFunction(this, FName("CreateDevice"), ErrorMessage);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, CreateDeviceDelegate, 1.f, false);
+
+	if (bGC && GEngine)
+	{
+		GEngine->ForceGarbageCollection(true);
+		printlog_warn("Forced garbage collection on device restart.");
+	}
 }
 
 void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)
@@ -146,4 +164,5 @@ void AYetiOS_DeviceManagerActor::Internal_OnClockTimerTick()
 }
 
 #undef printlog
+#undef printlog_warn
 #undef LOCTEXT_NAMESPACE
