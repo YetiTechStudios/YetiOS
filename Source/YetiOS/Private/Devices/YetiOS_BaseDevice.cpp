@@ -20,7 +20,6 @@
 #include "Hardware/YetiOS_Motherboard.h"
 #include "Hardware/YetiOS_HardDisk.h"
 #include "Misc/DateTime.h"
-#include "Engine/Engine.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsBaseDevice, All, All)
@@ -288,23 +287,13 @@ void UYetiOS_BaseDevice::DestroyYetiDevice()
 	Internal_DestroyDevice();
 	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());	
 	OwningDeviceManager->OnCurrentDeviceDestroyed();
-	ConditionalBeginDestroy();
-	if (bForceGarbageCollectionWhenDeviceIsDestroyed && GEngine)
-	{
-		GEngine->ForceGarbageCollection(true);
-	}
 }
 
 void UYetiOS_BaseDevice::DestroyYetiDeviceAndRestart()
 {
 	Internal_DestroyDevice();
 	AYetiOS_DeviceManagerActor* OwningDeviceManager = Cast<AYetiOS_DeviceManagerActor>(GetOuter());
-	OwningDeviceManager->RestartDevice(this);
-	ConditionalBeginDestroy();
-	if (bForceGarbageCollectionWhenDeviceIsDestroyed && GEngine)
-	{
-		GEngine->ForceGarbageCollection(true);
-	}
+	OwningDeviceManager->RestartDevice();
 }
 
 void UYetiOS_BaseDevice::Internal_DestroyDevice()
