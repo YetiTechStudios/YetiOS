@@ -80,7 +80,7 @@ public:
 	**/
 	void OnCurrentDeviceDestroyed();
 
-	void RestartDevice(class UYetiOS_BaseDevice* InDevice);
+	void RestartDevice();
 
 protected:
 

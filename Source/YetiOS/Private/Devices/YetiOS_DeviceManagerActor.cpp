@@ -113,7 +113,7 @@ void AYetiOS_DeviceManagerActor::OnCurrentDeviceDestroyed()
 	}
 }
 
-void AYetiOS_DeviceManagerActor::RestartDevice(class UYetiOS_BaseDevice* InDevice)
+void AYetiOS_DeviceManagerActor::RestartDevice()
 {
 	check(InDevice == CurrentDevice);
 	CurrentDevice = nullptr;
