@@ -12,6 +12,7 @@ UYetiOS_TaskbarWidget* UYetiOS_TaskbarWidget::Internal_CreateTaskbarWidget(const
 	UYetiOS_TaskbarWidget* ProxyWidget = CreateWidget<UYetiOS_TaskbarWidget>(MyPlayerController, InTaskbar->GetTaskbarWidgetClass());
 	ProxyWidget->Taskbar = InTaskbar;
 	ProxyWidget->SetOperatingSystem(InTaskbar->GetOwningOS());
+	ProxyWidget->K2_OnCreate();
 	return ProxyWidget;
 }
 

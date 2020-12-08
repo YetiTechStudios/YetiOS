@@ -55,13 +55,20 @@ protected:
 	* protected UYetiOS_TaskbarWidget::K2_OnWindowAdded
 	* Event called when a draggable window was added.
 	**/
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Taskbar", DisplayName = "On Program Added")	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Taskbar Widget", DisplayName = "On Program Added")	
 	void K2_OnWindowAdded(class UYetiOS_DraggableWindowWidget* InWindowWidget);
 
 	/**
 	* protected UYetiOS_TaskbarWidget::K2_OnWindowRemoved
 	* Event called when a draggable window was removed.
 	**/
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Taskbar", DisplayName = "On Program Removed")	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Taskbar Widget", DisplayName = "On Program Removed")	
 	void K2_OnWindowRemoved(class UYetiOS_DraggableWindowWidget* InWindowWidget);
+
+	/**
+	* protected UYetiOS_TaskbarWidget::K2_OnCreate
+	* Event called when this task bar is created.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Yeti OS Taskbar Widget", DisplayName = "On Create")	
+	void K2_OnCreate();
 };
