@@ -81,7 +81,7 @@ public:
 	UYetiOS_BaseDevice();
 
 	UFUNCTION(BlueprintPure, Category = "Yeti Global")
-	static FText GetMonthName(const FDateTime& InDateTime);
+	static FText GetMonthName(const FDateTime& InDateTime, const bool bShort = false);
 
 	/**
 	* public UYetiOS_BaseDevice::GetCastedDevice

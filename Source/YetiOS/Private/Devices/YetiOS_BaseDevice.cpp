@@ -49,7 +49,7 @@ UYetiOS_BaseDevice::UYetiOS_BaseDevice()
 	bForceGarbageCollectionWhenDeviceIsDestroyed = false;
 }
 
-FText UYetiOS_BaseDevice::GetMonthName(const FDateTime& InDateTime)
+FText UYetiOS_BaseDevice::GetMonthName(const FDateTime& InDateTime, const bool bShort /*= false*/)
 {
 	EMonthOfYear Local_CurrentMonth = InDateTime.GetMonthOfYear();
 	FString Local_MonthName;
@@ -94,6 +94,12 @@ FText UYetiOS_BaseDevice::GetMonthName(const FDateTime& InDateTime)
 		default:
 			break;
 	}
+
+	if (bShort)
+	{
+		Local_MonthName = Local_MonthName.Mid(0, 3);
+	}
+
 	return FText::FromString(Local_MonthName);
 }
 
