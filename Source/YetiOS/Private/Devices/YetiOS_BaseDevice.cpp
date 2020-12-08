@@ -321,7 +321,7 @@ void UYetiOS_BaseDevice::Internal_DestroyDevice()
 	printlog_veryverbose(FString::Printf(TEXT("Destroyed device '%s'"), *DeviceName.ToString()));
 }
 
-void UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware, const bool bForceRemoved)
+void UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware)
 {
 	if (ensure(InstalledHardwares.Contains(InHardware) == false))
 	{

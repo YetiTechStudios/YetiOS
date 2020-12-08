@@ -37,7 +37,7 @@ EYetiOsHardwareInstallResult UYetiOS_BaseHardware::InstallToDevice(class UYetiOS
 	}
 
 	InstalledDevice = ToDevice;
-	InstalledDevice->Internal_InstallHardware(this, false);
+	InstalledDevice->Internal_InstallHardware(this);
 	return EYetiOsHardwareInstallResult::HWINSTALL_Success;
 }
 
