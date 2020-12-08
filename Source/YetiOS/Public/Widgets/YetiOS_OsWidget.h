@@ -61,9 +61,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
 	const float GetDelayTime(const float InMin = 0.01, const float InMax = 0.2) const;
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Widget")
-	const int32 GetRaisedZ_Order() { return ZOrderCounter++; }
-
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Widget")
 	const bool SetActiveUser(FYetiOsUser InNewUser);
 
