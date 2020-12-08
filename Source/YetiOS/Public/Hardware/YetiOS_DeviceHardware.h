@@ -6,9 +6,13 @@
 #include "Hardware/YetiOS_BaseHardware.h"
 #include "YetiOS_DeviceHardware.generated.h"
 
-/**
- * 
- */
+/*************************************************************************
+* File Information:
+YetiOS_DeviceHardware.h
+
+* Description:
+
+*************************************************************************/
 UCLASS(Abstract)
 class YETIOS_API UYetiOS_DeviceHardware : public UYetiOS_BaseHardware
 {
@@ -20,7 +24,7 @@ protected:
 	//UPROPERTY(EditDefaultsOnly, Category = "Device Hardware")
 	FYetiOSTemperature Temperature;
 
-	/** Current temperature of this hardware. */
+	/** Current temperature of this hardware. */ // #TERMINALPLUGIN TODO Not yet implemented
 	//UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 CurrentTemperature;
 

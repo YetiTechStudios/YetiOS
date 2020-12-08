@@ -18,9 +18,15 @@ class YETIOS_API UYetiOS_BaseDialogProgram : public UYetiOS_BaseProgram
 
 private:
 
+	/** The main dialog widget */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_DialogWidget* DialogWidget;
 	
+	/**
+	* private UYetiOS_BaseDialogProgram::Internal_SetDialogWidget
+	* Sets the dialog widget.
+	* @param InDialogWidget [class UYetiOS_DialogWidget*] Widget reference to set.
+	**/
 	void Internal_SetDialogWidget(class UYetiOS_DialogWidget* InDialogWidget);
 
 public:

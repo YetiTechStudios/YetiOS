@@ -107,39 +107,39 @@ enum class EYetiOSTimeFormat : uint8
 UENUM(BlueprintType)
 enum class EYetiOsDeviceState : uint8
 {	
-	/* Device is starting. */
+	/** Device is starting. */
 	STATE_Starting						UMETA(DisplayName = "Starting"),
 	
-	/* Device is actively running. */
+	/** Device is actively running. */
 	STATE_Running						UMETA(DisplayName = "Running"),
 	
-	/* Device is shutting down. */
+	/** Device is shutting down. */
 	STATE_PowerOff						UMETA(DisplayName = "Power Off"),
 	
-	/* Device is restarting. */
+	/** Device is restarting. */
 	STATE_Restart						UMETA(DisplayName = "Restart"),
 
 	/** Device is in bsod state */
 	STATE_BSOD							UMETA(DisplayName = "Blue Screen"),
 	
-	/* Invalid state. */
+	/** Invalid state. */
 	STATE_None							UMETA(Hidden)
 };
 
-/* @See: UYetiOS_BaseDevice::StartDevice */
+/** @See: UYetiOS_BaseDevice::StartDevice */
 UENUM(BlueprintType)
 enum class EYetiOsDeviceStartResult : uint8
 {	
-	/* Hardware failure could mean that required hardware was not found or 0 durability. */
+	/** Hardware failure could mean that required hardware was not found or 0 durability. */
 	DEVICESTART_HardwareFail			UMETA(DisplayName = "Hardware Failure"),
 
-	/* An operating system is required to boot so if no OS then this is the result. */
+	/** An operating system is required to boot so if no OS then this is the result. */
 	DEVICESTART_NoOs					UMETA(DisplayName = "No Operating System"),
 
-	/* Device cannot start because of no battery power. Only applicable if owning device is portable. */
+	/** Device cannot start because of no battery power. Only applicable if owning device is portable. */
 	DEVICESTART_NoBattery				UMETA(DisplayName = "No battery power"),
 
-	/* Device started successfully with no issues. Yay! */
+	/** Device started successfully with no issues. Yay! */
 	DEVICESTART_Success					UMETA(DisplayName = "Success")
 };
 
@@ -170,7 +170,7 @@ enum class EYetiOsOperatingSystemReleaseState : uint8
 	STATE_FullRelease					UMETA(DisplayName = "Final Release")
 };
 
-/* https://en.wikipedia.org/wiki/CPU_socket#List_of_CPU_sockets_and_slots */
+/** https://en.wikipedia.org/wiki/CPU_socket#List_of_CPU_sockets_and_slots */
 UENUM(BlueprintType)
 enum class EYetiOsSocketType : uint8
 {
@@ -181,7 +181,7 @@ enum class EYetiOsSocketType : uint8
 	SOCKET_2066							UMETA(DisplayName = "LGA 2066")
 };
 
-/* Device memory. */
+/** Device memory. */
 UENUM(BlueprintType)
 enum class EYetiOsMemorySize : uint8
 {
@@ -345,29 +345,29 @@ struct FYetiOsPortableBattery
 {
 	GENERATED_USTRUCT_BODY();
 	
-	/* Battery Name */
+	/** Battery Name */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery")
 	FText BatteryName;
 
-	/* Brand name of this battery. */
+	/** Brand name of this battery. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery")
 	FText BatteryBrand;
 	
-	/* Total battery power. In milliamp Hour units */
+	/** Total battery power. In milliamp Hour units */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery", DisplayName = "Battery Capacity (mAh)", meta = (UIMin = "1000", ClampMin = "1000", UIMax = "5000"))
 	float BatteryCapacity;
 
-	/* Speed at which this battery should charge. Higher rate charges battery faster. */
+	/** Speed at which this battery should charge. Higher rate charges battery faster. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery", DisplayName = "Charge Rate (mA)", meta = (UIMin = "1000", ClampMin = "1000", UIMax = "5000"))
 	float ChargeRate;
 
-	/* Simulates energy loss while charging. Higher loss means more time to charge. This can also be considered as battery health. Higher loss means less healthy.
+	/** Simulates energy loss while charging. Higher loss means more time to charge. This can also be considered as battery health. Higher loss means less healthy.
 	 * For example: A battery with 3200 mAh and charge rate of 1000 mA will take 3.2 hours to fully charge without energy loss. With 40% energy loss it would take 4.5 hours to fully charge.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery")
 	EYetiOsPortableBatteryEfficiencyLoss EfficiencyLoss;
 
-	/* If battery level is <= to this, then device emits a warning signal. */
+	/** If battery level is <= to this, then device emits a warning signal. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Portable Battery", meta = (UIMin = "0.15", UIMax = "0.95", ClampMin = "0.1", ClampMax = "0.99"))
 	float LowBatteryWarningLevel;
 
@@ -431,15 +431,15 @@ struct FYetiOSTemperature
 {
 	GENERATED_USTRUCT_BODY();
 	
-	/* Enable temperature settings? */
+	/** Enable temperature settings? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Temperature")
 	uint8 bEnableTemperature : 1;
 	
-	/* Maximum temperature this hardware can withstand before destroying. */
+	/** Maximum temperature this hardware can withstand before destroying. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Temperature", meta = (EditCondition = "bEnableTemperature"))
 	uint8 MaxTemperature;
 
-	/* Notify the player when this temperature is reached. */
+	/** Notify the player when this temperature is reached. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Temperature", meta = (EditCondition = "bEnableTemperature"))
 	uint8 TemperatureWarningLevel;
 	
@@ -459,7 +459,7 @@ struct FYetiOsUser
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Yeti OS User")
 	FText UserName;
 
-	/* Password (if any) for this user. */
+	/** Password (if any) for this user. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Yeti OS User")
 	FText Password;
 

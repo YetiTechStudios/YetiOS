@@ -7,6 +7,13 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_TerminalProgram.generated.h"
 
+/*************************************************************************
+* File Information:
+YetiOS_TerminalProgram.h
+
+* Description:
+Base class for Terminal Program
+*************************************************************************/
 UCLASS(Abstract, DisplayName = "Terminal")
 class YETIOS_API UYetiOS_TerminalProgram : public UYetiOS_BaseProgram
 {
@@ -14,57 +21,59 @@ class YETIOS_API UYetiOS_TerminalProgram : public UYetiOS_BaseProgram
 	
 private:
 
-	/* Name of this terminal */
+	/** Name of this terminal */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program")
 	FName TerminalName;
 
-	/* Default start directory from where this terminal should start. */
+	/** Default start directory from where this terminal should start. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program")
 	FName DefaultStartDirectory;
 
-	/* List of commands this terminal can run. */
+	/** List of commands this terminal can run. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program")
 	class UObjectLibrary* CommandLibrary;
 
-	/* If true, enables command history and user can navigate previous commands using up or down keys. */
+	/** If true, enables command history and user can navigate previous commands using up or down keys. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program")
 	uint8 bEnableCommandHistory : 1;
 
-	/* If enabled, terminal can run multiple commands. Example: command1 && command2 && command3. */
+	/** If enabled, terminal can run multiple commands. Example: command1 && command2 && command3. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program", AdvancedDisplay)
 	uint8 bSupportRunningMultiCommands : 1;
 
-	/* If false, all commands from terminal (whether its valid or not) will be added to history for navigation using up or down arrow keys */
+	/** If false, all commands from terminal (whether its valid or not) will be added to history for navigation using up or down arrow keys */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Program", AdvancedDisplay, meta = (EditCondition = "bEnableCommandHistory"))
 	uint8 bAllowAllCommandsInHistory : 1;
 
-	/* True if this user is changed to root user. */
+	/** True if this user is changed to root user. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bIsRunningAsRoot : 1;
 
-	/* Current command this terminal is executing. */
+	/** Current command this terminal is executing. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_TerminalCommand* ActiveCommandObject;
 
-	/* Current directory path */
+	/** Current directory path */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	FString CurrentDirectoryPath;
 
-	/* Reference to current directory */
+	/** Reference to current directory */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_DirectoryBase* CurrentDirectory;
 
-	/* Queued commands. Only valid if support for multi commands is enabled. */
+	/** Queued commands. Only valid if support for multi commands is enabled. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<FString> QueuedCommands;
 
-	/* Current user. */
+	/** Current user. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	FYetiOsUser CurrentUser;
 
+	/** List of all commands previously executed. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<FString> CommandHistory;
 
+	/** Current index from History */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	int32 CommandHistoryIndex;
 	
@@ -75,10 +84,19 @@ public:
 	virtual const bool StartProgram(FYetiOsError& OutErrorMessage) override;
 	virtual void CloseProgram(FYetiOsError& OutErrorMessage, const bool bIsOperatingSystemShuttingDown = false) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Terminal")
+	/**
+	* public UYetiOS_TerminalProgram::CheckUserPrompt
+	* Checks if the user passed Y or N from Terminal.
+	* @param bIsYes [const bool] True if it is Yes.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Terminal")	
 	void CheckUserPrompt(const bool bIsYes);
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Terminal")
+	/**
+	* public UYetiOS_TerminalProgram::PromptForUserContinueInput
+	* Prompt the user to give input to continue.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Terminal")	
 	void PromptForUserContinueInput();
 
 	/**

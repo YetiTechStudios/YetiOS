@@ -25,36 +25,40 @@ EYetiOsHardwareInstallResult UYetiOS_BaseHardware::InstallToDevice(class UYetiOS
 		return EYetiOsHardwareInstallResult::HWINSTALL_NoDevice;
 	}
 
-	if (ToDevice == InstalledDevice)
+	if (bRemoveIfInstalled && RemoveFromDevice())
 	{
-		return EYetiOsHardwareInstallResult::HWINSTALL_AlreadyInstalled;
-	}
-
-	if (bRemoveIfInstalled && bFatalIfForceRemoved && InstalledDevice)
-	{
-		RemoveFromDevice();
 		return EYetiOsHardwareInstallResult::HWINSTALL_DeviceRunning;
 	}
 
-	InstalledDevice = ToDevice;
-	InstalledDevice->Internal_InstallHardware(this);
-	return EYetiOsHardwareInstallResult::HWINSTALL_Success;
+	if (ToDevice->Internal_InstallHardware(this))
+	{
+		InstalledDevice = ToDevice;
+		return EYetiOsHardwareInstallResult::HWINSTALL_Success;
+	}
+
+	return EYetiOsHardwareInstallResult::HWINSTALL_AlreadyInstalled;
 }
 
-void UYetiOS_BaseHardware::RemoveFromDevice()
+bool UYetiOS_BaseHardware::RemoveFromDevice()
 {
-	InstalledDevice->Internal_RemoveHardware(this);
-	static const FText LOCAL_ERR_CODE = LOCTEXT("YetiOS_HW_ERROR_CODE", "ERR_HW_INSTALL_FAIL");
-	static const FText LOCAL_EXCEPTION = LOCTEXT("YetiOS_HW_Exception", "FATAL ERROR: HARDWARE REMOVED.");
-	static const FText LOCAL_EXCEPTION_DETAIL = LOCTEXT("YetiOS_HW_ExceptionDetail", "Hardware being used by the OS was removed.");
-	UYetiOS_Core* InstalledOS = InstalledDevice->GetOperatingSystem();
-	if (InstalledOS)
+	if (bFatalIfForceRemoved && InstalledDevice && InstalledDevice->Internal_RemoveHardware(this))
 	{
-		FYetiOsNotification HardwareNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL, LOCAL_ERR_CODE, EYetiOsNotificationType::TYPE_Error);
-		InstalledOS->CreateOsNotification(HardwareNotification);
+		static const FText LOCAL_ERR_CODE = LOCTEXT("YetiOS_HW_ERROR_CODE", "ERR_HW_INSTALL_FAIL");
+		static const FText LOCAL_EXCEPTION = LOCTEXT("YetiOS_HW_Exception", "FATAL ERROR: HARDWARE REMOVED.");
+		static const FText LOCAL_EXCEPTION_DETAIL = LOCTEXT("YetiOS_HW_ExceptionDetail", "Hardware being used by the OS was removed.");
+		UYetiOS_Core* InstalledOS = InstalledDevice->GetOperatingSystem();
+		if (InstalledOS)
+		{
+			FYetiOsNotification HardwareNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL, LOCAL_ERR_CODE, EYetiOsNotificationType::TYPE_Error);
+			InstalledOS->CreateOsNotification(HardwareNotification);
+		}
+		AYetiOS_DeviceManagerActor::ShowBSOD(this, InstalledDevice, GetErrorStruct(LOCAL_ERR_CODE, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL));
+		InstalledDevice = nullptr;
+		return true;
 	}
-	AYetiOS_DeviceManagerActor::ShowBSOD(this, InstalledDevice, GetErrorStruct(LOCAL_ERR_CODE, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL));
-	InstalledDevice = nullptr;	
+
+	return false;
+		
 }
 
 bool UYetiOS_BaseHardware::IsInstalled() const

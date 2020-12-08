@@ -8,7 +8,14 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_ProgramsRepository.generated.h"
 
+/*************************************************************************
+* File Information:
+YetiOS_ProgramsRepository.h
 
+* Description:
+Programs repository simulates the Linux repository package system where
+programs can be installed from theh terminal using apt command.
+*************************************************************************/
 UCLASS(hidedropdown, Blueprintable, NotBlueprintType)
 class YETIOS_API UYetiOS_ProgramsRepository : public UObject
 {
@@ -16,6 +23,7 @@ class YETIOS_API UYetiOS_ProgramsRepository : public UObject
 
 private:
 
+	/** Set of programs */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Programs Repository")
 	TSet<FYetiOS_RepoProgram> Programs;
 	

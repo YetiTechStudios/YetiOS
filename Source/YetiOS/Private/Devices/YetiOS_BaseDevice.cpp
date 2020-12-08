@@ -310,7 +310,7 @@ void UYetiOS_BaseDevice::Internal_DestroyDevice()
 	printlog_veryverbose(FString::Printf(TEXT("Destroyed device '%s'"), *DeviceName.ToString()));
 }
 
-void UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware)
+const bool UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware)
 {
 	if (ensure(InstalledHardwares.Contains(InHardware) == false))
 	{
@@ -326,19 +326,23 @@ void UYetiOS_BaseDevice::Internal_InstallHardware(class UYetiOS_BaseHardware* In
 			FYetiOsNotification HardwareNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, LOCAL_EXCEPTION, LOCAL_EXCEPTION_DETAIL, LOCAL_ERR_CODE, EYetiOsNotificationType::TYPE_Info);
 			OperatingSystem->CreateOsNotification(HardwareNotification);
 		}
+		K2_OnHardwareInstalled(InHardware);
+		return true;
 	}
 
-	K2_OnHardwareInstalled(InHardware);
+	return false;
 }
 
-void UYetiOS_BaseDevice::Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware)
+const bool UYetiOS_BaseDevice::Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware)
 {
 	if (ensure(InstalledHardwares.Contains(InHardware)))
 	{
 		InstalledHardwares.RemoveSwap(InHardware);
+		K2_OnHardwareRemoved(InHardware);
+		return true;
 	}
 
-	K2_OnHardwareRemoved(InHardware);
+	return false;
 }
 
 const FString UYetiOS_BaseDevice::Internal_GetBasePath()

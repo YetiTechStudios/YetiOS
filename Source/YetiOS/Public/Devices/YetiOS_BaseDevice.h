@@ -26,21 +26,27 @@ class YETIOS_API UYetiOS_BaseDevice : public UObject
 
 private:
 
+	/** Name of this device */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	FText DeviceName;
 
+	/** Hardware classes for this device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	FYetiOS_DeviceClasses DeviceClasses;
 
+	/** Operating system for this device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_Core> OperatingSystemClass;
 
+	/** Widget of this device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_DeviceWidget> DeviceWidgetClass;
 
+	/** Widget that represents BSOD for this device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_BsodWidget> BsodWidgetClass;
 
+	/** Save game class to be used for this device. Defaults to UYetiOS_SaveGame::StaticClass */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
 	TSubclassOf<class UYetiOS_SaveGame> SaveGameClass;
 
@@ -52,9 +58,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
 	uint8 bForceGarbageCollectionWhenDeviceIsDestroyed : 1;
 
+	/** True of Operating System is installed on this device. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bOperatingSystemInstalled : 1;
 
+	/** Motherboard. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Motherboard* DeviceMotherboard;
 
@@ -67,12 +75,15 @@ private:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_BsodWidget* BsodWidget;
 
+	/** Current state of the device. Starting, Running, Restart etc. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	EYetiOsDeviceState CurrentDeviceState;
 
+	/** Holds reference to the current widget on screen. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UUserWidget* OnScreenWidget;
 
+	/** An array of hardwares that are installed on this device. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<class UYetiOS_BaseHardware*> InstalledHardwares;
 
@@ -80,6 +91,13 @@ public:
 
 	UYetiOS_BaseDevice();
 
+	/**
+	* public static UYetiOS_BaseDevice::GetMonthName
+	* Returns the month name from the given DateTime struct. Example: January, February, March and so on.
+	* @param InDateTime [const FDateTime&] DateTime struct to retrieve the Month Name from.
+	* @param bShort [const bool] If true, return the month name in short format. E.g: Jan, Feb, Mar and so on.
+	* @return [FText] Returns month name.
+	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Global")
 	static FText GetMonthName(const FDateTime& InDateTime, const bool bShort = false);
 
@@ -181,10 +199,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	inline FText GetDeviceName() const { return DeviceName; }
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	/**
+	* public UYetiOS_BaseDevice::GetMotherboard const
+	* Returns the motherboard of this device.
+	* @return [class UYetiOS_Motherboard*] Motherboard
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	class UYetiOS_Motherboard* GetMotherboard() const { return DeviceMotherboard; }
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	/**
+	* public UYetiOS_BaseDevice::GetDeviceManager const
+	* Returns the device manager actor that owns this device.
+	* @return [class AYetiOS_DeviceManagerActor*] Device Manager Actor
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	class AYetiOS_DeviceManagerActor* GetDeviceManager() const;
 
 	/**
@@ -220,9 +248,26 @@ public:
 
 private:
 
+	/**
+	* private UYetiOS_BaseDevice::Internal_DestroyDevice
+	* Destroys this device.
+	**/
 	void Internal_DestroyDevice();
-	void Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware);
-	void Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware);
+
+	/** [EXPERIMENTAL]
+	* private UYetiOS_BaseDevice::Internal_InstallHardware
+	* Installs the given hardware to this device.
+	* @param InHardware [class UYetiOS_BaseHardware*] Hardware to install on this device.
+	**/
+	const bool Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware);
+
+	/** [EXPERIMENTAL]
+	* private UYetiOS_BaseDevice::Internal_RemoveHardware
+	* Removes the given hardware from this device.
+	* @param InHardware [class UYetiOS_BaseHardware*] Hardware to remove.
+	* @return [const bool] True if the hardware existed and removed successfully.
+	**/
+	const bool Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware);
 
 	/**
 	* private static UYetiOS_BaseDevice::Internal_GetBasePath
@@ -255,16 +300,42 @@ private:
 
 protected:
 
+	/**
+	* virtual protected UYetiOS_BaseDevice::LoadSavedData
+	* Loads the save game information of this device.
+	* @param InLoadGameInstance [const class UYetiOS_SaveGame*] Save Game Instance to load the data from.
+	**/
 	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance);
 
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetHardDisk const
+	* Returns the HDD of this device.
+	* @return [const UYetiOS_HardDisk*] Harddisk
+	**/
 	virtual const UYetiOS_HardDisk* GetHardDisk() const;
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetTotalCpuSpeed const
+	* Returns the total CPU speed of this device. E.g: If you have 2 CPU's with 1000 MHZ speed each, this will return 1000 * 2 = 2000.
+	* @return [const float] Total CPU speed
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	virtual const float GetTotalCpuSpeed() const; 
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetTotalMemorySize const
+	* Returns the total RAM speed of this device. E.g: If you have 4 RAM's with 256 speed each, this will return 256 * 2 = 512.
+	* @param bInBytes [const bool] True to return this in bytes instead of MB. For 256 to bytes is 256000000 bytes.
+	* @return [const float] Total memory size
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
 	virtual const float GetTotalMemorySize(const bool bInBytes = true) const;
 
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetRootDirectoryClass const
+	* Returns the root directory class of this device. Only valid if a Harddisk is available.
+	* @return [TSubclassOf<class UYetiOS_DirectoryRoot>] 
+	**/
 	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const;
 
 public:
