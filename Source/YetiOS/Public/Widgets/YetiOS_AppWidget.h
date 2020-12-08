@@ -33,7 +33,7 @@ private:
 public:
 
 	void DestroyProgramWidget();
-	void OpenFile(class UYetiOS_FileBase* InFile);
+	void SetFileWidget(class UYetiOS_FileBase* InFile);
 
 protected:
 

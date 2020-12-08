@@ -36,7 +36,7 @@ void UYetiOS_AppWidget::DestroyProgramWidget()
 	RemoveFromParent();
 }
 
-void UYetiOS_AppWidget::OpenFile(class UYetiOS_FileBase* InFile)
+void UYetiOS_AppWidget::SetFileWidget(class UYetiOS_FileBase* InFile)
 {
 	if (InFile)
 	{

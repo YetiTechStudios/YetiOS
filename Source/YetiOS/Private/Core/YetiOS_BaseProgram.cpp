@@ -219,7 +219,7 @@ bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen, const b
 			// We need to create a temp file as new to avoid issues since the same UObject or its child maybe referenced elsewhere.			
 			UYetiOS_FileBase* TempFileCreated = NewObject<UYetiOS_FileBase>(InFileToOpen->GetParentDirectory(), InFileToOpen->GetClass());
 			OutProgram->CurrentFileOpened = TempFileCreated;
-			OutProgram->ProgramWidget->OpenFile(OutProgram->CurrentFileOpened);
+			OutProgram->ProgramWidget->SetFileWidget(OutProgram->CurrentFileOpened);
 			OutProgram->K2_OnOpenFile();
 			return true;
 		}
@@ -228,7 +228,7 @@ bool UYetiOS_BaseProgram::OpenFile(class UYetiOS_FileBase* InFileToOpen, const b
 	}
 
 	CurrentFileOpened = InFileToOpen;
-	ProgramWidget->OpenFile(CurrentFileOpened);
+	ProgramWidget->SetFileWidget(CurrentFileOpened);
 	K2_OnOpenFile();
 	OwningWindow->BringWindowToFront();
 	return true;
@@ -265,7 +265,7 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 
 	if (ProgramWidget)
 	{
-		ProgramWidget->OpenFile(nullptr);
+		ProgramWidget->SetFileWidget(nullptr);
 		ProgramWidget->DestroyProgramWidget();
 		ProgramWidget = nullptr;
 	}
