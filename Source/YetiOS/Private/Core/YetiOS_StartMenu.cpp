@@ -46,7 +46,12 @@ UYetiOS_StartMenu* UYetiOS_StartMenu::CreateStartMenu(class UYetiOS_Taskbar* InT
 
 class UYetiOS_Core* UYetiOS_StartMenu::GetOwningOS() const
 {
-	return OwningOS.Get();
+	if (OwningOS.IsValid())
+	{
+		return OwningOS.Get();
+	}
+
+	return nullptr;
 }
 
 #undef printlog
