@@ -745,6 +745,11 @@ protected:
 
 public:
 
+	void SetOsWidget(class UYetiOS_OsWidget* InWidget)
+	{
+		OsWidget = InWidget;
+	}
+
 	void SetTaskbar(class UYetiOS_Taskbar* InTaskbar)
 	{
 		Taskbar = InTaskbar;

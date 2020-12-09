@@ -19,6 +19,7 @@ UYetiOS_OsWidget* UYetiOS_OsWidget::Internal_CreateOsWidget(const UYetiOS_Core* 
 {
 	APlayerController* MyPlayerController = UGameplayStatics::GetPlayerController(OsCore, 0);
 	UYetiOS_OsWidget* ProxyOsWidget = CreateWidget<UYetiOS_OsWidget>(MyPlayerController, OsCore->GetOsWidgetClass());
+	const_cast<UYetiOS_Core*>(OsCore)->SetOsWidget(ProxyOsWidget);
 	ProxyOsWidget->OwningOS = const_cast<UYetiOS_Core*>(OsCore);
 	ProxyOsWidget->OwningDevice = OsCore->GetOwningDevice();
 	return ProxyOsWidget;
