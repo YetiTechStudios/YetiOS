@@ -744,6 +744,11 @@ protected:
 	void K2_OnBatteryLevelChanged(const float& CurrentBatteryLevel);
 
 public:
+
+	void SetTaskbar(class UYetiOS_Taskbar* InTaskbar)
+	{
+		Taskbar = InTaskbar;
+	}
 	
 	/** Returns an array of compatible device classes for this operating system. */
 	FORCEINLINE const TArray<TSubclassOf<class UYetiOS_BaseDevice>> GetCompatibleDeviceClasses() const { return CompatibleDevices; }

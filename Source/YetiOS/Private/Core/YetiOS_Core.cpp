@@ -80,7 +80,7 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 			ProxyOS->OsWorld = InParentDevice->GetWorld();
 			ProxyOS->bIsPreInstalled = InParentDevice->IsOperatingSystemPreInstalled();
 			ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
-			ProxyOS->Taskbar = UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
+			UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
 			ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
 			ProxyOS->InstalledPrograms.Empty();
 			return ProxyOS;

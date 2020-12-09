@@ -37,10 +37,11 @@ UYetiOS_Taskbar* UYetiOS_Taskbar::CreateTaskbar(class UYetiOS_Core* InCore)
 		return nullptr;
 	}
 
+	InCore->SetTaskbar(ProxyObject);
 	ProxyObject->OwningOS = InCore;
+	ProxyObject->StartMenu = UYetiOS_StartMenu::CreateStartMenu(ProxyObject);
 	ProxyObject->TaskbarWidget = UYetiOS_TaskbarWidget::Internal_CreateTaskbarWidget(ProxyObject);	
 	printlog(FString::Printf(TEXT("Taskbar created: %s"), *TaskbarName));
-	ProxyObject->StartMenu = UYetiOS_StartMenu::CreateStartMenu(ProxyObject);
 	return ProxyObject;
 }
 
