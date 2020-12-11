@@ -45,7 +45,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	class UObject* Icon;
 
-	/** List of devices this hardware is supported. */
+	/** List of devices this hardware is supported. If no class is specified, it is assumed all devices are supported. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Hardware")
 	TArray<TSubclassOf<class UYetiOS_BaseDevice>> SupportedDeviceClasses;
 

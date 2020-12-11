@@ -75,6 +75,11 @@ const bool UYetiOS_BaseHardware::IsCompatibleWithDevice(const class UYetiOS_Base
 {
 	if (InDevice)
 	{
+		if (SupportedDeviceClasses.Num() == 0)
+		{
+			return true;
+		}
+
 		for (const auto& It : SupportedDeviceClasses)
 		{
 			if (InDevice->GetClass()->IsChildOf(It))
