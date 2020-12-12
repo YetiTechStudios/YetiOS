@@ -5,7 +5,7 @@
 
 UYetiOS_IconWidget::UYetiOS_IconWidget(const FObjectInitializer& ObjectInitializer)
 {
-	DoubleClickTime = 0.2;
+	DoubleClickTime = 0.5;
 }
 
 void UYetiOS_IconWidget::CheckForDoubleClick()
