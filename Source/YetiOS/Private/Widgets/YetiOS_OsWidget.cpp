@@ -108,16 +108,6 @@ void UYetiOS_OsWidget::PlayNotificationSound(const FYetiOsNotification& InNotifi
 	UGameplayStatics::PlaySound2D(this, MySound, InVolume);
 }
 
-bool UYetiOS_OsWidget::ChangePassword(FYetiOsUser& InNewUser, const FText InNewPassword)
-{
-	if (OwningOS)
-	{
-		return OwningOS->ChangePassword(InNewUser, InNewPassword);
-	}
-
-	return false;
-}
-
 const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)
 {
 	if (OwningOS)
