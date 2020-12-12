@@ -6,6 +6,8 @@
 #include "Devices/YetiOS_BaseDevice.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Misc/YetiOS_SystemSettings.h"
+#include "Runtime/Engine/Classes/Sound/SoundBase.h"
 
 
 UYetiOS_OsWidget::UYetiOS_OsWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -17,6 +19,7 @@ UYetiOS_OsWidget* UYetiOS_OsWidget::Internal_CreateOsWidget(const UYetiOS_Core* 
 {
 	APlayerController* MyPlayerController = UGameplayStatics::GetPlayerController(OsCore, 0);
 	UYetiOS_OsWidget* ProxyOsWidget = CreateWidget<UYetiOS_OsWidget>(MyPlayerController, OsCore->GetOsWidgetClass());
+	const_cast<UYetiOS_Core*>(OsCore)->SetOsWidget(ProxyOsWidget);
 	ProxyOsWidget->OwningOS = const_cast<UYetiOS_Core*>(OsCore);
 	ProxyOsWidget->OwningDevice = OsCore->GetOwningDevice();
 	return ProxyOsWidget;
@@ -34,17 +37,39 @@ void UYetiOS_OsWidget::FinishOsInstallation()
 
 void UYetiOS_OsWidget::BeginLoadOS()
 {
+	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+	if (OsSystemSettings)
+	{
+		K2_OnThemeChanged(OsSystemSettings->GetCurrentTheme());
+		OnThemeChangedDelegateHandle = OsSystemSettings->OnThemeModeChanged.AddUFunction(this, FName("K2_OnThemeChanged"));
+	}
 	K2_OnBeginLoadingOS();
 }
 
 void UYetiOS_OsWidget::BeginShutdownOS()
 {
+	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+	if (OsSystemSettings)
+	{
+		OsSystemSettings->OnThemeModeChanged.Remove(OnThemeChangedDelegateHandle);
+		OnThemeChangedDelegateHandle.Reset();
+	}
 	K2_OnBeginShuttingdownOS();
 }
 
 void UYetiOS_OsWidget::BeginRestartOS()
 {
 	K2_OnBeginRestartingOS();
+}
+
+void UYetiOS_OsWidget::AddIconWidgetToDesktop(UYetiOS_AppIconWidget* InAppIconWidget)
+{
+	K2_OnAddDesktopShortcut(InAppIconWidget);
+}
+
+void UYetiOS_OsWidget::RemoveDesktopShortcut(UYetiOS_AppIconWidget* InAppIconWidget)
+{
+	K2_OnRemoveDesktopShortcut(InAppIconWidget);
 }
 
 void UYetiOS_OsWidget::OnBatteryLevelChanged(const float& CurrentBatteryLevel)
@@ -57,19 +82,30 @@ void UYetiOS_OsWidget::OnLowBatteryWarningReceived(const bool bIsLowBattery)
 	K2_OnLowBatteryWarningReceived(bIsLowBattery);
 }
 
-void UYetiOS_OsWidget::AddTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
-{
-	K2_OnWindowChangeFromTaskbar(InWindowWidget, true);
-}
-
-void UYetiOS_OsWidget::RemoveTaskbarButton(class UYetiOS_DraggableWindowWidget* InWindowWidget)
-{
-	K2_OnWindowChangeFromTaskbar(InWindowWidget, false);
-}
-
 void UYetiOS_OsWidget::ReceiveNotification(const FYetiOsNotification InNotification)
 {
 	K2_OnReceivedNotification(InNotification);
+}
+
+class UYetiOS_DraggableWindowWidget* UYetiOS_OsWidget::CreateNewWindow(class UYetiOS_BaseProgram* InProgram, class UYetiOS_UserWidget* InWidget, const FVector2D& OverrideSize)
+{
+	return K2_CreateWindow(InProgram, InWidget, OverrideSize);
+}
+
+bool UYetiOS_OsWidget::ChangePassword(FYetiOsUser& InNewUser, const FText InNewPassword)
+{
+	if (OwningOS)
+	{
+		return OwningOS->ChangePassword(InNewUser, InNewPassword);
+	}
+
+	return false;
+}
+
+void UYetiOS_OsWidget::PlayNotificationSound(const FYetiOsNotification& InNotification, const float InVolume /*= 1.f*/)
+{
+	USoundBase* MySound = OwningOS->GetNotificationSound(InNotification);
+	UGameplayStatics::PlaySound2D(this, MySound, InVolume);
 }
 
 bool UYetiOS_OsWidget::ChangePassword(FYetiOsUser& InNewUser, const FText InNewPassword)
@@ -95,6 +131,5 @@ const bool UYetiOS_OsWidget::SetActiveUser(FYetiOsUser InNewUser)
 
 const float UYetiOS_OsWidget::GetDelayTime(const float InMin /*= 0.01*/, const float InMax /*= 0.2*/) const
 {
-	const float DeviceScore = OwningDevice->GetDeviceScore(true);
-	return UKismetMathLibrary::MapRangeClamped(DeviceScore, 0.f, 1.f, InMin, InMax);
+	return FMath::RandRange(InMin, InMax);
 }

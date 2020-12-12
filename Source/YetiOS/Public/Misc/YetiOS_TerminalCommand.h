@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "YetiOS_Types.h"
 #include "YetiOS_TerminalCommand.generated.h"
 
 USTRUCT(BlueprintType)
@@ -11,16 +12,23 @@ struct FYetiOsTerminalCommand
 {
 	GENERATED_USTRUCT_BODY();
 	
-	/* If true, this flag is required. Command will not process if this flag is missing. */
+	/** If true, this flag is required. Command will not process if this flag is missing. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Terminal Command Flag Struct")
 	bool bIsRequired;
 
-	/* A help description for this command. */
+	/** A help description for this command. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Terminal Command Flag Struct")
 	FString Description;
 };
 
-UCLASS(Abstract, Blueprintable)
+/*************************************************************************
+* File Information:
+YetiOS_TerminalCommand.h
+
+* Description:
+Base class for terminal commands.
+*************************************************************************/
+UCLASS(Abstract, Blueprintable, DisplayName = "Terminal Command")
 class YETIOS_API UYetiOS_TerminalCommand : public UObject
 {
 	GENERATED_BODY()
@@ -29,61 +37,61 @@ class YETIOS_API UYetiOS_TerminalCommand : public UObject
 	
 private:
 
-	/* Name of this command. Example: cd, mkdir, exit etc. */
+	/** Name of this command. Example: cd, mkdir, exit etc. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Command")
 	FString MainCommand;
 
-	/* A small description for this command. */
+	/** A small description for this command. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Command")
 	FString MainCommandDescription;
 
-	/* Array of alternate commands for running this command. */
+	/** Array of alternate commands for running this command. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Command")
 	TArray<FString> AlternateCommands;
 
-	/* 
+	/** 
 	* Key - Flag. Must be prefixed by a - or --. Example: -a, --info etc.
 	* Value - Detail for the flag.
 	*/
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Command")
 	TMap<FString, FYetiOsTerminalCommand> CommandFlags;
 
-	/* If true, then fail this command before processing if any parameters are found. */
+	/** If true, then fail this command before processing if any parameters are found. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Command")
 	uint8 bFailIfParametersAreFound : 1;
 
-	/* If true then you need to execute this command as root user. Example: sudo your_command. */
+	/** If true then you need to execute this command as root user. Example: sudo your_command. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Command")
 	uint8 bRequiresRootPermission : 1;
 
-	/* If enabled, it will check if passed in flags are valid before processing. */
+	/** If enabled, it will check if passed in flags are valid before processing. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Terminal Command", AdvancedDisplay)
 	uint8 bValidateFlagsBeforeRunning : 1;
 
-	/* Terminal which this command is running. */
+	/** Terminal which this command is running. */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Debug, meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_TerminalProgram* OwningTerminal;
 
-	/* Raw command without flags or parameters. 
+	/** Raw command without flags or parameters. 
 	* Example: if its [ls -a] this will be [ls]
 	* @See UYetiOS_TerminalCommand::Internal_SetCurrentCommand
 	*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Debug, meta = (AllowPrivateAccess = "true"))
 	FString CurrentCommand;
 
-	/* An array of command parameters. */
+	/** An array of command parameters. */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Debug, meta = (AllowPrivateAccess = "true"))
 	TArray<FString> CommandParameters;
 
-	/* Name of the owning terminal. */
+	/** Name of the owning terminal. */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Debug, meta = (AllowPrivateAccess = "true"))
 	FString TerminalName;
 
-	/* CUrrent command that is being processed. */
+	/** CUrrent command that is being processed. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	FString CurrentFullCommand;
 
-	/* Array of flags available in this command. */
+	/** Array of flags available in this command. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<FString> AvailableFlags;
 
@@ -218,6 +226,14 @@ protected:
 	const bool HasFlag(const FString& InTestFlag) const;
 
 	/**
+	* protected UYetiOS_TerminalCommand::GetRootCommand const
+	* Returns the root command as defined in OS.
+	* @return [FText] Root command from OS.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Terminal Command")	
+	FText GetRootCommand() const;
+
+	/**
 	* protected UYetiOS_TerminalCommand::GetMainCommand const
 	* Returns the main command which you set in defaults.
 	* @return [FString] Returns main command.
@@ -270,6 +286,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Terminal Command", DisplayName = "OnProcessCommandAsRoot")
 	const bool K2_OnProcessCommandAsRoot(const FString& CommandToProcess);
 
+	/**
+	* protected UYetiOS_TerminalCommand::K2_OnContinueExecution
+	* Event called when execution of the command is continued.
+	* @See Internal_OnContinueExecution
+	* @See CheckUserPrompt
+	**/
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Yeti OS Terminal Command", DisplayName = "OnContinueExecution")
 	void K2_OnContinueExecution();
 

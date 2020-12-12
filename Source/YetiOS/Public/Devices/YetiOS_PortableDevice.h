@@ -6,8 +6,14 @@
 #include "Devices/YetiOS_BaseDevice.h"
 #include "YetiOS_PortableDevice.generated.h"
 
+/*************************************************************************
+* File Information:
+YetiOS_PortableDevice.h
 
-UCLASS(Abstract, Blueprintable, DisplayName = "Portable Device")
+* Description:
+Simulates a device that has battery. Example: Laptop, Mobile etc.
+*************************************************************************/
+UCLASS(hidedropdown, Blueprintable, DisplayName = "Portable Device")
 class YETIOS_API UYetiOS_PortableDevice : public UYetiOS_BaseDevice
 {
 	GENERATED_BODY()
@@ -17,22 +23,19 @@ class YETIOS_API UYetiOS_PortableDevice : public UYetiOS_BaseDevice
 	
 private:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device")
-	FYetiOsPortableDeviceMotherBoard PortableDeviceMotherBoard;
-
-	/* Battery level for this portable device. */
+	/** Battery level for this portable device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device", meta = (UIMin = "0", UIMax = "1", ClampMin = "0", ClampMax = "1"))
 	float BatteryLevel;
 
-	/* Details of currently installed battery. */
+	/** Details of currently installed battery. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device")
 	FYetiOsPortableBattery InstalledBattery;
 
-	/* Time taken to consume battery if not charging. */
+	/** Time taken to consume battery if not charging. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Portable Device", meta = (UIMin = "1", ClampMin = "0.2", UIMax = "300"))
 	float BatteryConsumeTimerDelay;
 
-	/* If true, user has already been notified of low battery. */
+	/** If true, user has already been notified of low battery. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bLowBatteryWarned : 1;
 
@@ -41,21 +44,14 @@ public:
 	UYetiOS_PortableDevice();
 
 	virtual const bool IsPortableDevice() const override final { return true; }
-	
-	/**
-	* public UYetiOS_PortableDevice::GetPortableDeviceMotherboard const
-	* Gets device motherboard
-	* @return [FYetiOsPortableDeviceMotherBoard] Returns motherboard.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Portable Device")
-	inline FYetiOsPortableDeviceMotherBoard GetPortableDeviceMotherboard() const { return PortableDeviceMotherBoard; }
-
 
 	virtual EYetiOsDeviceStartResult StartDevice(FYetiOsError& OutErrorMessage) override final;
 
 	/**
 	* public UYetiOS_PortableDevice::BeginBatteryCharge
 	* Start charging timer.
+	* @See GetChargingSpeed
+	* @See GetTimeToFullyRechargeInHours
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Portable Device")	
 	void BeginBatteryCharge();
@@ -94,26 +90,27 @@ public:
 
 private:
 
+	/**
+	* private UYetiOS_PortableDevice::Internal_ConsumeBattery
+	* Consumes battery by 0.01. If battery level 0 automatically shuts down device.
+	**/
 	void Internal_ConsumeBattery();
+
+	/**
+	* private UYetiOS_PortableDevice::Internal_ChargeBattery
+	* Charges the battery by 0.01.
+	* @See BeginBatteryCharge
+	**/
 	void Internal_ChargeBattery();
 
 protected:
 
+	/**
+	* virtual protected UYetiOS_PortableDevice::LoadSavedData  
+	* Loads the save game information of this device.
+	* @param InLoadGameInstance [const class UYetiOS_SaveGame*] Save Game Instance to load the data from.
+	**/
 	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance) override final;
-
-	virtual const FYetiOsHardDisk GetHardDisk() const override final;
-	virtual const float GetTotalCpuSpeed(const bool bWithDurability) const override final;
-	virtual const float GetTotalMemorySize() const override final;
-	virtual const float GetMotherboardDurability() const override final;
-	virtual const bool MotherboardHasOnBoardGraphics() const override final;
-	virtual const bool CpusAreOfCorrectType(FYetiOsCpu& OutIncorrectCpu) const override final;
-	virtual const bool IsGpuInstalled() const override final;
-	virtual const bool HasEnoughPower() const override final;
-	virtual const FString GetSocketName() const override final;
-	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const override final;
-	virtual const TArray<FYetiOsCpu> GetAllCpus() const override final;
-	virtual const TArray<FYetiOsMemory> GetAllMemory() const override final;
-	virtual const TArray<FYetiOsGpu> GetAllGpu() const override final;
 
 protected:
 
@@ -127,7 +124,6 @@ protected:
 
 public:
 
-	FORCEINLINE const FYetiOsCpu GetCpu() const { return PortableDeviceMotherBoard.MotherboardCpu; }
 	FORCEINLINE const float GetChargingSpeed() const { return (GetTimeToFullyRechargeInHours() * 3600.f) / 10.f; }
 	FORCEINLINE const float GetTimeToFullyRechargeInHours() const { return InstalledBattery.GetTimeToFullyRechargeInHours(); }
 };

@@ -5,6 +5,9 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Core/YetiOS_DirectoryRoot.h"
 #include "Core/YetiOS_SaveGame.h"
+#include "Core/YetiOS_Taskbar.h"
+#include "Core/YetiOS_StartMenu.h"
+#include "Misc/YetiOS_SystemSettings.h"
 #include "Devices/YetiOS_PortableDevice.h"
 #include "Devices/YetiOS_StationaryDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
@@ -16,11 +19,17 @@
 #include "Engine/Public/TimerManager.h"
 #include "Runtime/UMG/Public/Components/CanvasPanelSlot.h"
 #include "Runtime/UMG/Public/Blueprint/WidgetLayoutLibrary.h"
+#include "Hardware/YetiOS_Motherboard.h"
+#include "Hardware/YetiOS_HardDisk.h"
+#include "Core/YetiOS_FileBase.h"
+#include "Misc/YetiOS_ProgramsRepository.h"
+#include "Widgets/YetiOS_DialogWidget.h"
+#include "Core/YetiOS_BaseDialogProgram.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
 
-#define printlog_display(Param1)		UE_LOG(LogYetiOsOperatingSystem, Display, TEXT("%s"), *FString(Param1))
+#define printlog(Param1)				UE_LOG(LogYetiOsOperatingSystem, Log, TEXT("%s"), *FString(Param1))
 #define printlog_warn(Param1)			UE_LOG(LogYetiOsOperatingSystem, Warning, TEXT("%s"), *FString(Param1))
 #define printlog_error(Param1)			UE_LOG(LogYetiOsOperatingSystem, Error, TEXT("%s"), *FString(Param1))
 #define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsOperatingSystem, VeryVerbose, TEXT("%s"), *FString(Param1))
@@ -31,8 +40,6 @@ static const int32 MIN_PROCES_ID_TO_GENERATE = 1;
 static const int32 MAX_PROCES_ID_TO_GENERATE = 99999;
 
 const FString UYetiOS_Core::PATH_DELIMITER = "/";
-const FText UYetiOS_Core::ROOT_USER_NAME = FText::AsCultureInvariant("root");
-const FText UYetiOS_Core::ROOT_COMMAND = FText::AsCultureInvariant("sudo ");
 
 static const FText INSTALL_ERROR_CODE = LOCTEXT("YetiOS_InstallProgramErrorCode", "ERR_INSTALL_FAIL");
 static const FText CLOSE_ERROR_CODE = LOCTEXT("YetiOS_CloseProgramErrorCode", "ERR_CLOSE_PROGRAM");
@@ -41,85 +48,255 @@ static const FText RUN_ERROR_CODE = LOCTEXT("YetiOS_RunProgramInstanceErrorCode"
 UYetiOS_Core::UYetiOS_Core()
 {
 	OsName = FText::GetEmpty();
-	OsVersion = FText::AsCultureInvariant("1.0.0.0");
+	OsVersion = FYetiOS_Version(1, 0, 0);
 	OsIcon = nullptr;
-	InstallationSpace = 10.f;
+	InstallationSpaceInMB = 10000.f;
 	ReleaseState = EYetiOsOperatingSystemReleaseState::STATE_FullRelease;
 	MinInstallationTime = 10.f;
 	MaxInstallationTime = 60.f;
 
 	CurrentZOrder = INDEX_NONE;
 
-	RootUser = FYetiOsUser(UYetiOS_Core::ROOT_USER_NAME.ToString());
+	RootUser = FYetiOsUser("root");
+	RootCommand = FText::AsCultureInvariant("sudo");
 }
 
 UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage)
 {
-	UYetiOS_Core* ProxyOS = NewObject<UYetiOS_Core>(InParentDevice, InParentDevice->OperatingSystemClass);
-	if (ProxyOS->GetCompatibleDeviceClasses().Contains(InParentDevice->GetClass()))
+	if (InParentDevice->OperatingSystemClass)
 	{
-		ProxyOS->Device = InParentDevice;
-		ProxyOS->OsWorld = InParentDevice->GetWorld();
-		ProxyOS->OsWidget = UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
-		ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
-		ProxyOS->InstalledPrograms.Empty();
-		ProxyOS->RemainingSpace = InParentDevice->GetHardDisk().HddCapacity;
-		return ProxyOS;
+		UYetiOS_Core* ProxyOS = NewObject<UYetiOS_Core>(InParentDevice, InParentDevice->OperatingSystemClass);
+		if (ProxyOS->GetCompatibleDeviceClasses().Contains(InParentDevice->GetClass()))
+		{
+			if (ProxyOS->SystemSettings)
+			{
+				if (ProxyOS->SystemSettings->ColorCollections.IsValidIndex(0))
+				{
+					ProxyOS->SystemSettings->CurrentCollectionName = ProxyOS->SystemSettings->ColorCollections[0].CollectionName;
+				}
+			}
+
+			ProxyOS->Device = InParentDevice;
+			ProxyOS->OsWorld = InParentDevice->GetWorld();
+			ProxyOS->bIsPreInstalled = InParentDevice->IsOperatingSystemPreInstalled();
+			UYetiOS_OsWidget::Internal_CreateOsWidget(ProxyOS);
+			UYetiOS_Taskbar::CreateTaskbar(ProxyOS);
+			ProxyOS->NotificationManager = FYetiOsNotificationManager::CreateNotificationManager();
+			ProxyOS->InstalledPrograms.Empty();
+			return ProxyOS;
+		}
+
+		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_CreateOperatingSystemErrorCode", "INCOMPATIBLE_OPERATING_SYSTEM");
+		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_CreateOperatingSystemErrorException", "{0} is not compatible with this device."), ProxyOS->GetOsName());
+		ProxyOS->ConditionalBeginDestroy();
+		return nullptr;
 	}
 
-	OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_CreateOperatingSystemErrorCode", "INCOMPATIBLE_OPERATING_SYSTEM");
-	OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_CreateOperatingSystemErrorException", "{0} is not compatible with this device."), ProxyOS->GetOsName());	
-	ProxyOS->ConditionalBeginDestroy();
+	OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_NullOperatingSystemErrorCode", "NO_VALID_OPERATING_SYSTEM");
+	OutErrorMessage.ErrorException = LOCTEXT("YetiOS_NullOperatingSystemErrorException", "Operating system class is NULL.");
 	return nullptr;
 }
 
-const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime)
+const bool UYetiOS_Core::CloseDialogWidget(UYetiOS_Core* InOS, UYetiOS_DialogWidget* InDialogWidget)
 {
-	return FText::AsTime(InDateTime, EDateTimeStyle::Short, FText::GetInvariantTimeZone());
-}
-
-void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotification)
-{
-	OsWidget->ReceiveNotification(InNewNotification);
-	NotificationManager->LogNotification(InNewNotification);
-}
-
-const bool UYetiOS_Core::StartOperatingSystemInstallation(const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage)
-{
-	if (Internal_ConsumeSpace(InstallationSpace))
+	if (InOS && InDialogWidget)
 	{
-		static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
-		static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
-		static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "INSTALL_START");
-		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
-		CreateOsNotification(NewNotification);
-
-		CalculatedInstallationTime = FMath::Lerp<float>(MaxInstallationTime, MinInstallationTime, Device->GetDeviceScore());
-
-		printlog_display(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
-		OsWidget->StartOsInstallation(CalculatedInstallationTime);
-
-		OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
+		InOS->CurrentDialogWidgets.RemoveSwap(InDialogWidget);
+		InDialogWidget->RemoveFromParent();
 		return true;
-	}
-
-	static const FText Exception = LOCTEXT("YetiOS_StartInstallation", "Insufficient space.");
-	static const FText DetailedException = LOCTEXT("YetiOS_StartInstallationDescription", "Not enough space to install Operating System on this device.");
-	static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "OS_INSTALL_FAIL");
-	OutErrorMessage.ErrorCode = Code;
-	OutErrorMessage.ErrorException = Exception;
-	OutErrorMessage.ErrorDetailedException = DetailedException;
-	if (bShowBsodIfInstallationFails)
-	{		
-		AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, Code, Exception, DetailedException);
 	}
 
 	return false;
 }
 
-void UYetiOS_Core::LoadOS()
+class UYetiOS_DialogWidget* UYetiOS_Core::OpenDialogWidget(UYetiOS_Core* InOS, TSubclassOf<class UYetiOS_DialogWidget> InDialogWidgetClass, TSubclassOf<class UYetiOS_BaseDialogProgram> DialogClass, const FText& InMessage, FText InTitle /*= INVTEXT("Dialog")*/, const FVector2D& OverrideWindowSize /*= FVector2D::ZeroVector*/, const bool bIsModalDialog /*= true*/, EYetiOS_DialogType InDialogType /*= EYetiOS_DialogType::Ok*/)
 {
-	OsWidget->BeginLoadOS();
+	if (DialogClass)
+	{
+		FYetiOsError OutError;
+		UYetiOS_BaseProgram* Local_InstalledProgram = nullptr;
+		UYetiOS_BaseDialogProgram* Local_InstalledDialogProgram = nullptr;
+		if (InOS->IsProgramInstalled(DialogClass->GetDefaultObject<UYetiOS_BaseDialogProgram>()->GetProgramIdentifierName(), Local_InstalledProgram, OutError))
+		{
+			Local_InstalledDialogProgram = Cast<UYetiOS_BaseDialogProgram>(Local_InstalledProgram);
+		}
+		else
+		{
+			UYetiOS_AppIconWidget* OutIcon;
+			Local_InstalledDialogProgram = Cast<UYetiOS_BaseDialogProgram>(InOS->InstallProgram(DialogClass, OutError, OutIcon));
+		}
+
+		UYetiOS_DialogWidget* ProxyDialog = UYetiOS_DialogWidget::Internal_CreateDialogWidget(InOS, Local_InstalledDialogProgram, InDialogWidgetClass, bIsModalDialog, InDialogType);
+		if (ProxyDialog)
+		{
+			if (OverrideWindowSize.IsZero() == false)
+			{
+				Local_InstalledDialogProgram->SetOverrideWindowSize(OverrideWindowSize);
+			}
+
+			Local_InstalledDialogProgram->StartProgram(OutError);
+			Local_InstalledDialogProgram->Internal_SetDialogWidget(ProxyDialog);
+			UYetiOS_DraggableWindowWidget* Local_OwningWindow = Local_InstalledDialogProgram->GetOwningWindow();
+			Local_OwningWindow->AddWidget(ProxyDialog);
+			Local_OwningWindow->BringWindowToFront();
+			InOS->CurrentDialogWidgets.Add(ProxyDialog);
+			ProxyDialog->K2_OnSetTitle(InTitle);
+			ProxyDialog->K2_OnSetMessage(InMessage);
+			return ProxyDialog;
+		}
+	}
+
+	return nullptr;
+}
+
+bool UYetiOS_Core::EvaluateMathExpression(const FString& InExpression, float& OutValue)
+{
+	return FMath::Eval(InExpression, OutValue);
+}
+
+TArray<class UYetiOS_DirectoryBase*> UYetiOS_Core::GetSystemDirectories(class UYetiOS_Core* InOS)
+{
+	if (InOS && InOS->RootDirectory)
+	{
+		return InOS->RootDirectory->GetSystemDirectories();
+	}
+
+	return TArray<UYetiOS_DirectoryBase*>();
+}
+
+const FText UYetiOS_Core::GetTimeAsText(const FDateTime& InDateTime, EYetiOSTimeFormat TimeFormat /*= EYetiOSTimeFormat::Medium*/)
+{
+	EDateTimeStyle::Type DateTimeType = EDateTimeStyle::Default;
+	switch (TimeFormat)
+	{
+		case EYetiOSTimeFormat::Short:
+			DateTimeType = EDateTimeStyle::Short;
+			break;
+		case EYetiOSTimeFormat::Medium:
+			DateTimeType = EDateTimeStyle::Medium;
+			break;
+		case EYetiOSTimeFormat::Long:
+			DateTimeType = EDateTimeStyle::Long;
+			break;
+		case EYetiOSTimeFormat::Full:
+			DateTimeType = EDateTimeStyle::Full;
+			break;
+		default:
+			break;
+	}
+	return FText::AsTime(InDateTime, DateTimeType, FText::GetInvariantTimeZone());
+}
+
+bool UYetiOS_Core::GetColorCollectionOfTheme(class UYetiOS_Core* InOS, EYetiOsThemeMode InTheme, FYetiOsColorCollection& OutCollection)
+{
+	if (InOS)
+	{
+		UYetiOS_SystemSettings* ProxySettings = InOS->GetSystemSettings();
+		if (ProxySettings)
+		{
+			OutCollection = ProxySettings->GetColorCollectionFromTheme(InTheme);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+FLinearColor UYetiOS_Core::GetColorFromCurrent(class UYetiOS_Core* InOS, EYetiOsColorTypes InColorType)
+{
+	if (InOS)
+	{
+		UYetiOS_SystemSettings* ProxySettings = InOS->GetSystemSettings();
+		if (ProxySettings)
+		{
+			return ProxySettings->GetColorFromCurrent(InColorType);
+		}
+	}
+
+	return FLinearColor::Transparent;
+}
+
+void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotification)
+{
+	if (NotificationSettings.bEnableNotifications)
+	{
+		OsWidget->ReceiveNotification(InNewNotification);
+		NotificationManager->LogNotification(InNewNotification);
+	}
+}
+
+const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, FYetiOsError& OutErrorMessage)
+{
+	bool bSuccess = false;
+
+	UYetiOS_DirectoryRoot* MyRootDirectory = GetRootDirectory();
+	if (MyRootDirectory)
+	{
+		DesktopDirectory = MyRootDirectory->GetChildDirectoryByType(EDirectoryType::Desktop);
+		if (DesktopDirectory.IsValid())
+		{
+			if (bIsInstalled)
+			{
+				OsWidget->BeginLoadOS();
+				bSuccess = true;
+			}
+			else
+			{
+				if (GetOwningDevice()->GetMotherboard()->GetHardDisk()->ConsumeSpace(InstallationSpaceInMB))
+				{
+					if (bIsPreInstalled)
+					{
+						Internal_FinishOperatingSystemInstallation();
+					}
+					else
+					{
+						static const FText Title = LOCTEXT("YetiOS_StartInstallation", "Begin Installation.");
+						static const FText Description = LOCTEXT("YetiOS_StartInstallationDescription", "Operating system installation started on device.");
+						static const FText Code = LOCTEXT("YetiOS_StartInstallationCode", "INSTALL_START");
+						const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
+						CreateOsNotification(NewNotification);
+
+						CalculatedInstallationTime = FMath::RandRange(MinInstallationTime, MaxInstallationTime);
+
+						printlog(FString::Printf(TEXT("%s Will finish in %f seconds."), *Description.ToString(), CalculatedInstallationTime));
+						OsWidget->StartOsInstallation(CalculatedInstallationTime);
+
+						OsWorld->GetTimerManager().SetTimer(TimerHandle_OsInstallation, this, &UYetiOS_Core::Internal_FinishOperatingSystemInstallation, CalculatedInstallationTime, false);
+					}
+
+					bSuccess = true;
+				}
+				else
+				{
+
+					OutErrorMessage.ErrorCode = YetiOS_CommonErrors::OsInstallCode;
+					OutErrorMessage.ErrorException = YetiOS_CommonErrors::OsInstallException;
+					OutErrorMessage.ErrorDetailedException = YetiOS_CommonErrors::OsInstallDetailedException;
+					
+				}
+			}
+		}
+		else
+		{
+			OutErrorMessage.ErrorCode = YetiOS_CommonErrors::OsDesktopCode;
+			OutErrorMessage.ErrorException = YetiOS_CommonErrors::OsDesktopException;
+			OutErrorMessage.ErrorDetailedException = YetiOS_CommonErrors::OsDesktopDetailedException;
+		}
+	}
+	else
+	{
+		OutErrorMessage.ErrorCode = YetiOS_CommonErrors::OsRootCode;
+		OutErrorMessage.ErrorException = YetiOS_CommonErrors::OsRootException;
+		OutErrorMessage.ErrorDetailedException = YetiOS_CommonErrors::OsRootDetailedException;
+	}
+
+	if (bSuccess == false)
+	{
+		printlog_error(FString::Printf(TEXT("OS Name: %s - %s"), *OsName.ToString(), *OutErrorMessage.ErrorDetailedException.ToString()));
+		AYetiOS_DeviceManagerActor::ShowBSOD(this, Device, OutErrorMessage);
+	}
+
+	return bSuccess;
 }
 
 void UYetiOS_Core::ShutdownOS()
@@ -150,12 +327,12 @@ void UYetiOS_Core::RestartOS()
 
 bool UYetiOS_Core::AddNewUser(FYetiOsUser InNewUser, FYetiOsError& OutErrorMessage)
 {
-	if (InNewUser.UserName.EqualToCaseIgnored(UYetiOS_Core::ROOT_USER_NAME))
+	if (InNewUser.UserName.EqualToCaseIgnored(RootUser.UserName))
 	{
 		const FText Title = LOCTEXT("YetiOS_InvalidUsernameErrorText", "Restricted Username");
 		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_InvalidUsernameError", "ERR_INVALID_USERNAME");
-		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "You cannot use '{0}' as your username."), UYetiOS_Core::ROOT_USER_NAME);
-		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "'{0}' is a system reserved username. Please try again with another name."), UYetiOS_Core::ROOT_USER_NAME);
+		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "You cannot use '{0}' as your username."), RootUser.UserName);
+		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_InvalidUsernameErrorException", "'{0}' is a system reserved username. Please try again with another name."), RootUser.UserName);
 		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, EYetiOsNotificationType::TYPE_Error);
 		CreateOsNotification(NewNotification);
 		return false;
@@ -202,7 +379,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		}
 	}
 
-	if (DefaultConstructed->GetProgramSpace() > RemainingSpace)
+	if (GetOwningDevice()->GetMotherboard()->GetHardDisk()->HasEnoughSpace(DefaultConstructed->GetProgramSpace()) == false)
 	{
 		const FText Title = FText::Format(LOCTEXT("YetiOS_InstallProgramNoSpaceError", "Not enough space for {0}."), MyProgramName);
 		const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramNoSpaceErrorDescription", "Not enough space to install {0}. Free up space by uninstalling existing apps or expand your storage."), MyProgramName);		
@@ -217,14 +394,29 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		return nullptr;
 	}
 
-	const bool bIsPredefinedProgram = ProgramsToInstall.Contains(InProgramToInstall);
-	UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(this, InProgramToInstall, OutErrorMessage, false, bIsPredefinedProgram);
+	const bool bIsPredefinedProgram = ProgramsRepository->IsInstalledWithOS(InProgramToInstall);
+	UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(this, InProgramToInstall, OutErrorMessage, bIsPredefinedProgram);
 	if (NewProgram)
 	{
-		Internal_ConsumeSpace(NewProgram->GetProgramSpace());
-		OutIconWidget = UYetiOS_AppIconWidget::CreateProgramIconWidget(this, NewProgram, OutErrorMessage);
+		GetOwningDevice()->GetMotherboard()->GetHardDisk()->ConsumeSpace(NewProgram->GetProgramSpace());
+		OutIconWidget = UYetiOS_AppIconWidget::CreateProgramIconWidget(NewProgram, OutErrorMessage);
 		InstalledPrograms.Add(NewProgram);
-		printlog_display(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
+		printlog(FString::Printf(TEXT("Program %s installed."), *NewProgram->GetProgramName().ToString()));
+		if (NewProgram->CanAddToDesktop())
+		{
+			OsWidget->AddIconWidgetToDesktop(OutIconWidget);
+		}
+		
+		if (NewProgram->CanShowPostInstallNotification())
+		{
+			const FText Title = LOCTEXT("YetiOS_InstallProgramSuccess", "Installed Program.");
+			const FText Description = FText::Format(LOCTEXT("YetiOS_InstallProgramUnknownErrorDescription", "{0} installed successfuly."), MyProgramName);
+			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, FText::FromString("INSTALL_SUCCESS"), EYetiOsNotificationType::TYPE_Info);
+			CreateOsNotification(NewNotification);
+		}
+
+		NewProgram->ProgramInstalled();
+		OnProgramInstalled.Broadcast(NewProgram);
 		return NewProgram;
 	}
 	
@@ -346,6 +538,20 @@ int32 UYetiOS_Core::AddRunningProgram(const class UYetiOS_BaseProgram* InNewProg
 		return INDEX_NONE;
 	}
 
+	if (InNewProgram->IsCompatibleWithOS(this) == false)
+	{
+		const FText Title = FText::Format(LOCTEXT("YetiOS_RunProgramVersionError", "{0} incompatible."), MyProgramName);
+		const FText Description = FText::Format(LOCTEXT("YetiOS_RunProgramVersionErrorDescription", "{0} is not compatible with this version of Operating System."), MyProgramName);
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RUN_ERROR_CODE, EYetiOsNotificationType::TYPE_Error);
+		CreateOsNotification(NewNotification);
+
+		OutErrorMessage.ErrorCode = RUN_ERROR_CODE;
+		OutErrorMessage.ErrorException = Title;
+		OutErrorMessage.ErrorDetailedException = Description;
+
+		return INDEX_NONE;
+	}
+
 	int32 NewProcessID = FMath::RandRange(MIN_PROCES_ID_TO_GENERATE, MAX_PROCES_ID_TO_GENERATE);
 	TArray<int32> ProcessIDs;
 	RunningPrograms.GenerateKeyArray(ProcessIDs);
@@ -448,6 +654,7 @@ bool UYetiOS_Core::ChangePassword(FYetiOsUser& InNewUser, FText InNewPassword)
 void UYetiOS_Core::DestroyOS()
 {
 	FYetiOsNotificationManager::Destroy(NotificationManager);
+	NotificationManager = nullptr;
 	Device = nullptr;
 	OsWidget = nullptr;
 	AllCreatedDirectories.Empty();
@@ -461,45 +668,23 @@ void UYetiOS_Core::DestroyOS()
 	ConditionalBeginDestroy();
 }
 
-void UYetiOS_Core::UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow)
+const bool UYetiOS_Core::UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow)
 {
-	if (InWindow)
-	{
+	if (InWindow && IsModalDialogOpen() == false)
+	{		
 		CurrentZOrder++;
 		UCanvasPanelSlot* Slot = UWidgetLayoutLibrary::SlotAsCanvasSlot(InWindow);
 		Slot->SetZOrder(CurrentZOrder);
-	}
-}
-
-const FYetiOsCpu UYetiOS_Core::GetMainCpu() const
-{
-	if (Device->IsPortableDevice())
-	{
-		return Device->GetCastedDevice<UYetiOS_PortableDevice>()->GetCpu();
+		return true;
 	}
 
-	return Device->GetCastedDevice<UYetiOS_StationaryDevice>()->GetCpu(0);
+	return false;
 }
 
-const float UYetiOS_Core::GetTotalMemory(const bool bInBytes /*= true*/) const
+UYetiOS_CPU* UYetiOS_Core::GetMainCpu() const
 {
-	const float TotalMemory = Device->GetTotalMemorySize();
-	return bInBytes ? TotalMemory * 1000000.f : TotalMemory;
-}
-
-const float UYetiOS_Core::GetTotalCPUSpeed(const bool bWithDurability /*= true*/) const
-{
-	return Device->GetTotalCpuSpeed(bWithDurability);
-}
-
-const bool UYetiOS_Core::HasGpuInstalled() const
-{
-	return Device->IsGpuInstalled();
-}
-
-const float UYetiOS_Core::GetDeviceScore() const
-{
-	return Device->GetDeviceScore(true);
+	int32 DummyTotal;
+	return Device->GetMotherboard()->GetCpu(DummyTotal);
 }
 
 const bool UYetiOS_Core::HasValidRootDirectoryClass() const
@@ -509,13 +694,17 @@ const bool UYetiOS_Core::HasValidRootDirectoryClass() const
 
 void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 {
-	static const FText Title = LOCTEXT("YetiOS_FinishInstallation", "Finish Installation.");
-	static const FText Description = LOCTEXT("YetiOS_FinishInstallationDescription", "Operating system installation finished on device.");
-	static const FText Code = LOCTEXT("YetiOS_FinishInstallationCode", "INSTALL_FINISH");
-	const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
-	CreateOsNotification(NewNotification);
+	Internal_InstallStartupPrograms();
 
-	printlog_display(Description.ToString());
+	if (bIsPreInstalled == false)
+	{
+		static const FText Title = LOCTEXT("YetiOS_FinishInstallation", "Finish Installation.");
+		static const FText Description = LOCTEXT("YetiOS_FinishInstallationDescription", "Operating system installation finished on device.");
+		static const FText Code = LOCTEXT("YetiOS_FinishInstallationCode", "INSTALL_FINISH");
+		const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_Device, Title, Description, Code);
+		CreateOsNotification(NewNotification);
+		printlog(Description.ToString());
+	}
 
 	OsWidget->FinishOsInstallation();
 	Device->OnFinishInstallingOperatingSystem();
@@ -523,39 +712,96 @@ void UYetiOS_Core::Internal_FinishOperatingSystemInstallation()
 
 TSubclassOf<class UYetiOS_BaseProgram> UYetiOS_Core::Internal_FindProgramFromPackage(const FName& InProgramIdentifier)
 {
+	TSubclassOf<class UYetiOS_BaseProgram> ProgramClassToReturn = nullptr;
 	if (HasRepositoryLibrary() && InProgramIdentifier.IsNone() == false)
 	{
-		TArray<UBlueprintGeneratedClass*> OutBlueprintGeneratedClass;
-		RepositoryLibrary->GetObjects<UBlueprintGeneratedClass>(OutBlueprintGeneratedClass);
+		TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
 
-		printlog_display(FString::Printf(TEXT("Looking for %s from %i package(s) in repo."), *InProgramIdentifier.ToString(), OutBlueprintGeneratedClass.Num()));
-		if (OutBlueprintGeneratedClass.Num() > 0)
+		printlog(FString::Printf(TEXT("Looking for %s from %i package(s) in repo."), *InProgramIdentifier.ToString(), AllProgramsFromRepo.Num()));
+		if (AllProgramsFromRepo.Num() > 0)
 		{			
-			for (const auto& It : OutBlueprintGeneratedClass)
+			for (const auto& It : AllProgramsFromRepo)
 			{
-				UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It);
-				if (MyLoadedProgram->GetProgramIdentifierName().IsEqual(InProgramIdentifier))
+				if (It.ProgramClass)
 				{
-					printlog_display(FString::Printf(TEXT("Found %s from package repo."), *InProgramIdentifier.ToString()));
-					return MyLoadedProgram->GetClass();
+					UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It.ProgramClass);
+					if (MyLoadedProgram->GetProgramIdentifierName().IsEqual(InProgramIdentifier))
+					{
+						printlog(FString::Printf(TEXT("Found %s from package repo."), *InProgramIdentifier.ToString()));
+						ProgramClassToReturn = MyLoadedProgram->GetClass();
+						MyLoadedProgram->ConditionalBeginDestroy();
+						MyLoadedProgram = nullptr;
+						break;
+					}
 				}
 			}
 		}
 	}
 
-	printlog_warn(FString::Printf(TEXT("Package %s not found in repo."), *InProgramIdentifier.ToString()));
-	return nullptr;
-}
-
-const bool UYetiOS_Core::Internal_ConsumeSpace(float InSpaceToConsume)
-{
-	if (InSpaceToConsume < RemainingSpace)
+	if (ProgramClassToReturn == nullptr)
 	{
-		RemainingSpace -= InSpaceToConsume;
-		return true;
+		printlog_warn(FString::Printf(TEXT("Package %s not found in repo."), *InProgramIdentifier.ToString()));
 	}
 
-	return false;
+	return ProgramClassToReturn;
+}
+
+void UYetiOS_Core::Internal_InstallStartupPrograms()
+{
+	UYetiOS_AppIconWidget* OutIconWidget = nullptr;
+	TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
+	FYetiOsError OutError;
+	for (const auto& It : AllProgramsFromRepo)
+	{
+		if (It.bInstallWithOS)
+		{
+			UYetiOS_BaseProgram* Local_InstalledProgram = InstallProgram(It.ProgramClass, OutError, OutIconWidget);
+			if (Local_InstalledProgram == nullptr)
+			{
+				printlog_warn(OutError.ErrorDetailedException.ToString());
+			}
+		}
+	}
+}
+
+void UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveGame*& LoadGameInstance, FYetiOsError& OutErrorMessage)
+{
+	if (LoadGameInstance)
+	{
+		printlog_veryverbose("Loading OS save data...");
+		GetOwningDevice()->GetMotherboard()->GetHardDisk()->ConsumeSpace(InstallationSpaceInMB);
+		OsVersion = LoadGameInstance->GetOsLoadData().SaveLoad_OSVersion;
+		OsUsers = LoadGameInstance->GetOsLoadData().SaveLoad_OsUsers;
+		if (GetRootDirectory())
+		{
+			TArray<FYetiOsDirectorySaveLoad> SavedDirectories = LoadGameInstance->GetDirectoriesData();
+			printlog_veryverbose(FString::Printf(TEXT("Loading %i saved directories..."), SavedDirectories.Num()));
+			for (const FYetiOsDirectorySaveLoad& It : SavedDirectories)
+			{
+				UYetiOS_DirectoryBase* LoadedDirectory = CreateDirectoryInPath(It.SaveLoad_DirPath, It.bSaveLoad_IsHidden, OutErrorMessage, It.SaveLoad_DirectoryName);
+				if (LoadedDirectory && It.SaveLoad_Files.Num() > 0)
+				{
+					printlog_veryverbose(FString::Printf(TEXT("Loading %i file(s) from save data for %s..."), It.SaveLoad_Files.Num(), *LoadedDirectory->GetDirectoryName().ToString()));
+					for (const auto& LoadFileIt : It.SaveLoad_Files)
+					{
+						UYetiOS_FileBase* OutFile;
+						LoadedDirectory->CreateNewFileByClass(LoadFileIt->GetClass(), OutFile, OutErrorMessage);
+					}
+				}
+			}
+		}
+
+		Internal_InstallStartupPrograms();
+		TArray<FYetiOsProgramSaveLoad> SavedPrograms = LoadGameInstance->GetProgramData();
+		printlog_veryverbose(FString::Printf(TEXT("Loading %i saved programs..."), SavedPrograms.Num()));
+		for (const auto& It : SavedPrograms)
+		{
+			UYetiOS_AppIconWidget* OutWidget;
+			InstallProgram(It.SaveLoad_ProgramClass, OutErrorMessage, OutWidget);
+		}
+
+		GetOwningDevice()->GetMotherboard()->GetHardDisk()->Internal_UpdateRemainingSpace(LoadGameInstance->GetDeviceLoadData().SaveLoad_RemainingSpace);
+	}
 }
 
 void UYetiOS_Core::NotifyBatteryLevelChange(const float& CurrentBatteryLevel)
@@ -602,6 +848,13 @@ const bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier, UY
 	return false;
 }
 
+bool UYetiOS_Core::IsProgramInstalled(const FName& InProgramIdentifier) const
+{
+	UYetiOS_BaseProgram* DummyProgram;
+	FYetiOsError DummyError;
+	return IsProgramInstalled(InProgramIdentifier, DummyProgram, DummyError);
+}
+
 void UYetiOS_Core::AddToCreatedDirectories(const UYetiOS_DirectoryBase* InDirectory)
 {
 	AllCreatedDirectories.AddUnique(InDirectory);
@@ -609,7 +862,7 @@ void UYetiOS_Core::AddToCreatedDirectories(const UYetiOS_DirectoryBase* InDirect
 
 bool UYetiOS_Core::HasRepositoryLibrary() const
 {
-	return RepositoryLibrary != nullptr && RepositoryLibrary->GetObjectCount() > 0;
+	return ProgramsRepository != nullptr && ProgramsRepository->GetProgramsFromRepository().Num() > 0;
 }
 
 UYetiOS_DirectoryRoot* UYetiOS_Core::GetRootDirectory()
@@ -679,7 +932,7 @@ UYetiOS_DirectoryBase* UYetiOS_Core::CreateDirectoryInPath(const FString& InDire
 			{
 				FString LeftS, RightS;
 				DirectoryString.Split(OutPathArray[i], &LeftS, &RightS);
-				printlog_display(FString::Printf(TEXT("Created child directory in %s"), *LeftS));
+				printlog(FString::Printf(TEXT("Created child directory in %s"), *LeftS));
 				return ExistingDir;
 			}
 		}
@@ -700,11 +953,6 @@ TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetRunningPrograms() const
 	return OutArray;
 }
 
-class UYetiOS_BaseProgram* UYetiOS_Core::FindRunningProgramByIdentifier(const FName& InIdentifier) const
-{
-	return GetRunningProgramByIdentifier(InIdentifier);
-}
-
 class UYetiOS_BaseProgram* UYetiOS_Core::GetRunningProgramByIdentifier(const FName& InIdentifier) const
 {
 	TArray<UYetiOS_BaseProgram*> OutArray;
@@ -723,7 +971,84 @@ class UYetiOS_BaseProgram* UYetiOS_Core::GetRunningProgramByIdentifier(const FNa
 	return *FoundDevice;
 }
 
-#undef printlog_display
+bool UYetiOS_Core::GetTaskbar(UYetiOS_Taskbar*& OutTaskbar) const
+{
+	OutTaskbar = Taskbar;
+	return OutTaskbar != nullptr;
+}
+
+bool UYetiOS_Core::GetStartMenu(UYetiOS_StartMenu*& OutStartMenu) const
+{
+	UYetiOS_Taskbar* OutTaskbar;
+	if (GetTaskbar(OutTaskbar))
+	{
+		return OutTaskbar->GetStartMenu(OutStartMenu);
+	}
+
+	return false;
+}
+
+bool UYetiOS_Core::GetDesktopDirectory(UYetiOS_DirectoryBase*& OutDesktopDir) const
+{
+	const bool bIsValid = DesktopDirectory.IsValid();
+	OutDesktopDir = bIsValid ? DesktopDirectory.Get() : nullptr;
+	return bIsValid;
+}
+
+bool UYetiOS_Core::IsModalDialogOpen() const
+{
+	bool bModalDialogOpen = false;
+	for (const auto& It : CurrentDialogWidgets)
+	{
+		if (It->IsModalDialog())
+		{
+			bModalDialogOpen = true;
+			break;
+		}
+	}
+
+	return bModalDialogOpen;
+}
+
+const TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetInstalledPrograms(const bool bSystemProgramsOnly /*= false*/) const
+{
+	if (bSystemProgramsOnly)
+	{
+		TArray<UYetiOS_BaseProgram*> ReturnResult;
+		for (const auto& It : InstalledPrograms)
+		{
+			if (It->IsSystemInstalledProgram())
+			{
+				ReturnResult.Add(It);
+			}
+		}
+
+		return ReturnResult;
+	}
+	
+	return InstalledPrograms;
+}
+
+const bool UYetiOS_Core::GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<class UYetiOS_BaseProgram>>& OutPrograms)
+{
+	if (HasRepositoryLibrary())
+	{
+		TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
+
+		for (const auto& It : AllProgramsFromRepo)
+		{
+			UYetiOS_BaseProgram* MyLoadedProgram = NewObject<UYetiOS_BaseProgram>(this, It.ProgramClass);
+			OutPrograms.Add(MyLoadedProgram->GetClass());
+		}
+
+		return true;
+	}
+
+	OutPrograms = TArray<TSubclassOf<class UYetiOS_BaseProgram>>();
+	return false;
+}
+
+#undef printlog
 #undef printlog_warn
 #undef printlog_error
 #undef printlog_veryverbose

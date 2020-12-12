@@ -14,6 +14,11 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Input/Reply.h"
 #include "Components/CanvasPanel.h"
+#include "Misc/YetiOS_SystemSettings.h"
+#include "Core/YetiOS_Taskbar.h"
+#include "Widgets/YetiOS_TaskbarWidget.h"
+#include "Widgets/YetiOS_AppWidget.h"
+#include "Widgets/YetiOS_DialogWidget.h"
 
 
 UYetiOS_DraggableWindowWidget::UYetiOS_DraggableWindowWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -170,15 +175,29 @@ FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonDown_WindowTitleBorder(F
 	BringWindowToFront();
 	if (bEnableDrag)
 	{
-		OnMouseButtonUp_WindowTitleBorder(InGeometry, InMouseEvent);
-		bIsMouseButtonDown = true;
-		bIsDragging = true;
+		bool bCanDrag = true;
+		if (OwningOS->IsModalDialogOpen())
+		{
+			bCanDrag = false;
+			UYetiOS_DialogWidget* ThisIsModalDialog = Cast<UYetiOS_DialogWidget>(ProgramCanvas->GetChildAt(0));
+			if (ThisIsModalDialog)
+			{
+				bCanDrag = ThisIsModalDialog->IsModalDialog();
+			}
+		}
+		
+		if (bCanDrag)
+		{
+			OnMouseButtonUp_WindowTitleBorder(InGeometry, InMouseEvent);
+			bIsMouseButtonDown = true;
+			bIsDragging = true;
 
-		FVector2D OutPixelPosition;
-		USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, LastMousePosition);
-		FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
-		K2_OnDragStart(InMouseEvent);
-		return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this);
+			FVector2D OutPixelPosition;
+			USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, LastMousePosition);
+			FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
+			K2_OnDragStart(InMouseEvent);
+			return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this);
+		}
 	}
 
 	return FEventReply();
@@ -186,17 +205,22 @@ FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonDown_WindowTitleBorder(F
 
 FEventReply UYetiOS_DraggableWindowWidget::OnMouseButtonDown_ResizeArea(FGeometry InGeometry, const FPointerEvent& InMouseEvent)
 {
-	bIsMouseButtonDown = true;
-	bIsResizing = true;
+	if (BringWindowToFront())
+	{
+		bIsMouseButtonDown = true;
+		bIsResizing = true;
 
-	FVector2D OutPixelPosition;
-	USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, LastMousePosition);
-	PreResizeAlignment = ParentSlot->GetAlignment();
-	PreDragSize = ParentSlot->GetSize();
-	PreResizeOffset = PreDragSize * PreResizeAlignment;
-	FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
-	K2_OnResizeStart(InMouseEvent);
-	return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this);
+		FVector2D OutPixelPosition;
+		USlateBlueprintLibrary::AbsoluteToViewport(this, InMouseEvent.GetScreenSpacePosition(), OutPixelPosition, LastMousePosition);
+		PreResizeAlignment = ParentSlot->GetAlignment();
+		PreDragSize = ParentSlot->GetSize();
+		PreResizeOffset = PreDragSize * PreResizeAlignment;
+		FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(FName("LeftMouseButton")));
+		K2_OnResizeStart(InMouseEvent);
+		return UWidgetBlueprintLibrary::CaptureMouse(EventReply, this);
+	}
+
+	return FEventReply();
 }
 
 FText UYetiOS_DraggableWindowWidget::GetWindowText(const bool bWithProcessID /*= false*/) const
@@ -216,17 +240,42 @@ EYetiOsProgramVisibilityState UYetiOS_DraggableWindowWidget::GetCurrentVisibilit
 
 void UYetiOS_DraggableWindowWidget::CloseWindow()
 {
-	OwningOS->GetOsWidget()->RemoveTaskbarButton(this);
+	OwningOS->OnPeekPreview.Remove(OnPeekPreviewDelegateHandle);
+	OnPeekPreviewDelegateHandle.Reset();
+
+	UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+	if (OsSystemSettings)
+	{
+		OsSystemSettings->OnThemeModeChanged.Remove(OnThemeChangedDelegateHandle);
+		OnThemeChangedDelegateHandle.Reset();
+
+		OsSystemSettings->OnShowProgramIconChanged.Remove(OnShowProgramIconDelegateHandle);
+		OnShowProgramIconDelegateHandle.Reset();
+	}
+	
+	UYetiOS_Taskbar* OutTaskbar;
+	if (OwningOS->GetTaskbar(OutTaskbar))
+	{
+		OutTaskbar->GetTaskbarWidget()->RemoveProgramFromTaskbar(this);
+	}
+
 	ProgramCanvas->ClearChildren();
 	RemoveFromParent();
 }
 
-void UYetiOS_DraggableWindowWidget::BringWindowToFront()
+bool UYetiOS_DraggableWindowWidget::BringWindowToFront()
 {
 	if (OwningOS)
 	{
-		OwningOS->UpdateWindowZOrder(this);
+		return OwningOS->UpdateWindowZOrder(this);
 	}
+
+	return false;
+}
+
+void UYetiOS_DraggableWindowWidget::OnPeekPreview(const bool bBegin)
+{
+	bBegin ? K2_OnBeginPeekPreview() : K2_OnEndPeekPreview();
 }
 
 bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVisibilityState InNewState)
@@ -240,11 +289,30 @@ bool UYetiOS_DraggableWindowWidget::ChangeVisibilityState(const EYetiOsProgramVi
 	return false;	
 }
 
-void UYetiOS_DraggableWindowWidget::AddProgramWidget(class UYetiOS_AppWidget* InWidget)
+void UYetiOS_DraggableWindowWidget::AddWidget(class UYetiOS_UserWidget* InUserWidget)
 {
-	OwningOS = OwningProgram->GetOwningOS();
-	ProgramCanvas->AddChildToCanvas(InWidget);
-	InWidget->SetWindow(this);
-	K2_OnProgramAdded(InWidget);
-	OwningOS->GetOsWidget()->AddTaskbarButton(this);
+	if (InUserWidget)
+	{
+		OwningOS = InUserWidget->GetOwningOS();
+		ProgramCanvas->AddChildToCanvas(InUserWidget);
+		InUserWidget->SetWindow(this);
+
+		UYetiOS_Taskbar* OutTaskbar;
+		if (OwningOS->GetTaskbar(OutTaskbar))
+		{
+			OutTaskbar->GetTaskbarWidget()->AddWindowToTaskbar(this);
+		}
+
+		UYetiOS_SystemSettings* OsSystemSettings = OwningOS->GetSystemSettings();
+		if (OsSystemSettings)
+		{
+			K2_OnThemeChanged(OsSystemSettings->GetCurrentTheme());
+			K2_OnShowProgramIcon(OsSystemSettings->GetShowProgramIcon());
+			OnThemeChangedDelegateHandle = OsSystemSettings->OnThemeModeChanged.AddUFunction(this, FName("K2_OnThemeChanged"));
+			OnShowProgramIconDelegateHandle = OsSystemSettings->OnShowProgramIconChanged.AddUFunction(this, FName("K2_OnShowProgramIcon"));
+		}
+
+		OnPeekPreviewDelegateHandle = OwningOS->OnPeekPreview.AddUObject(this, &UYetiOS_DraggableWindowWidget::OnPeekPreview);
+		K2_OnWidgetAdded(InUserWidget);
+	}
 }

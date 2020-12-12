@@ -7,29 +7,35 @@
 #include "Core/YetiOS_BaseProgram.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
 #include "Devices/YetiOS_PortableDevice.h"
+#include "Hardware/YetiOS_Motherboard.h"
+#include "Hardware/YetiOS_HardDisk.h"
 #include "Templates/SubclassOf.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsSaveGame, All, All)
 
-#define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsOperatingSystem, VeryVerbose, TEXT("%s"), *FString(Param1))
+#define printlog_error(Param1)			UE_LOG(LogYetiOsSaveGame, Error, TEXT("%s"), *FString(Param1))
+#define printlog_veryverbose(Param1)	UE_LOG(LogYetiOsSaveGame, VeryVerbose, TEXT("%s"), *FString(Param1))
 
+static const float SAVE_VERSION = 2.0;
 
 UYetiOS_SaveGame::UYetiOS_SaveGame()
 {
-	SaveSlotName = "YetiTechYetiOsPlugin";
+	SaveSlotName = "YetiTech_OperatingSystemSimulator";
 	UserIndex = 0;
 }
 
 const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 {
-	if (InDevice)
+	if (InDevice && InDevice->GetSaveGameClass())
 	{
 		const AYetiOS_DeviceManagerActor* MyDeviceManager = Cast<AYetiOS_DeviceManagerActor>(InDevice->GetOuter());
 		if (MyDeviceManager && MyDeviceManager->CanSaveGame())
 		{
-			UYetiOS_SaveGame* SaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
+			UYetiOS_SaveGame* SaveGameInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(InDevice->GetSaveGameClass()));
+			SaveGameInstance->SaveVersion = SAVE_VERSION;
 			SaveGameInstance->DeviceData.bSaveLoad_OsInstalled = InDevice->IsOperatingSystemInstalled();
+			SaveGameInstance->DeviceData.SaveLoad_RemainingSpace = InDevice->GetMotherboard()->GetHardDisk()->GetRemainingSpace();
 
 			const UYetiOS_PortableDevice* MyPortableDevice = Cast<UYetiOS_PortableDevice>(InDevice);
 			if (MyPortableDevice)
@@ -42,7 +48,6 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 			{
 				SaveGameInstance->OsData.SaveLoad_OsUsers = OperatingSystem->GetAllUsers();
 				SaveGameInstance->OsData.SaveLoad_OSVersion = OperatingSystem->GetOsVersion();
-				SaveGameInstance->OsData.SaveLoad_RemainingSpace = OperatingSystem->GetRemainingSpace();
 				const TArray<const UYetiOS_DirectoryBase*> AllDirectories = OperatingSystem->GetAllCreatedDirectories();
 
 				for (const auto& It : AllDirectories)
@@ -87,19 +92,34 @@ const bool UYetiOS_SaveGame::SaveGame(const class UYetiOS_BaseDevice* InDevice)
 	return false;
 }
 
-const UYetiOS_SaveGame* UYetiOS_SaveGame::LoadGame()
+const UYetiOS_SaveGame* UYetiOS_SaveGame::LoadGame(const class UYetiOS_BaseDevice* InDevice)
 {
-	UYetiOS_SaveGame* Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(UYetiOS_SaveGame::StaticClass()));
-	const FString MySaveSlotName = Local_SaveLoadInstance->SaveSlotName;
-	const uint32 MyUserIndex = Local_SaveLoadInstance->UserIndex;
-
-	if (UGameplayStatics::DoesSaveGameExist(MySaveSlotName, MyUserIndex))
+	UYetiOS_SaveGame* Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::CreateSaveGameObject(InDevice->GetSaveGameClass()));
+	if (Local_SaveLoadInstance)
 	{
-		Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::LoadGameFromSlot(MySaveSlotName, MyUserIndex));
-		return Local_SaveLoadInstance;
+		const FString MySaveSlotName = Local_SaveLoadInstance->SaveSlotName;
+		const uint32 MyUserIndex = Local_SaveLoadInstance->UserIndex;
+		Local_SaveLoadInstance->ConditionalBeginDestroy();
+		Local_SaveLoadInstance = nullptr;
+
+		if (UGameplayStatics::DoesSaveGameExist(MySaveSlotName, MyUserIndex))
+		{
+			Local_SaveLoadInstance = Cast<UYetiOS_SaveGame>(UGameplayStatics::LoadGameFromSlot(MySaveSlotName, MyUserIndex));
+			if (Local_SaveLoadInstance->SaveVersion != SAVE_VERSION)
+			{
+				printlog_error(FString::Printf(TEXT("Failed to load save game. Version mismatch. Loaded save version: %f. Expected version: %f"), Local_SaveLoadInstance->SaveVersion, SAVE_VERSION));
+				Local_SaveLoadInstance->ConditionalBeginDestroy();
+				Local_SaveLoadInstance = nullptr;
+			}
+		}
+	}
+	else
+	{
+		printlog_error("Failed to load game. Load Game Instance was null.");
 	}
 
-	return nullptr;
+	return Local_SaveLoadInstance;
 }
 
+#undef printlog_error
 #undef printlog_veryverbose

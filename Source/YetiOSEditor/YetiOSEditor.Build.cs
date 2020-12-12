@@ -34,6 +34,7 @@ public class YetiOSEditor : ModuleRules
 					"AssetRegistry",
 					"PropertyEditor",
 					"AdvancedPreviewScene",
+					"YetiOS"
 				}
 			);
 	}

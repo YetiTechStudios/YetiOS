@@ -20,15 +20,19 @@ class YETIOS_API UYetiOS_ProgramSettings : public USaveGame
 	
 private:
 
+	/** Identifier of the owning program */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	FName ParentProgramIdentifier;
 
+	/** Auto generated save slot name. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	FString SaveSlotName;
 
+	/** For some platforms, master user index to identify the user doing the saving */
 	UPROPERTY(EditDefaultsOnly, Category = "Program Settings")
 	int32 UserIndex;
 
+	/** Program that owns this settings. */
 	UPROPERTY()
 	class UYetiOS_BaseProgram* OwningProgram;
 
@@ -36,8 +40,20 @@ public:
 
 	UYetiOS_ProgramSettings();
 
+	/**
+	* public static UYetiOS_ProgramSettings::CreateSettings
+	* Creates the settings object for the given program.
+	* @param InParentProgram [const class UYetiOS_BaseProgram*] Program to create settings for.
+	* @param InSettingsClass [TSubclassOf<UYetiOS_ProgramSettings>] Settings class to create from.
+	* @return [UYetiOS_ProgramSettings*] Newly created settings object.
+	**/
 	static UYetiOS_ProgramSettings* CreateSettings(const class UYetiOS_BaseProgram* InParentProgram, TSubclassOf<UYetiOS_ProgramSettings> InSettingsClass);
 
+	/**
+	* public static UYetiOS_ProgramSettings::CreateSettings
+	* Helper function that casts to the given settings type.
+	* @See CreateSettings
+	**/
 	template <class T>
 	static T* CreateSettings(const class UYetiOS_BaseProgram* InParentProgram, TSubclassOf<UYetiOS_ProgramSettings> InSettingsClass)
 	{
@@ -45,8 +61,19 @@ public:
 		return Cast<T>(CreateSettings(InParentProgram, InSettingsClass));
 	}
 
+	/**
+	* public static UYetiOS_ProgramSettings::LoadSettings
+	* Load settings for given program.
+	* @param InParentProgram [const class UYetiOS_BaseProgram*] Program to load settings for.
+	* @return [UYetiOS_ProgramSettings*] Newly created program settings.
+	**/
 	static UYetiOS_ProgramSettings* LoadSettings(const class UYetiOS_BaseProgram* InParentProgram);
 
+	/**
+	* public static UYetiOS_ProgramSettings::LoadSettings
+	* Helper function that casts to the given settings type.
+	* @See LoadSettings
+	**/
 	template <class T>
 	static T* LoadSettings(const class UYetiOS_BaseProgram* InParentProgram)
 	{
@@ -54,7 +81,13 @@ public:
 		return Cast<T>(LoadSettings(InParentProgram));
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Yeti OS Program Settings")
+	/**
+	* public static UYetiOS_ProgramSettings::SaveProgramSettings
+	* Save program settings for given program
+	* @param InProgram [class UYetiOS_BaseProgram*] Program to save settings for.
+	* @return [bool] True if settings were saved.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global")	
 	static bool SaveProgramSettings(class UYetiOS_BaseProgram* InProgram);
 
 private:
@@ -70,18 +103,36 @@ private:
 
 public:
 
+	/**
+	* public UYetiOS_ProgramSettings::Destroy
+	* Destroys this object.
+	**/
 	void Destroy();
 
 private:
 
+	/**
+	* private UYetiOS_ProgramSettings::Internal_SetSaveSlotName
+	* Sets the SaveSlotName variable.
+	**/
 	void Internal_SetSaveSlotName();
 
 protected:
 
+	/**
+	* protected UYetiOS_ProgramSettings::GetOwningProgram const
+	* Returns the program that owns this settings.
+	* @return [class UYetiOS_BaseProgram*] OwningProgram
+	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Program Settings")
 	class UYetiOS_BaseProgram* GetOwningProgram() const;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Yeti OS Program Settings", DisplayName = "Can Save")
+	/**
+	* protected UYetiOS_ProgramSettings::K2_CanSave const
+	* Function that determines if data can be saved. This can be overridden in Blueprints and native implementation simply checks if Device Manager can save game.
+	* @return [bool] True if saving can be done.
+	**/
+	UFUNCTION(BlueprintNativeEvent, Category = "Yeti OS Program Settings", DisplayName = "Can Save")	
 	bool K2_CanSave() const;
 
 	/**
@@ -90,4 +141,13 @@ protected:
 	**/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Program Settings", DisplayName = "Pre Save")	
 	void K2_PreSave();
+
+private:
+
+	/**
+	* private UYetiOS_ProgramSettings::Internal_GetSaveSlotName const
+	* Auto generates the save slot name in format ProgramIdentifier_OwningDeviceName.
+	* @return [const FString] 
+	**/
+	inline const FString Internal_GetSaveSlotName() const;
 };

@@ -30,11 +30,6 @@ UYetiOS_TerminalProgram::UYetiOS_TerminalProgram()
 	CommandHistoryIndex = INDEX_NONE;
 }
 
-const FText UYetiOS_TerminalProgram::GetRootCommandName()
-{
-	return UYetiOS_Core::ROOT_COMMAND;
-}
-
 const bool UYetiOS_TerminalProgram::StartProgram(FYetiOsError& OutErrorMessage)
 {
 	ChangeCurrentPath(DefaultStartDirectory.ToString());
@@ -63,6 +58,11 @@ void UYetiOS_TerminalProgram::CheckUserPrompt(const bool bIsYes)
 void UYetiOS_TerminalProgram::PromptForUserContinueInput()
 {
 	K2_OnPromptUserContinue();
+}
+
+FText UYetiOS_TerminalProgram::GetRootCommand() const
+{
+	return GetOwningOS()->GetRootCommand();
 }
 
 const bool UYetiOS_TerminalProgram::CheckRootPassword(const FText& InPasswordToCheck, const bool bCaseSensitive /*= true*/)

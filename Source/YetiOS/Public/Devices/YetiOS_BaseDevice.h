@@ -20,35 +20,51 @@ class YETIOS_API UYetiOS_BaseDevice : public UObject
 	GENERATED_BODY()
 
 	friend class UYetiOS_Core;
+	friend class UYetiOS_BaseHardware;
+
+	FTimerHandle TimerHandle_Restart;
 
 private:
 
+	/** Name of this device */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	FText DeviceName;
 
-	//UPROPERTY(EditDefaultsOnly)
-	//TArray<FYetiOsWiFi> WifiConnections;
+	/** Hardware classes for this device. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
+	FYetiOS_DeviceClasses DeviceClasses;
 
+	/** Operating system for this device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_Core> OperatingSystemClass;
 
+	/** Widget of this device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_DeviceWidget> DeviceWidgetClass;
 
+	/** Widget that represents BSOD for this device. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
 	TSubclassOf<class UYetiOS_BsodWidget> BsodWidgetClass;
 
+	/** Save game class to be used for this device. Defaults to UYetiOS_SaveGame::StaticClass */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
+	TSubclassOf<class UYetiOS_SaveGame> SaveGameClass;
+
+	/** If true, then skip installation of operating system simulating the effect that OS is pre-installed */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device")
+	uint8 bOperatingSystemIsPreInstalled : 1;
+
+	/** Forces GC to run when this device is destroyed or restarted. If you experience any hitches, try disabling this. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Base Device", AdvancedDisplay = "true")
+	uint8 bForceGarbageCollectionWhenDeviceIsDestroyed : 1;
+
+	/** True of Operating System is installed on this device. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bOperatingSystemInstalled : 1;
 
+	/** Motherboard. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	uint8 bBsodHappened : 1;
-
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	float DeviceScore;
-
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	float MaxDeviceScore;
+	class UYetiOS_Motherboard* DeviceMotherboard;
 
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OperatingSystem;
@@ -59,15 +75,31 @@ private:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_BsodWidget* BsodWidget;
 
+	/** Current state of the device. Starting, Running, Restart etc. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	EYetiOsDeviceState CurrentDeviceState;
 
+	/** Holds reference to the current widget on screen. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UUserWidget* OnScreenWidget;
+
+	/** An array of hardwares that are installed on this device. */
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	TArray<class UYetiOS_BaseHardware*> InstalledHardwares;
 
 public:
 
 	UYetiOS_BaseDevice();
+
+	/**
+	* public static UYetiOS_BaseDevice::GetMonthName
+	* Returns the month name from the given DateTime struct. Example: January, February, March and so on.
+	* @param InDateTime [const FDateTime&] DateTime struct to retrieve the Month Name from.
+	* @param bShort [const bool] If true, return the month name in short format. E.g: Jan, Feb, Mar and so on.
+	* @return [FText] Returns month name.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
+	static FText GetMonthName(const FDateTime& InDateTime, const bool bShort = false);
 
 	/**
 	* public UYetiOS_BaseDevice::GetCastedDevice
@@ -108,10 +140,9 @@ public:
 	* public UYetiOS_BaseDevice::StartOperatingSystem
 	* Starts the operating system. This will detect if the OS is installed or no. If installed, then it will start. If not, it will install it.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @param bShowBsodOnError [const bool] If true, then show Blue Screen if error happens.
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Base Device")	
-	void StartOperatingSystem(FYetiOsError& OutErrorMessage, const bool bShowBsodOnError = true);
+	bool StartOperatingSystem(FYetiOsError& OutErrorMessage);
 
 	/**
 	* public UYetiOS_BaseDevice::ShutdownYetiDevice
@@ -169,12 +200,29 @@ public:
 	inline FText GetDeviceName() const { return DeviceName; }
 
 	/**
+	* public UYetiOS_BaseDevice::GetMotherboard const
+	* Returns the motherboard of this device.
+	* @return [class UYetiOS_Motherboard*] Motherboard
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	class UYetiOS_Motherboard* GetMotherboard() const { return DeviceMotherboard; }
+
+	/**
+	* public UYetiOS_BaseDevice::GetDeviceManager const
+	* Returns the device manager actor that owns this device.
+	* @return [class AYetiOS_DeviceManagerActor*] Device Manager Actor
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	class AYetiOS_DeviceManagerActor* GetDeviceManager() const;
+
+	/**
 	* public UYetiOS_BaseDevice::UpdateDeviceState
 	* Updates current device state to new state.
 	* @param InNewState [EYetiOsDeviceState] State to change to.
 	* @return [const bool] True if state was changed.
 	**/
 	const bool UpdateDeviceState(EYetiOsDeviceState InNewState);
+	const bool UpdateDeviceState(EYetiOsDeviceState InNewState, FYetiOsError& OutErrorMessage);
 
 	/**
 	* virtual public UYetiOS_BaseDevice::OnFinishInstallingOperatingSystem
@@ -199,27 +247,27 @@ public:
 	virtual void DestroyYetiDeviceAndRestart();
 
 private:
-	/**
-	* private UYetiOS_BaseDevice::Internal_CalculateDeviceScore
-	* Calculates the device score. Device Score can be used to check if the device is faster or slower. Higher the number faster the device is.
-	**/
-	void Internal_CalculateDeviceScore();
 
 	/**
-	* private UYetiOS_BaseDevice::Internal_GetSystemDurability const
-	* Gets the durability of the system in 0-1 range.
-	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @return [const float] Returns system durability.
+	* private UYetiOS_BaseDevice::Internal_DestroyDevice
+	* Destroys this device.
 	**/
-	inline const float Internal_GetSystemDurability(FYetiOsError& OutErrorMessage) const;
+	void Internal_DestroyDevice();
 
-	/**
-	* private UYetiOS_BaseDevice::Internal_DeviceCanBoot const
-	* Checks if the device can boot.
-	* @param OutErrorMessage [FYetiOsError &] Outputs error message (if any).
-	* @return [const bool] Returns true if device can boot.
+	/** [EXPERIMENTAL]
+	* private UYetiOS_BaseDevice::Internal_InstallHardware
+	* Installs the given hardware to this device.
+	* @param InHardware [class UYetiOS_BaseHardware*] Hardware to install on this device.
 	**/
-	inline const bool Internal_DeviceCanBoot(FYetiOsError& OutErrorMessage) const;
+	const bool Internal_InstallHardware(class UYetiOS_BaseHardware* InHardware);
+
+	/** [EXPERIMENTAL]
+	* private UYetiOS_BaseDevice::Internal_RemoveHardware
+	* Removes the given hardware from this device.
+	* @param InHardware [class UYetiOS_BaseHardware*] Hardware to remove.
+	* @return [const bool] True if the hardware existed and removed successfully.
+	**/
+	const bool Internal_RemoveHardware(class UYetiOS_BaseHardware* InHardware);
 
 	/**
 	* private static UYetiOS_BaseDevice::Internal_GetBasePath
@@ -232,15 +280,6 @@ private:
 	static const FString Internal_GetLoginWallpapersPath(const UYetiOS_BaseDevice* InDevice);
 	static const FString Internal_GetDesktopWallpapersPath(const UYetiOS_BaseDevice* InDevice);
 	static const FString Internal_UserIconsPath(const UYetiOS_BaseDevice* InDevice);
-
-	/**
-	* private static UYetiOS_BaseDevice::Internal_GetFiles
-	* Gets an array of physical paths of given file type extension.
-	* @param InPath [const FString&] Physical path to search.
-	* @param InExtension [const FString&] Extension to search for.
-	* @return [const TArray<FString>] Array of files.
-	**/
-	static const TArray<FString> Internal_GetFiles(const FString& InPath, const FString& InExtension = "*.png");
 
 	/**
 	* private static UYetiOS_BaseDevice::Internal_GetFiles
@@ -261,27 +300,43 @@ private:
 
 protected:
 
+	/**
+	* virtual protected UYetiOS_BaseDevice::LoadSavedData
+	* Loads the save game information of this device.
+	* @param InLoadGameInstance [const class UYetiOS_SaveGame*] Save Game Instance to load the data from.
+	**/
 	virtual void LoadSavedData(const class UYetiOS_SaveGame* InLoadGameInstance);
 
-	virtual const FYetiOsHardDisk GetHardDisk() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetHardDisk, return FYetiOsHardDisk(););
-	virtual const float GetTotalCpuSpeed(const bool bWithDurability) const				PURE_VIRTUAL(UYetiOS_BaseDevice::GetTotalCpuSpeed, return 0.f;);
-	virtual const float GetTotalMemorySize() const										PURE_VIRTUAL(UYetiOS_BaseDevice::GetTotalMemorySize(), return 0.f;);
-	virtual const float GetMotherboardDurability() const								PURE_VIRTUAL(UYetiOS_BaseDevice::GetMotherboardDurability, return 0.f;);
-	virtual const bool MotherboardHasOnBoardGraphics() const							PURE_VIRTUAL(UYetiOS_BaseDevice::MotherboardHasOnBoardGraphics, return false;);
-	virtual const bool CpusAreOfCorrectType(FYetiOsCpu& OutIncorrectCpu) const			PURE_VIRTUAL(UYetiOS_BaseDevice::CpusAreOfCorrectType, return false;);
-	virtual const bool IsGpuInstalled() const											PURE_VIRTUAL(UYetiOS_BaseDevice::IsGpuInstalled, return false;);
-	virtual const bool HasEnoughPower() const											PURE_VIRTUAL(UYetiOS_BaseDevice::HasEnoughPower, return false;);
-	virtual const FString GetSocketName() const											PURE_VIRTUAL(UYetiOS_BaseDevice::GetSocketName, return FString(););
-	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const		PURE_VIRTUAL(UYetiOS_BaseDevice::GetRootDirectoryClass, return nullptr;);
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetHardDisk const
+	* Returns the HDD of this device.
+	* @return [const UYetiOS_HardDisk*] Harddisk
+	**/
+	virtual const UYetiOS_HardDisk* GetHardDisk() const;
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
-	virtual const TArray<FYetiOsCpu> GetAllCpus() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllCpus, return TArray<FYetiOsCpu>(););
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetTotalCpuSpeed const
+	* Returns the total CPU speed of this device. E.g: If you have 2 CPU's with 1000 MHZ speed each, this will return 1000 * 2 = 2000.
+	* @return [const float] Total CPU speed
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	virtual const float GetTotalCpuSpeed() const; 
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
-	virtual const TArray<FYetiOsMemory> GetAllMemory() const							PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllMemory, return TArray<FYetiOsMemory>(););
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetTotalMemorySize const
+	* Returns the total RAM speed of this device. E.g: If you have 4 RAM's with 256 speed each, this will return 256 * 2 = 512.
+	* @param bInBytes [const bool] True to return this in bytes instead of MB. For 256 to bytes is 256000000 bytes.
+	* @return [const float] Total memory size
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	virtual const float GetTotalMemorySize(const bool bInBytes = true) const;
 
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
-	virtual const TArray<FYetiOsGpu> GetAllGpu() const									PURE_VIRTUAL(UYetiOS_BaseDevice::GetAllGpu, return TArray<FYetiOsGpu>(););
+	/**
+	* virtual protected UYetiOS_BaseDevice::GetRootDirectoryClass const
+	* Returns the root directory class of this device. Only valid if a Harddisk is available.
+	* @return [TSubclassOf<class UYetiOS_DirectoryRoot>] 
+	**/
+	virtual TSubclassOf<class UYetiOS_DirectoryRoot> GetRootDirectoryClass() const;
 
 public:
 
@@ -292,7 +347,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of wallpaper paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")	
 	static TArray<FString> GetLoginWallpapers(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -302,7 +357,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of wallpaper paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
 	static TArray<FString> GetDesktopWallpapers(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -312,7 +367,7 @@ public:
 	* @param InDevice [const UYetiOS_BaseDevice*] You need to pass a valid device.
 	* @return [TArray<FString>] An array of icon paths.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
 	static TArray<FString> GetUserIconImages(const UYetiOS_BaseDevice* InDevice);
 
 	/**
@@ -323,13 +378,36 @@ public:
 	* @param DefaultTextureIfNull [UTexture2D*] Default texture to return if runtime texture fails to load.
 	* @return [UTexture2D*] Loaded texture or default texture if runtime texture loading fails.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Device")	
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")	
 	static UTexture2D* CreateTextureFromPath(const FString& InImagePath, UTexture2D* DefaultTextureIfNull);
 
+protected:
+
+	/**
+	* protected UYetiOS_BaseDevice::K2_OnHardwareInstalled
+	* Event called when a hardware is installed.
+	* @param InstalledHardware [class UYetiOS_BaseHardware*] Newly installed hardware.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Device", DisplayName = "On Hardware Installed")	
+	void K2_OnHardwareInstalled(class UYetiOS_BaseHardware* InstalledHardware);
+
+	/**
+	* protected UYetiOS_BaseDevice::K2_OnHardwareRemoved
+	* Event called when a hardware is removed.
+	* @param RemovedHardware [class UYetiOS_BaseHardware*] Removed hardware.
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti OS Base Device", DisplayName = "On Hardware Removed")	
+	void K2_OnHardwareRemoved(class UYetiOS_BaseHardware* RemovedHardware);
+
+public:
+
+	FORCEINLINE const bool IsOperatingSystemPreInstalled() const { return bOperatingSystemIsPreInstalled; }
 	FORCEINLINE const bool IsOperatingSystemInstalled() const { return bOperatingSystemInstalled; }
-	FORCEINLINE const bool IsInBsodState() const { return bBsodHappened; }
+	FORCEINLINE const bool IsInBsodState() const { return CurrentDeviceState == EYetiOsDeviceState::STATE_BSOD; }
+	FORCEINLINE const bool CanGarbageCollect() const { return bForceGarbageCollectionWhenDeviceIsDestroyed; }
 	FORCEINLINE TSubclassOf<class UYetiOS_DeviceWidget> GetDeviceWidgetClass() const { return DeviceWidgetClass; }
-	FORCEINLINE const float GetDeviceScore(const bool bNormalize = true) const { return bNormalize ? (DeviceScore / MaxDeviceScore) : DeviceScore; }
+	FORCEINLINE const FYetiOS_DeviceClasses& GetDeviceClasses() const { return DeviceClasses; }
+	FORCEINLINE TSubclassOf<class UYetiOS_SaveGame> GetSaveGameClass() const { return SaveGameClass; }
 	
 	static FORCEINLINE const TSet<FString> GetImageExtensions()
 	{

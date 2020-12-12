@@ -11,10 +11,12 @@
 #include "UnrealEd/Public/Dialogs/Dialogs.h"
 #include "Components/SceneComponent.h"
 #endif
+#include "Engine/Engine.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDeviceManager, All, All)
 
-#define printlog_display(Param1)		UE_LOG(LogYetiOsDeviceManager, Display, TEXT("%s"), *FString(Param1))
+#define printlog(Param1)		UE_LOG(LogYetiOsDeviceManager, Log, TEXT("%s"), *FString(Param1))
+#define printlog_warn(Param1)	UE_LOG(LogYetiOsDeviceManager, Warning, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "YetiOS"
 
@@ -32,22 +34,10 @@ AYetiOS_DeviceManagerActor::AYetiOS_DeviceManagerActor()
 	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
-AYetiOS_DeviceManagerActor* AYetiOS_DeviceManagerActor::GetDeviceManager(const UObject* WorldContextObject)
-{
-	ensureAlwaysMsgf(false, TEXT("GetDeviceManager has been deprecated. This function will only return null."));
-	return nullptr;
-}
-
-class UYetiOS_BaseDevice* AYetiOS_DeviceManagerActor::GetCurrentDevice(const UObject* WorldContextObject)
-{
-	ensureAlwaysMsgf(false, TEXT("GetCurrentDevice has been deprecated. This function will only return null."));
-	return nullptr;
-}
-
-void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName /*= FText::GetEmpty()*/, const FText InExceptionName /*= FText::GetEmpty()*/, const FText InDetailedException /*= FText::GetEmpty()*/)
+void AYetiOS_DeviceManagerActor::ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FYetiOsError& InErrorMessage)
 {
 	checkf(InDevice != nullptr, TEXT("Device cannot be null for BSOD."));
-	InDevice->ShowBSOD(InFaultingModuleName, InExceptionName, InDetailedException);
+	InDevice->ShowBSOD(InErrorMessage.ErrorCode, InErrorMessage.ErrorException, InErrorMessage.ErrorDetailedException);
 }
 
 void AYetiOS_DeviceManagerActor::BeginPlay()
@@ -59,10 +49,15 @@ void AYetiOS_DeviceManagerActor::BeginPlay()
 		FYetiOsError ErrorMessage;
 		CreateDevice(ErrorMessage);
 	}
+
+	Internal_OnClockTimerTick();
+	GetWorldTimerManager().SetTimer(TimerHandle_ClockTick, this, &AYetiOS_DeviceManagerActor::Internal_OnClockTimerTick, 1.f, true);
 }
 
 void AYetiOS_DeviceManagerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	OnClockTick.Clear();
+	GetWorldTimerManager().ClearTimer(TimerHandle_ClockTick);
 	Super::EndPlay(EndPlayReason);
 
 	FString EndReasonString = "Unknown";
@@ -88,7 +83,7 @@ void AYetiOS_DeviceManagerActor::EndPlay(const EEndPlayReason::Type EndPlayReaso
 			break;
 	}
 
-	printlog_display(FString::Printf(TEXT("Ending play on device manager %s. Reason: %s."), *GetName(), *EndReasonString));
+	printlog(FString::Printf(TEXT("Ending play on device manager %s. Reason: %s."), *GetName(), *EndReasonString));
 
 	if (CurrentDevice)
 	{
@@ -104,8 +99,17 @@ void AYetiOS_DeviceManagerActor::OnWidgetChanged(class UUserWidget* InNewWidget)
 
 void AYetiOS_DeviceManagerActor::OnCurrentDeviceDestroyed()
 {
+	const bool bGC = CurrentDevice->CanGarbageCollect();
+	CurrentDevice->ConditionalBeginDestroy();
 	CurrentDevice = nullptr;
 	K2_OnCurrentDeviceDestroyed();
+
+	if (bGC && GEngine)
+	{
+		GEngine->ForceGarbageCollection(true);
+		printlog_warn("Forced garbage collection on device destroyed.");
+	}
+
 	if (bExitGameWhenDeviceIsDestroyed)
 	{
 #if WITH_EDITOR
@@ -120,10 +124,11 @@ void AYetiOS_DeviceManagerActor::OnCurrentDeviceDestroyed()
 	}
 }
 
-void AYetiOS_DeviceManagerActor::RestartDevice(class UYetiOS_BaseDevice* InDevice)
+void AYetiOS_DeviceManagerActor::RestartDevice()
 {
-	check(InDevice == CurrentDevice);
-	CurrentDevice = nullptr;
+	const bool bGC = CurrentDevice->CanGarbageCollect();
+	CurrentDevice->ConditionalBeginDestroy();
+	CurrentDevice = nullptr;	
 
 	FTimerDelegate CreateDeviceDelegate;
 	FTimerHandle TimerHandle_Dummy;
@@ -131,6 +136,12 @@ void AYetiOS_DeviceManagerActor::RestartDevice(class UYetiOS_BaseDevice* InDevic
 	FYetiOsError ErrorMessage;
 	CreateDeviceDelegate.BindUFunction(this, FName("CreateDevice"), ErrorMessage);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_Dummy, CreateDeviceDelegate, 1.f, false);
+
+	if (bGC && GEngine)
+	{
+		GEngine->ForceGarbageCollection(true);
+		printlog_warn("Forced garbage collection on device restart.");
+	}
 }
 
 void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)
@@ -146,5 +157,12 @@ void AYetiOS_DeviceManagerActor::CreateDevice(FYetiOsError& OutErrorMessage)
 	OutErrorMessage.ErrorException = LOCTEXT("YetiOS_CurrentDeviceCreateException", "Current device was already created or Device class was null");
 }
 
-#undef printlog_display
+void AYetiOS_DeviceManagerActor::Internal_OnClockTimerTick()
+{
+	K2_OnClockTimerTick();
+	OnClockTick.Broadcast();
+}
+
+#undef printlog
+#undef printlog_warn
 #undef LOCTEXT_NAMESPACE

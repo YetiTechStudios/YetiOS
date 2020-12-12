@@ -15,49 +15,62 @@ YetiOS_DirectoryBase.h
 * Description:
 Base class for all directories.
 *************************************************************************/
-UCLASS(Abstract, Blueprintable, DisplayName = "Base Directory")
+UCLASS(hidedropdown, Blueprintable, DisplayName = "Base Directory")
 class YETIOS_API UYetiOS_DirectoryBase : public UObject
 {
 	GENERATED_BODY()
 
+#if WITH_EDITORONLY_DATA
+	friend class UYetiOS_ThumbnailRenderer;
+#endif
+
 protected:
 
-	/* Name of this directory. */
+	/** Name of this directory. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
 	FText DirectoryName;
 	
-	/* An icon for this directory. Like a folder icon. */
+	/** An icon for this directory. Like a folder icon. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
 	UTexture2D* DirectoryIcon;
 
-	/* True if user can create new folder in this directory. */
+	/** Type of this directory. Any type that is not Other is considered system directory. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
+	EDirectoryType DirectoryType;
+
+	/** True if user can create new folder in this directory. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
 	uint8 bCanCreateNewFolder : 1;
 
-	/* True if user can create new file in this directory. */
+	/** True if user can create new file in this directory. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
 	uint8 bCanCreateNewFile : 1;
 
-	/* True if this folder is hidden initially. */
+	/** True if this folder is hidden initially. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
 	uint8 bIsHidden : 1;
 
-	/* List of files in this directory. Only valid if Can Create New File is checked. */
+	/** List of files in this directory. Only valid if Can Create New File is checked. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base", meta = (EditCondition = "bCanCreateNewFile"))
-	TArray<FFileProperties> Files;
+	TSet<TSubclassOf<class UYetiOS_FileBase>> FileClasses;
 
-	/* List of child directories for this directory. Only valid if Can Create New Folder is checked. */
+	/** List of child directories for this directory. Only valid if Can Create New Folder is checked. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base", meta = (EditCondition = "bCanCreateNewFolder"))
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> ChildDirectoryClasses;
 
-	/* Parent directory */
+	/** Parent directory */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	UYetiOS_DirectoryBase* ParentDirectory;
 
-	/* List of child directories. */
+	/** Set of files in this directory. */
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	TSet<class UYetiOS_FileBase*> Files;
+
+	/** List of child directories. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<UYetiOS_DirectoryBase*> ChildDirectories;
 
+	/** Operating System that owns this directory. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OwningOS;
 
@@ -89,6 +102,15 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
 	UYetiOS_DirectoryBase* GetChildDirectory(TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass) const;
+
+	/**
+	* public UYetiOS_DirectoryBase::GetChildDirectoryByType const
+	* Returns a child directory of given type. Can be null so check for validity.
+	* @param InType [EDirectoryType] Type of directory to return.
+	* @return [UYetiOS_DirectoryBase*] Found directory of type. Can be null so check for validity.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")	
+	UYetiOS_DirectoryBase* GetChildDirectoryByType(EDirectoryType InType) const;
 
 	/**
 	* public UYetiOS_DirectoryBase::GetChildDirectoryByName const
@@ -129,10 +151,11 @@ public:
 	/**
 	* public UYetiOS_Directory::GetDirectoryFiles const
 	* Returns files in this directory.
-	* @return [TArray<FFileProperties>] List of FFileProperties struct.
+	* @param WithExtension [const FString] Extension to filter by. Set this to * or . or leave empty to get all files.
+	* @return [TSet<class UYetiOS_FileBase*>] List of file objects.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
-	TArray<FFileProperties> GetDirectoryFiles() const { return Files; }
+	TSet<class UYetiOS_FileBase*> GetDirectoryFiles(const FString WithExtension = "*") const;
 
 	/**
 	* public UYetiOS_Directory::IsHidden const
@@ -188,16 +211,31 @@ public:
 	TArray<UYetiOS_DirectoryBase*> CreateNativeChildDirectories(class UYetiOS_Core* InOwningOS, FYetiOsError& OutErrorMessage, const bool bForceCreate = false, const bool bCreateGrandChildDirectories = true);
 
 	/**
-	* public UYetiOS_DirectoryBase::CreateNewFile
+	* public UYetiOS_DirectoryBase::CreateNewFileByClass
 	* Creates a new file in this directory.
-	* @param InNewFile [FFileProperties] New file definition.
+	* @param InNewFileClass [TSubclassOf<class UYetiOS_FileBase>] File class to create.
+	* @param OutFile [class UYetiOS_FileBase*&] Reference to the newly created file (if valid).
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @param bForceCreate [const bool] Forcefully creates a file even if bCanCreateNewFile is false.
-	* @return [const bool] Returns true if the file was created successfully.
+	* @param bRequirePermission [const bool] Forcefully creates a file even if bCanCreateNewFile is false.
+	* @return [bool] Returns true if the file was created successfully.
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti Directory Base")
-	const bool CreateNewFile(FFileProperties InNewFile, FYetiOsError& OutErrorMessage, const bool bForceCreate = false);
+	UFUNCTION(BlueprintCallable, Category = "Yeti Directory Base")	
+	bool CreateNewFileByClass(TSubclassOf<class UYetiOS_FileBase> InNewFileClass, class UYetiOS_FileBase*& OutFile, FYetiOsError& OutErrorMessage, const bool bRequirePermission = false);
 
+	/**
+	* public UYetiOS_DirectoryBase::GetAllParentDirectories const
+	* Returns an array of all parent directories.
+	* @param bIncludeRootFolder [const bool] True to include root directory in result.
+	* @return [TArray<UYetiOS_DirectoryBase*>] Array of parents.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")	
+	TArray<UYetiOS_DirectoryBase*> GetAllParentDirectories(const bool bIncludeRootFolder = false) const;
+
+	/**
+	* public UYetiOS_DirectoryBase::EnsureOS
+	* Makes sure that OwningOS is set.
+	* @param InOS [const class UYetiOS_Core *] OS to assign if OwningOS is nullptr.
+	**/
 	void EnsureOS(const class UYetiOS_Core* InOS);
 
 private:
@@ -211,12 +249,22 @@ private:
 	* @param bForceCreate [const bool] Forcefully creates child directory even if this folder cannot create new directory. Ignores bCanCreateNewFolder.
 	* @param bCreateGrandChildDirectories [const bool] Continue to create child directories inside child directories.
 	* @param CheckDirectoryName [const FText&] Override default directory name with this name. 
+	* @param bIsSystemDir [const bool] Indicates the newly created directory is a system directory.
 	* @return [TArray<UYetiOS_DirectoryBase*>] Reference to the list of newly created child directories. This does not include grand child directories.
 	**/
-	TArray<UYetiOS_DirectoryBase*> Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate = false, const bool bCreateGrandChildDirectories = true, const FText& CheckDirectoryName = FText::GetEmpty());
+	TArray<UYetiOS_DirectoryBase*> Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, 
+		const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, 
+		FYetiOsError& OutErrorMessage, 
+		const bool bForceCreate = false, 
+		const bool bCreateGrandChildDirectories = true, 
+		const FText& CheckDirectoryName = FText::GetEmpty());
 
 public:
 
+	/**
+	* public UYetiOS_DirectoryBase::DestroyDirectory
+	* Destroys child directories and self.
+	**/
 	void DestroyDirectory();
 
 	/**
@@ -227,10 +275,27 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base", meta = (Keywords = "full"))	
 	FText GetDirectoryPath() const;
 
+	/**
+	* public UYetiOS_DirectoryBase::GetFullPath const
+	* Returns a string representation of full path.
+	* @param bDoNoIncludeHome [const bool] Enable to skip home directory.
+	* @return [FString] Returns string of full path of this directory.
+	**/
 	inline FString GetFullPath(const bool bDoNoIncludeHome = false) const;
 
+	/**
+	* public UYetiOS_DirectoryBase::HasChildDirectory const
+	* Checks if this directory has a child directory with given name.
+	* @param InDirectoryName [const FText &] Name to check for.
+	* @param OutFoundDirectory [UYetiOS_DirectoryBase*&] Contains a valid reference to the directory if it exists.
+	* @param bIgnoreCase [const bool] Case-insensitive if true.
+	* @return [const bool] True if a directory with given name exists.
+	**/
 	inline const bool HasChildDirectory(const FText& InDirectoryName, UYetiOS_DirectoryBase*& OutFoundDirectory, const bool bIgnoreCase = true) const;
 
+	FORCEINLINE const bool IsSystemDirectory() const { return DirectoryType != EDirectoryType::Other; }
 	FORCEINLINE const bool CanCreateNewFile() const { return bCanCreateNewFile; }
 	FORCEINLINE const TArray<TSubclassOf<UYetiOS_DirectoryBase>> GetChildDirectories() const { return ChildDirectoryClasses; }
+	FORCEINLINE const EDirectoryType GetDirectoryType() const  { return DirectoryType; }
+	FORCEINLINE class UYetiOS_Core* GetOwningOS() const { return OwningOS; }
 };

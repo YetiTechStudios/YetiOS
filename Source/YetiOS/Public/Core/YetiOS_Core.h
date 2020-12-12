@@ -7,124 +7,202 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_Core.generated.h"
 
+USTRUCT()
+struct FYetiOsNotificationSettings
+{
+	GENERATED_USTRUCT_BODY();
+	
+	/** Enable notifications in Operating System. */
+	UPROPERTY(EditAnywhere, Category = "Notification Settings")
+	uint8 bEnableNotifications : 1;
+	
+	/** Should we play a sound when a notification is received? */
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications"))
+	uint8 bPlayNotificationSound : 1;
 
-UCLASS(Abstract, Blueprintable, DisplayName = "Operating System")
+	/** Default sound to play. */
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications && bPlayNotificationSound"))
+	class USoundBase* NotificationSoundDefault;
+
+	/** Warning sound to play if notification is a warning. */
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications && bPlayNotificationSound"))
+	class USoundBase* NotificationSoundWarning;
+
+	/** Error sound to play if notification is an error. */
+	UPROPERTY(EditAnywhere, Category = "Notification Settings", meta = (EditCondition = "bEnableNotifications && bPlayNotificationSound"))
+	class USoundBase* NotificationSoundError;
+
+	FYetiOsNotificationSettings()
+	{
+		bEnableNotifications = true;
+		bPlayNotificationSound = true;
+		NotificationSoundDefault = nullptr;
+		NotificationSoundWarning = nullptr;
+		NotificationSoundError = nullptr;
+	}
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnProgramInstalled, class UYetiOS_BaseProgram*)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPeekPreview, const bool)
+
+/*************************************************************************
+* File Information:
+YetiOS_Core.h
+
+* Description:
+The main Operating System class.
+*************************************************************************/
+UCLASS(hidedropdown, Blueprintable, DisplayName = "Operating System")
 class YETIOS_API UYetiOS_Core : public UObject
 {
 	GENERATED_BODY()
 	
 	friend class UYetiOS_BaseDevice;
 	
+#if WITH_EDITOR
+	friend class UYetiOS_ThumbnailRenderer;
+#endif
+	
 	FTimerHandle TimerHandle_OsInstallation;
 	
 private:
 
-	/* Operating system name. */
+	/** Operating system name. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	FText OsName;
 
-	/* Version of this operating system. Eg: 1.0.57784.1 */
+	/** Version of this operating system. Eg: 0.1 or 1.2 or 1.2.3 */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
-	FText OsVersion;
+	FYetiOS_Version OsVersion;
 
-	/* Logo of this Operating System. Ex: Tux (mascot) penguin for Linux. */
+	/** Logo of this Operating System. Ex: Tux (mascot) penguin for Linux. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (DisplayThumbnail = "true", AllowedClasses = "Texture,MaterialInterface"))
 	class UObject* OsIcon;
 
-	/* How much space does this OS need to install on HDD. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (UIMin = "1", ClampMin = "1", UIMax = "10"))
-	float InstallationSpace;
+	/** How much space (in mega bytes) does this OS need to install on HDD. Default 10000 means 10 GB. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (UIMin = "1000", ClampMin = "1000", UIMax = "20000"))
+	float InstallationSpaceInMB;
 
-	/* A collection of programs which user can install from a "repo" simulating the effect of "sudo apt-get install program-identifier". */
+	/** A collection of programs which user can install from a "repo" simulating the effect of "sudo apt-get install program-identifier". */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
-	class UObjectLibrary* RepositoryLibrary;
+	class UYetiOS_ProgramsRepository* ProgramsRepository;
 
-	/* List of devices this operating system is compatible with. If you try to load this OS on incompatible device it will result in Blue Screen. */
+	/** List of devices this operating system is compatible with. If you try to load this OS on incompatible device it will result in Blue Screen. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TArray<TSubclassOf<class UYetiOS_BaseDevice>> CompatibleDevices;
 
-	/* Release state of this OS. */
+	/** Release state of this OS. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	EYetiOsOperatingSystemReleaseState ReleaseState;
 
-	/* The main OS widget class. */
+	/** The main OS widget class. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<class UYetiOS_OsWidget> OsWidgetClass;
 
-	/* A root user for this OS. Defaults to root. */
+	/** Reference to the settings object. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	class UYetiOS_SystemSettings* SystemSettings;
+
+	/** Class that defines system taskbar. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	TSubclassOf<class UYetiOS_Taskbar> TaskbarClass;
+
+	/** Settings for notification. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	FYetiOsNotificationSettings NotificationSettings;
+
+	/** A root user for this OS. Defaults to root. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	FYetiOsUser RootUser;
 
-	/* List of users for this OS. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
+	/** Root command name. Defaults to sudo. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
+	FText RootCommand;
+
+	/** List of users for this OS. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", AdvancedDisplay)
 	TArray<FYetiOsUser> OsUsers;
 
-	/* List of pre-defined programs to install when you install this OS. */
-	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
-	TArray<TSubclassOf<UYetiOS_BaseProgram>> ProgramsToInstall;
-
-	/* A default template directory with no name. This template directory is used to create new directories. Must not be null. */
+	/** A default template directory with no name. This template directory is used to create new directories. Must not be null. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS")
 	TSubclassOf<UYetiOS_DirectoryBase> TemplateDirectory;
 
-	/* Minimum time to install. */
+	/** Minimum time to install. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (UIMin = "5", ClampMin = "1", UIMax = "60", ClampMax = "120"))
 	float MinInstallationTime;
 
-	/* Maximum time to install. */
+	/** Maximum time to install. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS", meta = (UIMin = "10", ClampMin = "1", UIMax = "100", ClampMax = "120"))	
 	float MaxInstallationTime;
 
-	/* Auto calculated time to install based on different factors. */
+	/** Auto calculated time to install based on different factors. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, AdvancedDisplay)
 	float CalculatedInstallationTime;
 
-	/* Remaining HDD space (in GB) */
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	float RemainingSpace;
-
-	/* The device that this OS is running on. */
+	/** The device that this OS is running on. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_BaseDevice* Device;
 
-	/* Reference to the OS widget. */
+	/** Reference to the OS widget. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	class UYetiOS_OsWidget* OsWidget;	
+	class UYetiOS_OsWidget* OsWidget;
 
-	/* List of actively running programs. */
+	/** List of actively running programs. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TMap<int32, class UYetiOS_BaseProgram*> RunningPrograms;
 
-	/* List of installed programs. */
+	/** List of installed programs. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<class UYetiOS_BaseProgram*> InstalledPrograms;
 
-	/* The main root directory. Cannot be null. */
+	/** The main root directory. Cannot be null. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	mutable class UYetiOS_DirectoryRoot* RootDirectory;
 
-	/* The user that is currently active. */
+	/** The user that is currently active. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	FYetiOsUser CurrentActiveUser;
 
-	/* List of all created directories. Used for save game information. */
+	/** List of all created directories. Used for save game information. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TArray<const UYetiOS_DirectoryBase*> AllCreatedDirectories;
 
+	/** Taskbar that was created if Taskbar Class was not null. */
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	class UYetiOS_Taskbar* Taskbar;
+
+	/** True if this Operating System was pre-installed with the device. */
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	uint8 bIsPreInstalled : 1;
+
+	/** The world that this Operating System belongs to. */
 	UPROPERTY()
 	class UWorld* OsWorld;
 
+	/** List of current dialog widgets. Can include modal dialogs as well. */
+	UPROPERTY()
+	TArray<class UYetiOS_DialogWidget*> CurrentDialogWidgets;
+
+	/** Main notification manager. */
 	class FYetiOsNotificationManager* NotificationManager;
 
+	/** Z Order of lastly opened windows. */
 	int32 CurrentZOrder;
 
+	/** Weak pointer to the desktop directory. */
+	TWeakObjectPtr<UYetiOS_DirectoryBase> DesktopDirectory;
+
 public:
+
+	/** Delegate called when program is installed. @See InstallProgram */
+	FOnProgramInstalled OnProgramInstalled;
+
+	/** Delegate called when peek desktop is activated. @See UYetiOS_Taskbar::PeekDesktop */
+	FOnPeekPreview OnPeekPreview;
 
 	UYetiOS_Core();
 
 	static const FString PATH_DELIMITER;
-	static const FText ROOT_USER_NAME;
-	static const FText ROOT_COMMAND;
 
 	/**
 	* public static UYetiOS_Core::CreateOperatingSystem
@@ -137,14 +215,92 @@ public:
 	static UYetiOS_Core* CreateOperatingSystem(class UYetiOS_BaseDevice* InParentDevice, FYetiOsError& OutErrorMessage);
 
 	/**
+	* public static UYetiOS_Core::CloseDialogWidget
+	* Closes the given dialog widget and removes it from CurrentDialogWidgets set.
+	* @param InOS [UYetiOS_Core*] OS to remove the dialog widget from.
+	* @param InDialogWidget [UYetiOS_DialogWidget*] Dialog widget to remove.
+	* @return [const bool] True if the dialog was removed.
+	**/
+	static const bool CloseDialogWidget(UYetiOS_Core* InOS, UYetiOS_DialogWidget* InDialogWidget);
+
+	/**
+	* public static UYetiOS_Core::OpenDialogWidget
+	* Opens a dialog box with title and message. You can use this to simulate the effect of Messagebox, OpenFileDialog etc.
+	* @param InOS [UYetiOS_Core*] Operating System reference.
+	* @param InDialogWidgetClass [TSubclassOf<class UYetiOS_DialogWidget>] Dialog widget class.
+	* @param DialogClass [TSubclassOf<class UYetiOS_BaseProgram>] Dialog program to open.
+	* @param InMessage [const FText&] Message to display.
+	* @param InTitle [FText] Title to display.
+	* @param OverrideWindowSize [const FVector2D&] Overrides the size of window. If -1, it will use auto size. If 0, automatically calculates the size relative to viewport. If > 0, use it as size.
+	* @param bIsModalDialog [const bool] Should this dialog be a modal dialog?
+	* @return [class UYetiOS_DialogWidget*] Reference to the newly created dialog widget.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global")
+	static class UYetiOS_DialogWidget* OpenDialogWidget(UYetiOS_Core* InOS, TSubclassOf<class UYetiOS_DialogWidget> InDialogWidgetClass, TSubclassOf<class UYetiOS_BaseDialogProgram> DialogClass, const FText& InMessage, FText InTitle = INVTEXT("Dialog"), const FVector2D& OverrideWindowSize = FVector2D::ZeroVector, const bool bIsModalDialog = true, EYetiOS_DialogType InDialogType = EYetiOS_DialogType::Ok);
+
+	/**
+	* public static UYetiOS_Core::GetVersionString
+	* Returns a string representation of given version.
+	* @param InVersion [const struct FYetiOS_Version&] Version to get string from.
+	* @param bIgnorePatch [const bool] Ignore patch. Example: If true and version is 1.2.1, then return 1.2
+	* @return [FString] String representation of verison.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")	
+	static FString GetVersionString(const struct FYetiOS_Version& InVersion, const bool bIgnorePatch = false)
+	{
+		return InVersion.ToString(bIgnorePatch);
+	}
+
+	/**
+	* public static UYetiOS_Core::EvaluateMathExpression
+	* Evaluates the given expression. If expression failed, this will return false. Otherwise OutValue contains the result of the expression.
+	* @param InExpression [const FString&] Expression to evaluate.
+	* @param OutValue [float&] Result of the expression if return is true.
+	* @return [bool] True if successful, false if equation failed.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global")	
+	static bool EvaluateMathExpression(const FString& InExpression, float& OutValue);
+
+	/**
+	* public static UYetiOS_Core::GetSystemDirectories
+	* Returns an array of directories that are specified as system.
+	* @param InOS [class UYetiOS_Core*] Operating system to get from.
+	* @return [TArray<class UYetiOS_DirectoryBase*>] Array of directories.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")	
+	static TArray<class UYetiOS_DirectoryBase*> GetSystemDirectories(class UYetiOS_Core* InOS);
+
+	/**
 	* public static UYetiOS_Core::GetTimeAsText
 	* Converts a passed in date & time to a text, formatted as a time using an invariant timezone. This will use the given date & time as-is, so it's assumed to already be in the correct timezone.
 	* Returns time in short style. Example: 1:00 PM
 	* @param InDateTime [const FDateTime&] Time to convert.
+	* @param TimeFormat [EYetiOSTimeFormat] Formats the time. Example: Hour:Minutes, Hour:Minutes:Seconds, Hour:Minutes:Seconds <TimeZone>
 	* @return [const FText] Time as text. Example: 1:00 PM
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	static const FText GetTimeAsText(const FDateTime& InDateTime);
+	UFUNCTION(BlueprintPure, Category = "Yeti Global")
+	static const FText GetTimeAsText(const FDateTime& InDateTime, EYetiOSTimeFormat TimeFormat = EYetiOSTimeFormat::Medium);
+
+	/**
+	* public static UYetiOS_Core::GetColorCollectionOfTheme
+	* Helper function to retrieve color collection of given theme.
+	* @param InOS [class UYetiOS_Core*] OS to get settings from.
+	* @param InTheme [EYetiOsThemeMode] Color collection of theme to get.
+	* @param OutCollection [FYetiOsColorCollection&] Outputs a valid collection if return value is true.
+	* @return [bool] True if a collection was found for the given theme.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Global|Themes")
+	static bool GetColorCollectionOfTheme(class UYetiOS_Core* InOS, EYetiOsThemeMode InTheme, FYetiOsColorCollection& OutCollection);
+
+	/**
+	* public static UYetiOS_Core::GetColorFromCurrent
+	* Returns color from current color collection that is set.
+	* @param InOS [class UYetiOS_Core*] OS to get settings from.
+	* @param InColorType [EYetiOsColorTypes] Type of color to get.
+	* @return [FLinearColor] Color of given type.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti Global|Themes")	
+	static FLinearColor GetColorFromCurrent(class UYetiOS_Core* InOS, EYetiOsColorTypes InColorType);
 
 	/**
 	* public UYetiOS_Core::CreateOsNotification
@@ -155,19 +311,14 @@ public:
 	void CreateOsNotification(const FYetiOsNotification InNewNotification);
 
 	/**
-	* public UYetiOS_Core::StartOperatingSystemInstallation
-	* Starts Operating System installation.
+	* public UYetiOS_Core::StartOperatingSystem
+	* Starts operating system. If not installed, this will start the installation.
+	* @param bIsInstalled [const bool] Is the os installed?
 	* @param bShowBsodIfInstallationFails [const bool] If true, then show blue screen widget if installation fails. Recommended to keep this true.
 	* @param OutErrorMessage [FYetiOsError&] Outputs error message (if any).
-	* @return [const bool] Returns true if installation was started successfully.
+	* @return [const bool] Returns true if OS was started successfully or installation was started successfully.
 	**/
-	const bool StartOperatingSystemInstallation(const bool bShowBsodIfInstallationFails, FYetiOsError& OutErrorMessage);
-	
-	/**
-	* public UYetiOS_Core::LoadOS
-	* Load the operating system. Calls BeginLoadOS() in OsWidget.
-	**/
-	void LoadOS();
+	const bool StartOperatingSystem(const bool bIsInstalled, FYetiOsError& OutErrorMessage);
 
 	/**
 	* public UYetiOS_Core::ShutdownOS
@@ -281,23 +432,22 @@ public:
 	**/
 	void DestroyOS();
 
-	void UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow);
-
 	/**
-	* public UYetiOS_Core::GetInstallablePrograms const
-	* Returns a list of pre-defined installable programs.
-	* @return [const TArray<TSubclassOf<class UYetiOS_BaseProgram>>] Program classes.
+	* public UYetiOS_Core::UpdateWindowZOrder
+	* Updates the Z Order of the given window, bringing to front. 
+	* If any modal dialog is open this will return false.
+	* @param InWindow [class UYetiOS_DraggableWindowWidget*] Window to update.
+	* @return [const bool] True if z order was updated.
 	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const TArray<TSubclassOf<class UYetiOS_BaseProgram>> GetInstallablePrograms() const { return ProgramsToInstall; }
+	const bool UpdateWindowZOrder(class UYetiOS_DraggableWindowWidget* InWindow);
 
 	/**
 	* public UYetiOS_Core::GetOsVersion const
 	* Returns the operating system version.
-	* @return [const FText] Os version.
+	* @return [const FYetiOS_Version] Os version.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
-	const FText GetOsVersion() const { return OsVersion; }
+	FYetiOS_Version GetOsVersion() const { return OsVersion; }
 
 	/**
 	* public UYetiOS_Core::GetOsIcon const
@@ -318,32 +468,6 @@ public:
 protected:
 
 	/**
-	* protected UYetiOS_Core::GetTotalMemory const
-	* Returns total memory on the device.
-	* @param bInBytes [const bool] True to return the value in bytes.
-	* @return [const float] Total memory.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const float GetTotalMemory(const bool bInBytes = true) const;
-
-	/**
-	* protected UYetiOS_Core::GetTotalCPUSpeed const
-	* Returns the total cpu speed.
-	* @param bWithDurability [const bool] If true consider durability to calculate total cpu speed.
-	* @return [const float] Returns a combined speed of all cpus.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const float GetTotalCPUSpeed(const bool bWithDurability = true) const;
-
-	/**
-	* protected UYetiOS_Core::HasGpuInstalled const
-	* Checks if motherboard has at least one GPU installed. This does not check for on board graphics. Only installed GPUs.
-	* @return [const bool] True if one or more GPU is available.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const bool HasGpuInstalled() const;
-
-	/**
 	* protected UYetiOS_Core::HasValidRootDirectoryClass const
 	* True if this OS has a valid root directory class.
 	* @return [const bool] True if valid root directory class is available.
@@ -352,20 +476,12 @@ protected:
 	const bool HasValidRootDirectoryClass() const;
 		
 	/**
-	* protected UYetiOS_Core::GetDeviceScore const
-	* Gets a normalized (0-1 range) device score.
-	* @return [const float] Range between 0-1.
-	**/
-	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const float GetDeviceScore() const;
-		
-	/**
 	* protected UYetiOS_Core::GetMainCpu const
-	* Returns the primary CPU (at index 0 in motherboard cpus).
-	* @return [const FYetiOsCpu] CPU Struct.
+	* Returns the primary CPU.
+	* @return [UYetiOS_CPU*] CPU Object.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")
-	const FYetiOsCpu GetMainCpu() const;
+	UYetiOS_CPU* GetMainCpu() const;
 
 private:
 
@@ -391,7 +507,22 @@ private:
 	**/
 	const bool Internal_ConsumeSpace(float InSpaceToConsume);
 
+	/**
+	* private UYetiOS_Core::Internal_InstallStartupPrograms
+	* Installs all programs defined in ProgramsToInstall.
+	**/
+	void Internal_InstallStartupPrograms();
+
 public:
+
+	/**
+	* public UYetiOS_Core::OnOperatingSystemLoadedFromSaveGame
+	* Loads the operating system from a save state. 
+	* @See UYetiOS_BaseDevice::StartDevice
+	* @param LoadGameInstance [const class UYetiOS_SaveGame*&] Load game instance. @See UYetiOS_BaseDevice::StartDevice
+	* @param OutErrorMessage [FYetiOsError&] Any error message.
+	**/
+	void OnOperatingSystemLoadedFromSaveGame(const class UYetiOS_SaveGame*& LoadGameInstance, FYetiOsError& OutErrorMessage);
 
 	/**
 	* public UYetiOS_Core::NotifyBatteryLevelChange
@@ -416,6 +547,15 @@ public:
 	* @return [const bool] True if the given program is installed.
 	**/
 	const bool IsProgramInstalled(const FName& InProgramIdentifier, UYetiOS_BaseProgram*& OutFoundProgram, FYetiOsError& OutErrorMessage) const;
+
+	/**
+	* public UYetiOS_Core::IsProgramInstalled const
+	* Checks if the given program (by identifier) is installed in this Operating System.
+	* @param InProgramIdentifier [const FName&] Program identifier reference.
+	* @return [bool] True if the given program is installed.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	bool IsProgramInstalled(const FName& InProgramIdentifier) const;
 	
 	/**
 	* public UYetiOS_Core::AddToCreatedDirectories
@@ -516,26 +656,12 @@ public:
 	const EYetiOsOperatingSystemReleaseState GetReleaseState() const { return ReleaseState; }
 
 	/**
-	* [DEPRECATED] Use 'GetRunningPrograms' instead.
-	**/
-	UE_DEPRECATED(4.25, "Use 'GetRunningPrograms' instead.")
-	UFUNCTION(BlueprintPure, Category = "Yeti OS", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Get Running Programs' instead."))
-	inline TMap<int32, class UYetiOS_BaseProgram*> GetAllRunningPrograms() const { return RunningPrograms; }
-
-	/**
 	* public UYetiOS_Core::GetRunningPrograms const
 	* Gets all running programs.
 	* @return [TArray<class UYetiOS_BaseProgram*>] An array of running programs.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
 	TArray<class UYetiOS_BaseProgram*> GetRunningPrograms() const;
-
-	/**
-	* [DEPRECATED] Use 'GetRunningProgramByIdentifier' instead.
-	**/
-	UE_DEPRECATED(4.25, "Use 'GetRunningProgramByIdentifier' instead.")
-	UFUNCTION(BlueprintPure, Category = "Yeti OS", meta = (DeprecatedFunction, DeprecationMessage = "Use 'Get Running Program By Identifier' instead."))	
-	class UYetiOS_BaseProgram* FindRunningProgramByIdentifier(const FName& InIdentifier) const;
 
 	/**
 	* public UYetiOS_Core::GetRunningProgramByIdentifier const
@@ -545,6 +671,67 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
 	class UYetiOS_BaseProgram* GetRunningProgramByIdentifier(const FName& InIdentifier) const;
+
+	/**
+	* public UYetiOS_Core::GetInstalledPrograms const
+	* Returns an array of programs already installed on this device.
+	* @param bSystemProgramsOnly [const bool] Enable to return apps installed with Operating System.
+	* @return [const TArray<class UYetiOS_BaseProgram*>] Array of programs installed on this device.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms(const bool bSystemProgramsOnly = false) const;
+
+	/**
+	* public UYetiOS_Core::GetSystemSettings const
+	* Returns the system settings. Only valid if SystemSettingsClass was set.
+	* @return [UYetiOS_SystemSettings*] Returns System Settings reference.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	UYetiOS_SystemSettings* GetSystemSettings() const { return SystemSettings; }
+
+	/**
+	* public UYetiOS_Core::GetAllProgramsFromRepositoryLibrary const
+	* Outputs an array of programs from the repository package provided if this OS has a valid repository library assigned.
+	* @param OutPrograms [TArray<TSubclassOf<class UYetiOS_BaseProgram>>&] Array with all program classes from respoitory library. Valid ONLY if return value is true.
+	* @return [const bool] Returns true if a valid library was found.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS")
+	const bool GetAllProgramsFromRepositoryLibrary(TArray<TSubclassOf<class UYetiOS_BaseProgram>>& OutPrograms);
+
+	/**
+	* public UYetiOS_Core::GetTaskbar const
+	* Returns true if there is a valid taskbar associated with this operating system.
+	* @param OutTaskbar [UYetiOS_Taskbar*&] Gets a reference to the taskbar owned by this operating system.
+	* @return [bool] True if there is a taskbar available.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	bool GetTaskbar(UYetiOS_Taskbar*& OutTaskbar) const;
+
+	/**
+	* public UYetiOS_Core::GetStartMenu const
+	* Returns true if there is a valid start menu associated with this operating system.
+	* @param OutStartMenu [UYetiOS_StartMenu*&] Gets a reference to the start menu owned by this operating system.
+	* @return [bool] True if there is a start menu available.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")	
+	bool GetStartMenu(UYetiOS_StartMenu*& OutStartMenu) const;
+
+	/**
+	* public UYetiOS_Core::GetDesktopDirectory const
+	* Returns true if there is a valid Desktop associated with this operating system.
+	* @param OutDesktopDir [UYetiOS_DirectoryBase*&] Gets a reference to Desktop directory.
+	* @return [bool] True if desktop directory is available.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	bool GetDesktopDirectory(UYetiOS_DirectoryBase*& OutDesktopDir) const;
+
+	/**
+	* public UYetiOS_Core::IsModalDialogOpen const
+	* Returns true if currently opened dialog widget is modal or not. If there is no dialog widget open, this will return false.
+	* @return [bool] True if dialog widget is modal.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS")
+	bool IsModalDialogOpen() const;
 
 protected:
 
@@ -557,20 +744,52 @@ protected:
 	void K2_OnBatteryLevelChanged(const float& CurrentBatteryLevel);
 
 public:
+
+	void SetOsWidget(class UYetiOS_OsWidget* InWidget)
+	{
+		OsWidget = InWidget;
+	}
+
+	void SetTaskbar(class UYetiOS_Taskbar* InTaskbar)
+	{
+		Taskbar = InTaskbar;
+	}
 	
-	/* Returns an array of compatible device classes for this operating system. */
+	/** Returns an array of compatible device classes for this operating system. */
 	FORCEINLINE const TArray<TSubclassOf<class UYetiOS_BaseDevice>> GetCompatibleDeviceClasses() const { return CompatibleDevices; }
 
-	/* Returns the UMG class for OS widget. */
+	/** Returns the UMG class for OS widget. */
 	FORCEINLINE TSubclassOf<class UYetiOS_OsWidget> GetOsWidgetClass() const { return OsWidgetClass; }
 
-	/* Returns a reference to the Operating system widget created using OsWidgetClass. */
+	/** Returns the taskbar class */
+	FORCEINLINE TSubclassOf<class UYetiOS_Taskbar> GetTaskbarClass() const { return TaskbarClass; }
+
+	/** Returns a reference to the Operating system widget created using OsWidgetClass. */
 	FORCEINLINE UYetiOS_OsWidget* GetOsWidget() const { return OsWidget; }	
 
-	FORCEINLINE const float GetRemainingSpace() const { return RemainingSpace; }
 	FORCEINLINE const TArray<const UYetiOS_DirectoryBase*> GetAllCreatedDirectories() const { return AllCreatedDirectories; }
-	FORCEINLINE const TArray<class UYetiOS_BaseProgram*> GetInstalledPrograms() const { return InstalledPrograms; }
-	
+	FORCEINLINE const FText GetRootCommand() const { return RootCommand; }
+	FORCEINLINE class USoundBase* GetNotificationSound(const FYetiOsNotification& InNotification) const
+	{
+		USoundBase* MySound = nullptr;
+		if (NotificationSettings.bPlayNotificationSound)
+		{
+			EYetiOsNotificationType NotifyType = InNotification.Level;
+			switch (NotifyType)
+			{
+				case EYetiOsNotificationType::TYPE_Warning:
+					MySound = NotificationSettings.NotificationSoundWarning;
+					break;
+				case EYetiOsNotificationType::TYPE_Error:
+					MySound = NotificationSettings.NotificationSoundError;
+					break;
+				default:
+					MySound = NotificationSettings.NotificationSoundDefault;
+					break;
+			}
+		}
+		return MySound;
+	}
 };
 
 class YETIOS_API FYetiOsNotificationManager

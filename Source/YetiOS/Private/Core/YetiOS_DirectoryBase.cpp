@@ -6,9 +6,11 @@
 #include "Core/YetiOS_DirectoryRoot.h"
 #include "Devices/YetiOS_BaseDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
+#include "Core/YetiOS_FileBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDirectoryBase, All, All)
 
+#define printlog_warning(Param1)					UE_LOG(LogYetiOsDirectoryBase, Warning, TEXT("%s"), *FString(Param1))
 #define printlog_veryverbose(Param1)				UE_LOG(LogYetiOsDirectoryBase, VeryVerbose, TEXT("%s"), *FString(Param1))
 
 #define LOCTEXT_NAMESPACE "YetiOS"
@@ -19,6 +21,7 @@ UYetiOS_DirectoryBase::UYetiOS_DirectoryBase()
 	bCanCreateNewFile = true;
 	bIsHidden = false;
 	ParentDirectory = nullptr;
+	DirectoryType = EDirectoryType::Other;
 }
 
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectory(TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass) const
@@ -28,6 +31,34 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectory(TSubclassOf<UYet
 		if (Itr->GetClass() == InDirectoryClass)
 		{
 			return Itr;
+		}
+	}
+
+	return nullptr;
+}
+
+UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectoryByType(EDirectoryType InType) const
+{
+	for (auto const& It : ChildDirectories)
+	{
+		if (It->DirectoryType == InType)
+		{
+			return It;
+		}
+
+		// Look in child directories too.
+		for (auto const& ChildIt : It->ChildDirectories)
+		{
+			if (ChildIt->DirectoryType == InType)
+			{
+				return ChildIt;
+			}
+
+			UYetiOS_DirectoryBase* Local_Child = ChildIt->GetChildDirectoryByType(InType);
+			if (Local_Child)
+			{
+				return Local_Child;
+			}
 		}
 	}
 
@@ -97,6 +128,25 @@ UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetDirectoryFromPath(const FString
 	return nullptr;
 }
 
+TSet<class UYetiOS_FileBase*> UYetiOS_DirectoryBase::GetDirectoryFiles(const FString WithExtension /*= "*"*/) const
+{
+	if (WithExtension == "" || WithExtension == "*" || WithExtension == ".")
+	{
+		return Files;
+	}
+
+	TSet<UYetiOS_FileBase*> OutSet;
+	for (const auto& It : Files)
+	{
+		if (It->GetFileExtension().ToString().Equals(WithExtension, ESearchCase::IgnoreCase))
+		{
+			OutSet.Add(It);
+		}
+	}
+
+	return OutSet;
+}
+
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::CreateChildDirectory(class UYetiOS_Core* InOwningOS, TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass, FYetiOsError& OutErrorMessage, const FText& InDirectoryName, const bool bCreateHidden /*= false*/, const bool bForceCreate /*= false*/)
 {
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> TargetArray;
@@ -126,7 +176,7 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateChildDirectories(cla
 
 TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::CreateNativeChildDirectories(class UYetiOS_Core* InOwningOS, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/)
 {
-	return Internal_CreateChildDirectories(InOwningOS, ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories);
+	return Internal_CreateChildDirectories(InOwningOS, ChildDirectoryClasses, OutErrorMessage, bForceCreate, bCreateGrandChildDirectories, FText::GetEmpty());
 }
 
 void UYetiOS_DirectoryBase::EnsureOS(const class UYetiOS_Core* InOS)
@@ -138,46 +188,59 @@ void UYetiOS_DirectoryBase::EnsureOS(const class UYetiOS_Core* InOS)
 	}
 }
 
-const bool UYetiOS_DirectoryBase::CreateNewFile(FFileProperties InNewFile, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/)
+bool UYetiOS_DirectoryBase::CreateNewFileByClass(TSubclassOf<class UYetiOS_FileBase> InNewFileClass, class UYetiOS_FileBase*& OutFile, FYetiOsError& OutErrorMessage, const bool bRequirePermission /*= false*/)
 {
 	bool bLocal_CreateFile = bCanCreateNewFile;
 
-	if (bForceCreate)
+	if (bRequirePermission)
 	{
 		bLocal_CreateFile = true;
 	}
 
+	OutFile = nullptr;
 	if (bLocal_CreateFile)
 	{
-		bool bFileExists = false;
-		for (const auto& It : Files)
+		OutFile = UYetiOS_FileBase::CreateFile(this, InNewFileClass, OutErrorMessage);
+		if (OutFile)
 		{
-			const FString ExistingFile = FString::Printf(TEXT("%s%s"), *It.FileName.ToString(), *It.FileExtension.ToString());
-			const FString TargetFile = FString::Printf(TEXT("%s%s"), *InNewFile.FileName.ToString(), *InNewFile.FileExtension.ToString());
-			if (ExistingFile.ToLower() == TargetFile.ToLower())
+			Files.Add(OutFile);
+		}
+	}
+
+	return OutFile != nullptr;
+}
+
+TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::GetAllParentDirectories(const bool bIncludeRootFolder /*= false*/) const
+{
+	UYetiOS_DirectoryBase* CurrentDirectory = const_cast<UYetiOS_DirectoryBase*>(this);
+	UYetiOS_DirectoryRoot* MyRootDirectory = OwningOS->GetRootDirectory();
+
+	TArray<UYetiOS_DirectoryBase*> ReturnDirectories;
+	if (MyRootDirectory != Cast<UYetiOS_DirectoryRoot>(CurrentDirectory))
+	{
+		ReturnDirectories.Add(CurrentDirectory);
+		bool bReachedRootDirectory = false;
+		while (bReachedRootDirectory == false)
+		{
+			CurrentDirectory = CurrentDirectory->ParentDirectory;
+			if (MyRootDirectory == Cast<UYetiOS_DirectoryRoot>(CurrentDirectory))
 			{
-				bFileExists = true;
-				OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_FileCreateAlreadyExists", "ERR_FILE_EXISTS");
-				OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_FileCreateAlreadyExistsException", "Cannot create file inside {0}."), DirectoryName);
-				OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_FileCreateAlreadyExistsDetailedException", "A file with name {0} already exists inside {1}."), InNewFile.FileName, DirectoryName);
-				break;
+				bReachedRootDirectory = true;
+				if (bIncludeRootFolder)
+				{
+					ReturnDirectories.Add(CurrentDirectory);
+				}
+			}
+			else
+			{
+				ReturnDirectories.Add(CurrentDirectory);
 			}
 		}
 
-		if (bFileExists == false)
-		{
-			Files.Add(InNewFile);
-			return true;
-		}
-	}
-	else
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_FileCreateNoPermisson", "ERR_PERMISSION_DENIED");
-		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_FileCreateNoPermissonException", "Cannot create file inside {0}."), DirectoryName);
-		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_FileCreateNoPermissonDetailedException", "Permission error. Please make sure that '{0}' directory can create new folder."), DirectoryName);
+		Algo::Reverse(ReturnDirectories);
 	}
 
-	return false;
+	return ReturnDirectories;
 }
 
 TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, const TArray<TSubclassOf<UYetiOS_DirectoryBase>>& InDirectoryClasses, FYetiOsError& OutErrorMessage, const bool bForceCreate /*= false*/, const bool bCreateGrandChildDirectories /*= true*/, const FText& CheckDirectoryName /*= FText::GetEmpty()*/)
@@ -211,10 +274,22 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 				{
 					ChildDirectory->DirectoryName = CheckDirectoryName;
 				}
+
 				ChildDirectories.Add(ChildDirectory);
+				if (ChildDirectory->IsSystemDirectory())
+				{
+					InOwningOS->GetRootDirectory()->AddSystemDirectory(ChildDirectory);
+				}
 				ReturnResult.Add(ChildDirectory);
 				OwningOS->AddToCreatedDirectories(ChildDirectory);
 				printlog_veryverbose(FString::Printf(TEXT("Created child directory [%s] in %s."), *ChildDirectory->DirectoryName.ToString(), *DirectoryName.ToString()));
+				ChildDirectory->EnsureOS(InOwningOS);
+				for (const auto& It : ChildDirectory->FileClasses)
+				{
+					UYetiOS_FileBase* OutFile;
+					ChildDirectory->CreateNewFileByClass(It, OutFile, OutErrorMessage);
+				}
+
 				if (bCreateGrandChildDirectories)
 				{
 					ChildDirectory->Internal_CreateChildDirectories(InOwningOS, ChildDirectory->ChildDirectoryClasses, OutErrorMessage, bForceCreate);
@@ -296,6 +371,7 @@ inline FString UYetiOS_DirectoryBase::GetFullPath(const bool bDoNoIncludeHome /*
 
 inline const bool UYetiOS_DirectoryBase::HasChildDirectory(const FText& InDirectoryName, UYetiOS_DirectoryBase*& OutFoundDirectory, const bool bIgnoreCase /*= true*/) const
 {
+	OutFoundDirectory = nullptr;
 	if (InDirectoryName.IsEmptyOrWhitespace() == false)
 	{
 		for (const auto& It : ChildDirectories)
@@ -304,14 +380,14 @@ inline const bool UYetiOS_DirectoryBase::HasChildDirectory(const FText& InDirect
 			if (bHasDirectory)
 			{
 				OutFoundDirectory = It;
-				return true;
+				break;
 			}
 		}
 	}
 
-	OutFoundDirectory = nullptr;
-	return false;
+	return OutFoundDirectory != nullptr;
 }
 
+#undef printlog_warning
 #undef printlog_veryverbose
 #undef LOCTEXT_NAMESPACE

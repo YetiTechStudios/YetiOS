@@ -7,59 +7,58 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_DeviceManagerActor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClockTimerTick);
+
+/*************************************************************************
+* File Information:
+YetiOS_DeviceManagerActor.h
+
+* Description:
+Main actor where everything begins.
+*************************************************************************/
 UCLASS(hidedropdown, Blueprintable, hideCategories = (Rendering, Input, Actor, LOD, Cooking, Collision, Tick, Replication))
 class YETIOS_API AYetiOS_DeviceManagerActor : public AActor
 {
 	GENERATED_BODY()
+
+	FTimerHandle TimerHandle_ClockTick;
 	
 private:
 
 	UPROPERTY()
 	class USceneComponent* SceneComponent;
 
-	/* If true create the device on BeginPlay Event. If false, user can manually create the device by calling CreateDevice() method. */
+	/** If true create the device on BeginPlay Event. If false, user can manually create the device by calling CreateDevice() method. */
 	UPROPERTY(EditAnywhere, Category = "Yeti OS Device Manager Actor")
 	uint8 bCreateDeviceOnBeginPlay : 1;
 
-	/* If true then add widget automatically on screen when device is created. Other wise manually add it via OnWidgetChanged event in Blueprints. */
+	/** If true then add widget automatically on screen when device is created. Other wise manually add it via OnWidgetChanged event in Blueprints. */
 	UPROPERTY(EditAnywhere, Category = "Yeti OS Device Manager Actor")
 	uint8 bAddWidgetsToScreen : 1;
 
-	/* Execute "exit" command when device is destroyed. On Non-Editor build, this will request a platform clean exit. */
+	/** Execute "exit" command when device is destroyed. On Non-Editor build, this will request a platform clean exit. */
 	UPROPERTY(EditAnywhere, Category = "Yeti OS Device Manager Actor")
 	uint8 bExitGameWhenDeviceIsDestroyed : 1;
 
-	/* If true, then support save game functionality. */
+	/** If true, then support save game functionality. */
 	UPROPERTY(EditAnywhere, Category = "Yeti OS Device Manager Actor", AdvancedDisplay)
 	uint8 bCanSaveGame : 1;
 
-	/* Device class to create. */	
+	/** Device class to create. */	
 	UPROPERTY(EditAnywhere, Category = "Yeti OS Device Manager Actor")
 	TSubclassOf<class UYetiOS_BaseDevice> DeviceClass;	
 
-	/* Reference to the current device that was created. */
+	/** Reference to the current device that was created. */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Debug, meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_BaseDevice* CurrentDevice;
 	
 public:	
+
+	/** Delegate that ticks every second until EndPlay is called. */
+	UPROPERTY(BlueprintAssignable, Category = "Yeti OS Device Manager|Delegates")
+	FOnClockTimerTick OnClockTick;
 	
 	AYetiOS_DeviceManagerActor();
-
-	/**
-	* [DEPRECATED] public static AYetiOS_DeviceManagerActor::GetDeviceManager
-	* Returns the first device manager found in world.	
-	* @return nullptr.
-	**/
-	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
-	static AYetiOS_DeviceManagerActor* GetDeviceManager(const UObject* WorldContextObject);
-
-	/**
-	* [DEPRECATED] public static AYetiOS_DeviceManagerActor::GetCurrentDevice
-	* Returns the current device from GetDeviceManager() method.
-	* @return nullptr.
-	**/
-	UE_DEPRECATED(4.25, "This function is deprecated. Do not use because this will only return nullptr.")
-	static class UYetiOS_BaseDevice* GetCurrentDevice(const UObject* WorldContextObject);
 
 	/**
 	* public static AYetiOS_DeviceManagerActor::ShowBSOD
@@ -68,8 +67,8 @@ public:
 	* @param InExceptionName [const FText] Exception name (if any).
 	* @param InDetailedException [const FText] Detailed exception name (if any).
 	**/
-	UFUNCTION(BlueprintCallable, Category = "Yeti Device Manager", meta = (WorldContext = "WorldContextObject"))	
-	static void ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FText InFaultingModuleName = FText::GetEmpty(), const FText InExceptionName = FText::GetEmpty(), const FText InDetailedException = FText::GetEmpty());
+	UFUNCTION(BlueprintCallable, Category = "Yeti Global", meta = (WorldContext = "WorldContextObject"))	
+	static void ShowBSOD(const UObject* WorldContextObject, class UYetiOS_BaseDevice* InDevice, const FYetiOsError& InErrorMessage);
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -89,7 +88,11 @@ public:
 	**/
 	void OnCurrentDeviceDestroyed();
 
-	void RestartDevice(class UYetiOS_BaseDevice* InDevice);
+	/**
+	* public AYetiOS_DeviceManagerActor::RestartDevice
+	* Restarts the current device.
+	**/
+	void RestartDevice();
 
 protected:
 
@@ -128,6 +131,23 @@ protected:
 	**/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti Device Manager", DisplayName = "OnCurrentDeviceDestroyed")	
 	void K2_OnCurrentDeviceDestroyed();
+
+	/**
+	* protected AYetiOS_DeviceManagerActor::K2_OnClockTimerTick
+	* Event called every second as long as this device manager is alive.
+	* @See Internal_OnClockTimerTick
+	**/
+	UFUNCTION(BlueprintImplementableEvent, Category = "Yeti Device Manager", DisplayName = "On Clock Timer Tick")
+	void K2_OnClockTimerTick();
+
+private:
+
+	/**
+	* private AYetiOS_DeviceManagerActor::Internal_OnClockTimerTick
+	* Automatically called every second from BeginPlay until EndPlay.
+	**/
+	UFUNCTION()	
+	void Internal_OnClockTimerTick();
 
 public:
 
