@@ -64,11 +64,6 @@ UYetiOS_FileBase* UYetiOS_FileBase::CreateFile(class UYetiOS_DirectoryBase* InPa
 			bSuccess = false;
 		}
 	}
-	else
-	{
-		ErrorString = FString::Printf(TEXT("Failed to create file %s as it has no association with any program."), *ProxyFile->Name.ToString());
-		bSuccess = false;
-	}
 
 	if (bSuccess)
 	{
