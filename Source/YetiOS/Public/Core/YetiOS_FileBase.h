@@ -125,6 +125,14 @@ public:
 	virtual bool RenameFile(const FText& InNewName, FYetiOsError& OutErrorMessage);
 
 	/**
+	* virtual public UYetiOS_FileBase::SetAssociatedProgramClass
+	* Associate a program with this file so opening this file will open in this program.
+	* @param NewProgramClass [TSubclassOf<class UYetiOS_BaseProgram>] Program class to associate.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS File")	
+	virtual void SetAssociatedProgramClass(TSubclassOf<class UYetiOS_BaseProgram> NewProgramClass);
+
+	/**
 	* public UYetiOS_FileBase::GetFilename const
 	* Returns the file name.
 	* @param bWithExtension [const bool] Include extension. Eg: Sample.txt
@@ -228,6 +236,12 @@ private:
 	* @See CreateFile.
 	**/
 	void Internal_OnFileCreate();
+
+	/**
+	* private UYetiOS_FileBase::Internal_OnAssociateProgramClass
+	* Called when an associated program class is assigned or on file create.
+	**/
+	void Internal_OnAssociateProgramClass();
 
 	/**
 	* private UYetiOS_FileBase::Internal_OnAssociatedProgramInstalled

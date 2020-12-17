@@ -181,8 +181,19 @@ void UYetiOS_FileBase::Internal_OnFileCreate()
 	UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
 	Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutError);
 	if (AssociatedProgram == nullptr)
+
+void UYetiOS_FileBase::Internal_OnAssociateProgramClass()
+{
+	if (AssociatedProgramClass)
 	{
-		DelegateHandle_OnAssociatedProgramInstalled = Local_OS->OnProgramInstalled.AddUObject(this, &UYetiOS_FileBase::Internal_OnAssociatedProgramInstalled);
+		FYetiOsError OutError;
+		const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
+		UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
+		Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutError);
+		if (AssociatedProgram == nullptr)
+		{
+			DelegateHandle_OnAssociatedProgramInstalled = Local_OS->OnProgramInstalled.AddUObject(this, &UYetiOS_FileBase::Internal_OnAssociatedProgramInstalled);
+		}
 	}
 }
 
@@ -219,6 +230,12 @@ bool UYetiOS_FileBase::RenameFile(const FText& InNewName, FYetiOsError& OutError
 
 	Name = InNewName;
 	return true;
+}
+
+void UYetiOS_FileBase::SetAssociatedProgramClass(TSubclassOf<class UYetiOS_BaseProgram> NewProgramClass)
+{
+	AssociatedProgramClass = NewProgramClass;
+	Internal_OnAssociateProgramClass();
 }
 
 #undef printlog_error
