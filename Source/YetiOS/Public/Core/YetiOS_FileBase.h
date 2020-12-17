@@ -13,7 +13,7 @@ YetiOS_FileBase.h
 * Description:
 Base class for all file types.
 *************************************************************************/
-UCLASS(hidedropdown, Blueprintable, DisplayName = "File")
+UCLASS(Blueprintable, DisplayName = "File")
 class YETIOS_API UYetiOS_FileBase : public UObject
 {
 	GENERATED_BODY()
@@ -118,11 +118,12 @@ public:
 	* virtual public UYetiOS_FileBase::RenameFile
 	* Renames this file.
 	* @param InNewName [const FText&] New name to change to.
+	* @param InNewExtension [FText] Optional extension to set. If empty, uses the default value.
 	* @param OutErrorMessage [FYetiOsError&] Error message (if any).
 	* @return [bool] True if file was renamed successfully.
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS File")	
-	virtual bool RenameFile(const FText& InNewName, FYetiOsError& OutErrorMessage);
+	virtual bool RenameFile(const FText& InNewName, FText InNewExtension, FYetiOsError& OutErrorMessage);
 
 	/**
 	* virtual public UYetiOS_FileBase::SetAssociatedProgramClass

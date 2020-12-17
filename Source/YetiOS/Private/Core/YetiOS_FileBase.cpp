@@ -22,7 +22,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogYetiOsFile, All, All)
 UYetiOS_FileBase::UYetiOS_FileBase()
 {
 	Name = FText::GetEmpty();
-	Extension  = FText::AsCultureInvariant("");
+	Extension  = FText::AsCultureInvariant("file");
 	Icon = nullptr;
 	FileSizeInMB = 0.f;
 	bIsHidden = false;
@@ -112,8 +112,17 @@ bool UYetiOS_FileBase::OpenFile(FYetiOsError& OutErrorMessage, const bool bInFor
 		UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
 		if (bIsOpen == false)
 		{
-			const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
-			bIsOpen = Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutErrorMessage);
+			if (AssociatedProgramClass)
+			{
+				const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
+				bIsOpen = Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutErrorMessage);
+			}
+			else
+			{
+				OutErrorMessage.ErrorCode = FText::FromString("ERR_NO_PROGRAM_CLASS");
+				OutErrorMessage.ErrorException = FText::FromString("Associated Program Class was null");
+				OutErrorMessage.ErrorDetailedException = OutErrorMessage.ErrorException;
+			}
 		}
 
 		if (bIsOpen)
@@ -171,11 +180,8 @@ const bool UYetiOS_FileBase::IsAssociatedProgramInstalled() const
 void UYetiOS_FileBase::Internal_OnFileCreate()
 {
 	K2_OnFileCreate();
-	FYetiOsError OutError;
-	const FName ProgramIdentifier = AssociatedProgramClass->GetDefaultObject<UYetiOS_BaseProgram>()->GetProgramIdentifierName();
-	UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
-	Local_OS->IsProgramInstalled(ProgramIdentifier, AssociatedProgram, OutError);
-	if (AssociatedProgram == nullptr)
+	Internal_OnAssociateProgramClass();
+}
 
 void UYetiOS_FileBase::Internal_OnAssociateProgramClass()
 {
@@ -204,26 +210,40 @@ void UYetiOS_FileBase::Internal_OnAssociatedProgramInstalled(class UYetiOS_BaseP
 	}
 }
 
-bool UYetiOS_FileBase::RenameFile(const FText& InNewName, FYetiOsError& OutErrorMessage)
+bool UYetiOS_FileBase::RenameFile(const FText& InNewName, FText InNewExtension, FYetiOsError& OutErrorMessage)
 {
-	if (InNewName.EqualToCaseIgnored(Name))
+	if (InNewExtension.IsEmptyOrWhitespace())
+	{
+		InNewExtension = Extension;
+	}
+
+	FFormatNamedArguments Args;
+	Args.Add("Name", InNewName);
+	Args.Add("Ext", InNewExtension);
+
+	const FText NewFileName = FText::Format(NSLOCTEXT("YetiOS", "RenameFormat", "{Name}.{Ext}"), Args);
+	if (GetFilename(true).EqualToCaseIgnored(NewFileName))
 	{
 		return false;
 	}
 
 	const TSet<UYetiOS_FileBase*>& AllFilesInParent = GetParentDirectory()->GetDirectoryFiles();
-	for (const auto& It : AllFilesInParent)
+	if (Name.IsEmptyOrWhitespace() == false && Extension.IsEmptyOrWhitespace() == false)
 	{
-		if (It->IsSameFile(this))
+		for (const auto& It : AllFilesInParent)
 		{
-			const FString Title = "File Exists";
-			const FString Description = FString::Printf(TEXT("File '%s' alrady exists in directory '%s'."), *GetFilename(true).ToString(), *GetParentDirectory()->GetDirectoryName().ToString());
-			OutErrorMessage = GetErrorStruct(FText::FromString("ERR_FILE_EXISTS"), FText::FromString(Title), FText::FromString(Description));
-			return false;
+			if (It->IsSameFile(this))
+			{
+				const FString Title = "File Exists";
+				const FString Description = FString::Printf(TEXT("File '%s' alrady exists in directory '%s'."), *GetFilename(true).ToString(), *GetParentDirectory()->GetDirectoryName().ToString());
+				OutErrorMessage = GetErrorStruct(FText::FromString("ERR_FILE_EXISTS"), FText::FromString(Title), FText::FromString(Description));
+				return false;
+			}
 		}
 	}
 
 	Name = InNewName;
+	Extension = InNewExtension;
 	return true;
 }
 
