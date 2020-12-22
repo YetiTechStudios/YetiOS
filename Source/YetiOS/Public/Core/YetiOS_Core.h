@@ -7,6 +7,8 @@
 #include "YetiOS_Types.h"
 #include "YetiOS_Core.generated.h"
 
+class UYetiOS_StartMenu;
+class UYetiOS_AppIconWidget;
 USTRUCT()
 struct FYetiOsNotificationSettings
 {
