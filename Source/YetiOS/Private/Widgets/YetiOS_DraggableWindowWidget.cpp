@@ -113,6 +113,12 @@ FReply UYetiOS_DraggableWindowWidget::NativeOnMouseButtonUp(const FGeometry& InG
 	return UWidgetBlueprintLibrary::ReleaseMouseCapture(EventReply).NativeReply;
 }
 
+FReply UYetiOS_DraggableWindowWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	BringWindowToFront();
+	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+}
+
 void UYetiOS_DraggableWindowWidget::Internal_OnMouseButtonUpEvent()
 {
 	if (bIsResizing && bIsAlignmentAccountedFor)

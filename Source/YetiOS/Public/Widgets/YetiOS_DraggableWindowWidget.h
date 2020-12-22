@@ -53,7 +53,7 @@ private:
 	class UBorder* WindowTitleBorderWidget;
 
 	/** Canvas Panel that the developer should create in UMG designer */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, Category = "Yeti OS Draggable Window Widget", meta = (BindWidget, AllowPrivateAccess = "true"))
 	class UCanvasPanel* ProgramCanvas;
 
 	/** Border widget that the developer should create in UMG designer */
@@ -91,6 +91,9 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 private:
 
