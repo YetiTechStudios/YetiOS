@@ -152,6 +152,7 @@ public:
 	* Updates the Z order and brings window to front.
 	* @return [bool] True if window was brought to front.
 	**/
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Yeti OS Draggable Window")
 	bool BringWindowToFront();
 
 	/**
