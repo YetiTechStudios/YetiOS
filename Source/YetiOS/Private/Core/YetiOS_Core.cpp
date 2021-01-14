@@ -394,7 +394,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgram(TSubclassOf<UYetiOS_BaseProgra
 		return nullptr;
 	}
 
-	const bool bIsPredefinedProgram = ProgramsRepository->IsInstalledWithOS(InProgramToInstall);
+	const bool bIsPredefinedProgram = HasRepositoryLibrary() ? ProgramsRepository->IsInstalledWithOS(InProgramToInstall) : false;
 	UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(this, InProgramToInstall, OutErrorMessage, bIsPredefinedProgram);
 	if (NewProgram)
 	{
@@ -748,17 +748,20 @@ TSubclassOf<class UYetiOS_BaseProgram> UYetiOS_Core::Internal_FindProgramFromPac
 
 void UYetiOS_Core::Internal_InstallStartupPrograms()
 {
-	UYetiOS_AppIconWidget* OutIconWidget = nullptr;
-	TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
-	FYetiOsError OutError;
-	for (const auto& It : AllProgramsFromRepo)
+	if (HasRepositoryLibrary())
 	{
-		if (It.bInstallWithOS)
+		UYetiOS_AppIconWidget* OutIconWidget = nullptr;
+		TSet<FYetiOS_RepoProgram> AllProgramsFromRepo = ProgramsRepository->GetProgramsFromRepository();
+		FYetiOsError OutError;
+		for (const auto& It : AllProgramsFromRepo)
 		{
-			UYetiOS_BaseProgram* Local_InstalledProgram = InstallProgram(It.ProgramClass, OutError, OutIconWidget);
-			if (Local_InstalledProgram == nullptr)
+			if (It.bInstallWithOS)
 			{
-				printlog_warn(OutError.ErrorDetailedException.ToString());
+				UYetiOS_BaseProgram* Local_InstalledProgram = InstallProgram(It.ProgramClass, OutError, OutIconWidget);
+				if (Local_InstalledProgram == nullptr)
+				{
+					printlog_warn(OutError.ErrorDetailedException.ToString());
+				}
 			}
 		}
 	}
