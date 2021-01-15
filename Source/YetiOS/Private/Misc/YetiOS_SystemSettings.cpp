@@ -103,7 +103,7 @@ FLinearColor UYetiOS_SystemSettings::GetColorOfTypeFromCollection(const FName In
 		return OutCollection.SystemColors.FindRef(InColorType);
 	}
 
-	printlog_error(FString::Printf(TEXT("Failed to find color type '%s' from collection '%s'."), *InCollectionName.ToString()));
+	printlog_error(FString::Printf(TEXT("Failed to find color type '%s' from collection '%s'."), *InCollectionName.ToString(), *GetName()));
 	return FLinearColor::Transparent;
 }
 
