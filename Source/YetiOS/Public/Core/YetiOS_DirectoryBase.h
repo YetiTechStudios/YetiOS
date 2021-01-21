@@ -74,6 +74,9 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OwningOS;
 
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	FYetiOS_Lock LockedUsers;
+
 public:
 
 	UYetiOS_DirectoryBase();
@@ -174,6 +177,14 @@ public:
 	UYetiOS_DirectoryBase* GetParentDirectory() const { return ParentDirectory; }
 
 	/**
+	* virtual public UYetiOS_DirectoryRoot::ToggleLock
+	* Given user will be locked for this file and won't be able to open it.
+	* @param bLock [const bool] True to lock. False to unlock
+	* @param InUserToLock [const FYetiOsUser&] The user to be locked out of this file.
+	**/
+	virtual void ToggleLock(const bool bLock, const FYetiOsUser& InUser);
+
+	/**
 	* public UYetiOS_DirectoryBase::CreateChildDirectory
 	* Creates a new directory in this directory.
 	* @param InOwningOS [const UYetiOS_Core*] OS that owns this directory.
@@ -230,6 +241,15 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")	
 	TArray<UYetiOS_DirectoryBase*> GetAllParentDirectories(const bool bIncludeRootFolder = false) const;
+
+	/**
+	* public UYetiOS_DirectoryBase::IsLockedForUser const
+	* Checks if the given user is locked for this file.
+	* @param InUser [const FYetiOsUser&] User to check.
+	* @return [bool] True if locked. False if not.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
+	bool IsLockedForUser(const FYetiOsUser& InUser) const { return LockedUsers.IsUserAllowed(InUser) == false; }
 
 	/**
 	* public UYetiOS_DirectoryBase::EnsureOS

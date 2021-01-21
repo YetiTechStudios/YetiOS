@@ -471,6 +471,11 @@ struct FYetiOsUser
 		return Other.UserName.EqualTo(UserName) && Other.Password.EqualTo(Password);
 	}
 
+	friend uint32 GetTypeHash(const FYetiOsUser& Other)
+	{
+		return GetTypeHash(Other.UserIcon);
+	}
+
 	FYetiOsUser()
 	{
 		UserName = FText::GetEmpty();
@@ -1056,6 +1061,50 @@ public:
 	}
 };
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserLocked, class UObject*, const FYetiOsUser&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserUnLocked, class UObject*, const FYetiOsUser&);
+
+USTRUCT()
+struct FYetiOS_Lock
+{
+	GENERATED_USTRUCT_BODY();
+	
+private:	
+	
+	TSet<FYetiOsUser> LockedUsers;
+
+public:
+
+	static FOnUserLocked OnUserLocked;
+	static FOnUserUnLocked OnUserUnlocked;
+
+	FORCEINLINE void AddUser(class UObject* Object, const FYetiOsUser& InUser)
+	{
+		if (LockedUsers.Find(InUser) == nullptr)
+		{
+			LockedUsers.Add(InUser);
+			OnUserLocked.Broadcast(Object, InUser);
+		}
+	}
+
+	FORCEINLINE void RemoveUser(class UObject* Object, const FYetiOsUser& InUser)
+	{
+		if (LockedUsers.Remove(InUser) != 0)
+		{
+			OnUserUnlocked.Broadcast(Object, InUser);
+		}
+	}
+
+	FORCEINLINE bool IsUserAllowed(const FYetiOsUser& InUser) const
+	{
+		return LockedUsers.Contains(InUser) == false;
+	}
+
+	FORCEINLINE TArray<FYetiOsUser> GetLockedUsers() const
+	{
+		return LockedUsers.Array();
+	}
+};
 
 template<typename TEnum>
 static FORCEINLINE const FString GetEnumAsString(const FString& Name, TEnum Value)

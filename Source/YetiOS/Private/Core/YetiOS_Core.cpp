@@ -26,6 +26,9 @@
 #include "Widgets/YetiOS_DialogWidget.h"
 #include "Core/YetiOS_BaseDialogProgram.h"
 
+FOnUserLocked		FYetiOS_Lock::OnUserLocked;
+FOnUserUnLocked		FYetiOS_Lock::OnUserUnlocked;
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsOperatingSystem, All, All)
 
@@ -216,12 +219,80 @@ FLinearColor UYetiOS_Core::GetColorFromCurrent(class UYetiOS_Core* InOS, EYetiOs
 	return FLinearColor::Transparent;
 }
 
+void UYetiOS_Core::ListenForLock(class UObject* Object, const FYetiOsUser& InUser)
+{
+	UYetiOS_FileBase* MyFile = Cast<UYetiOS_FileBase>(Object);
+	if (MyFile && MyFile->GetParentDirectory()->GetOwningOS() == this)
+	{
+		OnToggleFileLockForUser.Broadcast(true, MyFile, InUser);
+		FYetiOsNotification Notification;
+		Notification.Category = EYetiOsNotificationCategory::CATEGORY_OS;
+		Notification.Title = FText::FromString(FString::Printf(TEXT("%s locked"), *MyFile->GetFilename(true).ToString()));
+		Notification.Description = FText::FromString(FString::Printf(TEXT("%s has been locked for %s"), *MyFile->GetFilename(false).ToString(), *InUser.UserName.ToString()));
+		CreateOsNotification(Notification);
+		return;
+	}
+
+	UYetiOS_DirectoryBase* MyDir = Cast<UYetiOS_DirectoryBase>(Object);
+	if (MyDir && MyDir->GetOwningOS() == this)
+	{
+		OnToggleDirectoryLockForUser.Broadcast(true, MyDir, InUser);
+		FYetiOsNotification Notification;
+		Notification.Category = EYetiOsNotificationCategory::CATEGORY_OS;
+		Notification.Title = FText::FromString(FString::Printf(TEXT("%s locked"), *MyDir->GetDirectoryName().ToString()));
+		Notification.Description = FText::FromString(FString::Printf(TEXT("%s has been locked for %s"), *MyDir->GetDirectoryName().ToString(), *InUser.UserName.ToString()));
+		CreateOsNotification(Notification);
+	}
+}
+
+void UYetiOS_Core::ListenForUnlock(class UObject* Object, const FYetiOsUser& InUser)
+{
+	UYetiOS_FileBase* MyFile = Cast<UYetiOS_FileBase>(Object);
+	if (MyFile && MyFile->GetParentDirectory()->GetOwningOS() == this)
+	{
+		OnToggleFileLockForUser.Broadcast(false, MyFile, InUser);
+		FYetiOsNotification Notification;
+		Notification.Category = EYetiOsNotificationCategory::CATEGORY_OS;
+		Notification.Title = FText::FromString(FString::Printf(TEXT("%s unlocked"), *MyFile->GetFilename(true).ToString()));
+		Notification.Description = FText::FromString(FString::Printf(TEXT("%s is now accessible for %s"), *MyFile->GetFilename(false).ToString(), *InUser.UserName.ToString()));
+		CreateOsNotification(Notification);
+		return;
+	}
+
+	UYetiOS_DirectoryBase* MyDir = Cast<UYetiOS_DirectoryBase>(Object);
+	if (MyDir && MyDir->GetOwningOS() == this)
+	{
+		OnToggleDirectoryLockForUser.Broadcast(false, MyDir, InUser);
+		FYetiOsNotification Notification;
+		Notification.Category = EYetiOsNotificationCategory::CATEGORY_OS;
+		Notification.Title = FText::FromString(FString::Printf(TEXT("%s unlocked"), *MyDir->GetDirectoryName().ToString()));
+		Notification.Description = FText::FromString(FString::Printf(TEXT("%s is now accessible for %s"), *MyDir->GetDirectoryName().ToString(), *InUser.UserName.ToString()));
+		CreateOsNotification(Notification);
+	}
+}
+
 void UYetiOS_Core::CreateOsNotification(const FYetiOsNotification InNewNotification)
 {
 	if (NotificationSettings.bEnableNotifications)
 	{
 		OsWidget->ReceiveNotification(InNewNotification);
 		NotificationManager->LogNotification(InNewNotification);
+	}
+}
+
+void UYetiOS_Core::ToggleLockOnFile(class UYetiOS_FileBase* TargetFile, bool bLock, const FYetiOsUser& InUser)
+{
+	if (TargetFile)
+	{
+		TargetFile->ToggleLock(bLock, InUser);
+	}
+}
+
+void UYetiOS_Core::ToggleLockOnDirectory(class UYetiOS_DirectoryBase* TargetDirectory, bool bLock, const FYetiOsUser& InUser)
+{
+	if (TargetDirectory)
+	{
+		TargetDirectory->ToggleLock(bLock, InUser);
 	}
 }
 
@@ -232,6 +303,9 @@ const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, FYetiOsEr
 	UYetiOS_DirectoryRoot* MyRootDirectory = GetRootDirectory();
 	if (MyRootDirectory)
 	{
+		DelegateHandle_Lock = FYetiOS_Lock::OnUserLocked.AddUObject(this, &UYetiOS_Core::ListenForLock);
+		DelegateHandle_Unlock = FYetiOS_Lock::OnUserUnlocked.AddUObject(this, &UYetiOS_Core::ListenForUnlock);
+
 		DesktopDirectory = MyRootDirectory->GetChildDirectoryByType(EDirectoryType::Desktop);
 		if (DesktopDirectory.IsValid())
 		{
@@ -301,28 +375,29 @@ const bool UYetiOS_Core::StartOperatingSystem(const bool bIsInstalled, FYetiOsEr
 
 void UYetiOS_Core::ShutdownOS()
 {
-	TArray<UYetiOS_BaseProgram*> ProgramsArray;
-	RunningPrograms.GenerateValueArray(ProgramsArray);
-	for (const auto& It : ProgramsArray)
-	{
-		FYetiOsError OutError;
-		It->CloseProgram(OutError, true);
-	}
-
+	FYetiOS_Lock::OnUserLocked.Remove(DelegateHandle_Lock);
+	FYetiOS_Lock::OnUserUnlocked.Remove(DelegateHandle_Unlock);
+	CloseAllPrograms(true);
 	OsWidget->BeginShutdownOS();
 }
 
 void UYetiOS_Core::RestartOS()
+{
+	FYetiOS_Lock::OnUserLocked.Remove(DelegateHandle_Lock);
+	FYetiOS_Lock::OnUserUnlocked.Remove(DelegateHandle_Unlock);
+	CloseAllPrograms(true);
+	OsWidget->BeginRestartOS();
+}
+
+void UYetiOS_Core::CloseAllPrograms(const bool bIsOperatingSystemShuttingDown)
 {
 	TArray<UYetiOS_BaseProgram*> ProgramsArray;
 	RunningPrograms.GenerateValueArray(ProgramsArray);
 	for (const auto& It : ProgramsArray)
 	{
 		FYetiOsError OutError;
-		It->CloseProgram(OutError, true);
+		It->CloseProgram(OutError, bIsOperatingSystemShuttingDown);
 	}
-
-	OsWidget->BeginRestartOS();
 }
 
 bool UYetiOS_Core::AddNewUser(FYetiOsUser InNewUser, FYetiOsError& OutErrorMessage)

@@ -108,8 +108,25 @@ bool UYetiOS_FileBase::OpenFile(FYetiOsError& OutErrorMessage, const bool bInFor
 {
 	if (ensureMsgf(GetParentDirectory() != nullptr, TEXT("File requires a valid reference to directory to open")))
 	{
-		bIsOpen = AssociatedProgram != nullptr;
 		UYetiOS_Core* Local_OS = GetParentDirectory()->GetOwningOS();
+
+		if (LockedUsers.IsUserAllowed(Local_OS->GetCurrentUser()) == false)
+		{
+			OutErrorMessage.ErrorCode = FText::FromString("ERR_ACCESS_DENIED");
+			OutErrorMessage.ErrorException = FText::FromString(FString::Printf(TEXT("%s is not allowed to view this file."), *Local_OS->GetCurrentUser().UserName.ToString()));
+			OutErrorMessage.ErrorDetailedException = OutErrorMessage.ErrorException;
+
+			FYetiOsNotification Notification;
+			Notification.Category = EYetiOsNotificationCategory::CATEGORY_OS;
+			Notification.Title = FText::FromString("Access Denied");
+			Notification.Description = OutErrorMessage.ErrorException;
+			Notification.Level = EYetiOsNotificationType::TYPE_Error;
+			Local_OS->CreateOsNotification(Notification);
+
+			return false;
+		}
+
+		bIsOpen = AssociatedProgram != nullptr;
 		if (bIsOpen == false)
 		{
 			if (AssociatedProgramClass)
@@ -175,6 +192,11 @@ const bool UYetiOS_FileBase::IsAssociatedProgramInstalled() const
 	}
 
 	return false;
+}
+
+void UYetiOS_FileBase::ToggleLock(const bool bLock, const FYetiOsUser& InUser)
+{
+	bLock ? LockedUsers.AddUser(this, InUser) : LockedUsers.RemoveUser(this, InUser);
 }
 
 void UYetiOS_FileBase::Internal_OnFileCreate()

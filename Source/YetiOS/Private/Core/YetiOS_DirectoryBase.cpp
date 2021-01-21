@@ -147,6 +147,11 @@ TSet<class UYetiOS_FileBase*> UYetiOS_DirectoryBase::GetDirectoryFiles(const FSt
 	return OutSet;
 }
 
+void UYetiOS_DirectoryBase::ToggleLock(const bool bLock, const FYetiOsUser& InUser)
+{
+	bLock ? LockedUsers.AddUser(this, InUser) : LockedUsers.RemoveUser(this, InUser);
+}
+
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::CreateChildDirectory(class UYetiOS_Core* InOwningOS, TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass, FYetiOsError& OutErrorMessage, const FText& InDirectoryName, const bool bCreateHidden /*= false*/, const bool bForceCreate /*= false*/)
 {
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> TargetArray;

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "YetiOS_Types.h"
 #include "YetiOS_FileBase.generated.h"
 
 /*************************************************************************
@@ -83,6 +84,9 @@ protected:
 	/** Is the file currently open */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bIsOpen : 1;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	FYetiOS_Lock LockedUsers;
 
 public:
 
@@ -223,11 +227,28 @@ public:
 	class UYetiOS_DirectoryBase* GetParentDirectory() const;
 
 	/**
+	* public UYetiOS_FileBase::IsLockedForUser const
+	* Checks if the given user is locked for this file.
+	* @param InUser [const FYetiOsUser&] User to check.
+	* @return [bool] True if locked. False if not.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS File")	
+	bool IsLockedForUser(const FYetiOsUser& InUser) const { return LockedUsers.IsUserAllowed(InUser) == false; }
+
+	/**
 	* public UYetiOS_FileBase::IsAssociatedProgramInstalled const
 	* Checks if the associated program is installed on the Operating System.
 	* @return [const bool] True if the program is installed.
 	**/
 	const bool IsAssociatedProgramInstalled() const;
+
+	/**
+	* virtual public UYetiOS_FileBase::ToggleLock
+	* Given user will be locked for this file and won't be able to open it.
+	* @param bLock [const bool] True to lock. False to unlock
+	* @param InUserToLock [const FYetiOsUser&] The user to be locked out of this file.
+	**/
+	virtual void ToggleLock(const bool bLock, const FYetiOsUser& InUser);
 
 private:
 

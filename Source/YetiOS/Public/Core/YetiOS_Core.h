@@ -47,6 +47,9 @@ struct FYetiOsNotificationSettings
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnProgramInstalled, class UYetiOS_BaseProgram*)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPeekPreview, const bool)
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnToggleFileLockForUser, const bool, bIsLocked, class UYetiOS_FileBase*, _File, const FYetiOsUser&, _User);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnToggleDirectoryLockForUser, const bool, bIsLocked, class UYetiOS_DirectoryBase*, _Dir, const FYetiOsUser&, _User);
+
 /*************************************************************************
 * File Information:
 YetiOS_Core.h
@@ -66,6 +69,9 @@ class YETIOS_API UYetiOS_Core : public UObject
 #endif
 	
 	FTimerHandle TimerHandle_OsInstallation;
+
+	FDelegateHandle DelegateHandle_Lock;
+	FDelegateHandle DelegateHandle_Unlock;
 	
 private:
 
@@ -202,9 +208,21 @@ public:
 	/** Delegate called when peek desktop is activated. @See UYetiOS_Taskbar::PeekDesktop */
 	FOnPeekPreview OnPeekPreview;
 
+	UPROPERTY(BlueprintAssignable, Category = "Yeti OS|Delegates")
+	FOnToggleFileLockForUser OnToggleFileLockForUser;
+
+	UPROPERTY(BlueprintAssignable, Category = "Yeti OS|Delegates")
+	FOnToggleDirectoryLockForUser OnToggleDirectoryLockForUser;
+
 	UYetiOS_Core();
 
 	static const FString PATH_DELIMITER;
+
+	UFUNCTION(BlueprintPure, Category = "Yeti Global", meta = (DisplayName = "Equal (Yeti OS User)", CompactNodeTitle = "Same User", Keywords = "== equal same"))
+	static bool EqualEqual_YetiOsUser(const FYetiOsUser& A, const FYetiOsUser& B)
+	{
+		return A == B;
+	}
 
 	/**
 	* public static UYetiOS_Core::CreateOperatingSystem
@@ -305,12 +323,50 @@ public:
 	static FLinearColor GetColorFromCurrent(class UYetiOS_Core* InOS, EYetiOsColorTypes InColorType);
 
 	/**
+	* public UYetiOS_Core::ListenForLock
+	* This function will be called whenever a file or directory is locked.
+	* @See ListenForUnlock()
+	* @param Object [class UObject*] This can be a file or directory.
+	* @param InUser [const FYetiOsUser&] User that was locked.
+	**/
+	void ListenForLock(class UObject* Object, const FYetiOsUser& InUser);
+
+	/**
+	* public UYetiOS_Core::ListenForUnlock
+	* This function will be called whenever a file or directory is unlocked.
+	* @See ListenForLock()
+	* @param Object [class UObject*] This can be a file or directory.
+	* @param InUser [const FYetiOsUser&] User that was unlocked.
+	**/
+	void ListenForUnlock(class UObject* Object, const FYetiOsUser& InUser);
+
+	/**
 	* public UYetiOS_Core::CreateOsNotification
 	* Creates an OS notification and add it to the notification manager.
 	* @param InNewNotification [const FYetiOsNotification] Notification to add.
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS")	
 	void CreateOsNotification(const FYetiOsNotification InNewNotification);
+
+	/**
+	* public UYetiOS_Core::ToggleLockOnFile
+	* Toggles lock state on target file.
+	* @param TargetFile [class UYetiOS_FileBase*] File to lock or unlock.
+	* @param bLock [bool] True to lock. False to unlock.
+	* @param InUser [const FYetiOsUser&] User that should be locked or unlocked.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS")	
+	void ToggleLockOnFile(class UYetiOS_FileBase* TargetFile, bool bLock, const FYetiOsUser& InUser);
+
+	/**
+	* public UYetiOS_Core::ToggleLockOnDirectory
+	* Toggles lock state on target directory.
+	* @param TargetDirectory [class UYetiOS_DirectoryBase*] Directory to be locked.
+	* @param bLock [bool] True to lock. False to unlock.
+	* @param InUser [const FYetiOsUser&] User that should be locked or unlocked.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS")	
+	void ToggleLockOnDirectory(class UYetiOS_DirectoryBase* TargetDirectory, bool bLock, const FYetiOsUser& InUser);
 
 	/**
 	* public UYetiOS_Core::StartOperatingSystem
@@ -333,6 +389,13 @@ public:
 	* Restarts the operating system. Closes all running programs and begin restart in OsWidget.
 	**/
 	void RestartOS();
+
+	/**
+	* public UYetiOS_Core::CloseAllPrograms
+	* Closes all programs
+	* @param bIsOperatingSystemShuttingDown [const bool] True if this OS is shutting down.
+	**/
+	void CloseAllPrograms(const bool bIsOperatingSystemShuttingDown);
 
 	/**
 	* public UYetiOS_Core::AddNewUser
