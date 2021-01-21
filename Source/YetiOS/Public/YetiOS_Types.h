@@ -742,13 +742,13 @@ struct FYetiOS_Version
 
 private:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Version", meta = (AllowPrivateAccess = "true"))
 	uint8 Major;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Version", meta = (AllowPrivateAccess = "true"))
 	uint8 Minor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Version", meta = (AllowPrivateAccess = "true"))
 	uint8 Patch;
 
 public:
