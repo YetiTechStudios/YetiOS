@@ -1064,13 +1064,14 @@ public:
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserLocked, class UObject*, const FYetiOsUser&);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserUnLocked, class UObject*, const FYetiOsUser&);
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FYetiOS_Lock
 {
 	GENERATED_USTRUCT_BODY();
 	
 private:	
 	
+	UPROPERTY(EditAnywhere, Category = "Lock Set")
 	TSet<FYetiOsUser> LockedUsers;
 
 public:
@@ -1100,9 +1101,9 @@ public:
 		return LockedUsers.Contains(InUser) == false;
 	}
 
-	FORCEINLINE TArray<FYetiOsUser> GetLockedUsers() const
+	FORCEINLINE const TSet<FYetiOsUser>& GetLockedUsers() const
 	{
-		return LockedUsers.Array();
+		return LockedUsers;
 	}
 };
 

@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base", meta = (EditCondition = "bCanCreateNewFolder"))
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> ChildDirectoryClasses;
 
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Directory Base")
+	FYetiOS_Lock LockedUsers;
+
 	/** Parent directory */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	UYetiOS_DirectoryBase* ParentDirectory;
@@ -73,9 +76,6 @@ protected:
 	/** Operating System that owns this directory. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_Core* OwningOS;
-
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	FYetiOS_Lock LockedUsers;
 
 public:
 

@@ -69,6 +69,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS File")
 	uint8 bOpenInSameInstance : 1;
 
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS File")
+	FYetiOS_Lock LockedUsers;
+
 	/** Program that is associated with this file. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	class UYetiOS_BaseProgram* AssociatedProgram;
@@ -84,9 +87,6 @@ protected:
 	/** Is the file currently open */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	uint8 bIsOpen : 1;
-
-	UPROPERTY(VisibleInstanceOnly, Category = Debug)
-	FYetiOS_Lock LockedUsers;
 
 public:
 
