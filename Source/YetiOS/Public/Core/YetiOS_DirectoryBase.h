@@ -252,6 +252,14 @@ public:
 	bool IsLockedForUser(const FYetiOsUser& InUser) const { return LockedUsers.IsUserAllowed(InUser) == false; }
 
 	/**
+	* public UYetiOS_DirectoryBase::GetLockedUsers const
+	* Returns an array of locked users.
+	* @return [TArray<FYetiOsUser>] Array containing information of users that are locked from this directory.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS File")
+	inline TArray<FYetiOsUser> GetLockedUsers() const { return LockedUsers.GetLockedUsers().Array(); }
+
+	/**
 	* public UYetiOS_DirectoryBase::EnsureOS
 	* Makes sure that OwningOS is set.
 	* @param InOS [const class UYetiOS_Core *] OS to assign if OwningOS is nullptr.

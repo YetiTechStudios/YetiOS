@@ -236,6 +236,14 @@ public:
 	bool IsLockedForUser(const FYetiOsUser& InUser) const { return LockedUsers.IsUserAllowed(InUser) == false; }
 
 	/**
+	* public UYetiOS_FileBase::GetLockedUsers const
+	* Returns an array of locked users.
+	* @return [TArray<FYetiOsUser>] Array containing information of users that are locked from this file.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS File")	
+	inline TArray<FYetiOsUser> GetLockedUsers() const { return LockedUsers.GetLockedUsers().Array(); }
+
+	/**
 	* public UYetiOS_FileBase::IsAssociatedProgramInstalled const
 	* Checks if the associated program is installed on the Operating System.
 	* @return [const bool] True if the program is installed.
