@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "2.0.3",
+	"VersionName": "2.0.4",
 	"FriendlyName": "Operating System Simulator",
 	"Description": "Simulation of Operating System installation, Devices, System Hardware, Multiple Users, Programs, BSOD and more.\nIncluded with this plugin are programs such as Terminal (including Terminal Commands), Web Browser, File Explorer etc.",
 	"Category": "YetiTech Studios",
