@@ -224,6 +224,12 @@ public:
 		return A == B;
 	}
 
+	UFUNCTION(BlueprintPure, Category = "Yeti Global", meta = (DisplayName = "Compatible Version", CompactNodeTitle = "Compatible", Keywords = "== equal same compatible check"))
+	static bool IsVersionsCompatible(const FYetiOS_Version& VersionA, const FYetiOS_Version& VersionB)
+	{
+		return VersionA < VersionB;
+	}
+
 	/**
 	* public static UYetiOS_Core::CreateOperatingSystem
 	* Creates an operating system for the given device and returns it. 

@@ -315,9 +315,9 @@ bool UYetiOS_BaseProgram::IsCompatibleWithOS(class UYetiOS_Core* InOS) const
 {
 	if (bRequireMinimumOperatingSystemVersion)
 	{
-		return MinimumOperatingSystemVersionRequired < InOS->GetOsVersion();
+		return UYetiOS_Core::IsVersionsCompatible(MinimumOperatingSystemVersionRequired, InOS->GetOsVersion());
 	}
-	
+
 	return true;
 }
 
