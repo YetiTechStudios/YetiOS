@@ -28,7 +28,7 @@ private:
 	TSet<FYetiOS_RepoProgram> Programs;
 	
 public:
-		
+	
 	FORCEINLINE const TSet<FYetiOS_RepoProgram> GetProgramsFromRepository() const { return Programs; }
 	FORCEINLINE const bool IsInstalledWithOS(TSubclassOf<class UYetiOS_BaseProgram> InProgramToCheck) const
 	{
@@ -41,5 +41,25 @@ public:
 		}
 
 		return false;
+	}
+
+	FORCEINLINE TArray<UYetiOS_BaseProgram*> GetDefaultProgramObjects(const bool bIgnoreInstalledWithOS) const
+	{
+		TArray<UYetiOS_BaseProgram*> RetVal;
+		for (const auto& It : Programs)
+		{
+			if (It.bInstallWithOS && bIgnoreInstalledWithOS)
+			{
+				continue;
+			}
+
+			UYetiOS_BaseProgram* Local_CDO = It.ProgramClass->GetDefaultObject<UYetiOS_BaseProgram>();
+			if (Local_CDO->SupportsStore())
+			{
+				RetVal.Add(Local_CDO);
+			}
+		}
+
+		return RetVal;
 	}
 };
