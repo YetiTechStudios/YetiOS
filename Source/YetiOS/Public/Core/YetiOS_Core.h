@@ -44,6 +44,8 @@ struct FYetiOsNotificationSettings
 	}
 };
 
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOnInstallProgramFinishedDelegate, class UYetiOS_BaseProgram*, _Program, const FYetiOsError&, _ErrorMessage, UYetiOS_AppIconWidget*, _IconWidget);
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnProgramInstalled, class UYetiOS_BaseProgram*)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPeekPreview, const bool)
 
@@ -435,6 +437,16 @@ public:
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS")
 	UYetiOS_BaseProgram* InstallProgramFromPackage(const FString& InProgramIdentifier, FYetiOsError& OutErrorMessage, UYetiOS_AppIconWidget*& OutIconWidget);
+
+	/**
+	* public UYetiOS_Core::InstallProgramFromPackageWithTimer
+	* Installs the program after the time expires. If time is 0, instantly install the program.
+	* @param InProgramIdentifier [const FString&] Program identifier to install.
+	* @param Time [float] Time (in seconds) taken to install the program.
+	* @param Callback [const FOnInstallProgramFinishedDelegate&] Callback to execute when timer expires.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS")
+	void InstallProgramFromPackageWithTimer(const FString& InProgramIdentifier, float Time, const FOnInstallProgramFinishedDelegate& Callback);
 
 	/**
 	* public UYetiOS_Core::IsProgramRunning const

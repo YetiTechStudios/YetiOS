@@ -529,6 +529,29 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgramFromPackage(const FString& InPr
 	return nullptr;
 }
 
+void UYetiOS_Core::InstallProgramFromPackageWithTimer(const FString& InProgramIdentifier, float Time, const FOnInstallProgramFinishedDelegate& Callback)
+{
+	DECLARE_DELEGATE(FOnInstallDone);
+	FOnInstallDone OnInstallDone;
+
+	OnInstallDone.BindLambda([&, InProgramIdentifier, Callback]
+	{
+		FYetiOsError OutMessage;
+		UYetiOS_AppIconWidget* OutWidget;
+		UYetiOS_BaseProgram* Local_Program = InstallProgramFromPackage(InProgramIdentifier, OutMessage, OutWidget);
+		Callback.Execute(Local_Program, OutMessage, OutWidget);
+	});
+
+	if (Time > KINDA_SMALL_NUMBER)
+	{
+		FTimerHandle TimerHandle_DummyHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_DummyHandle, OnInstallDone, Time, false);
+	}
+	else
+	{
+		OnInstallDone.Execute();
+	}
+}
 const bool UYetiOS_Core::IsProgramRunning(const class UYetiOS_BaseProgram* InProgram) const
 {
 	TArray<UYetiOS_BaseProgram*> OutArray;
