@@ -34,6 +34,7 @@ UYetiOS_BaseProgram::UYetiOS_BaseProgram()
 	bCreateInstallationNotification = true;
 	ProgramIconWidget = nullptr;
 
+	bSupportStore = true;
 	bCanCallOnCreate = true;
 	bCanCallOnStart = true;
 	bCanCallOnClose = true;

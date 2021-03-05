@@ -137,6 +137,13 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	UYetiOS_AppWidget* ProgramWidget;
 
+	/** If true, then this program can be displayed on store. */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Store")
+	uint8 bSupportStore : 1;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Store", meta = (EditCondition = "bSupportStore"))
+	FYetiOsStoreDetail StoreDetail;
+
 	/** The file that is currently opened in this program. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UYetiOS_FileBase* CurrentFileOpened;
@@ -386,6 +393,10 @@ public:
 	FORCEINLINE const bool IsSystemInstalledProgram() const { return bIsSystemInstalledProgram; }
 	FORCEINLINE const bool CanSaveSettings() const { return ProgramSettings != nullptr && SaveMethod != EProgramSaveMethod::DoNotSave; }
 	FORCEINLINE const bool CanShowPostInstallNotification() const { return bCreateInstallationNotification; }
+	FORCEINLINE const bool RequireMinimumOsVersion() const { return bRequireMinimumOperatingSystemVersion; }
+	FORCEINLINE const bool SupportsStore() const { return bSupportStore; }
 	FORCEINLINE const EYetiOsProgramVisibilityState GetCurrentVisibilityState() const { return CurrentVisibilityState; }
 	FORCEINLINE class UYetiOS_DraggableWindowWidget* GetOwningWindow() const { return OwningWindow; }
+	FORCEINLINE FYetiOsStoreDetail GetStoreDetail() const { return StoreDetail; }
+	FORCEINLINE FYetiOS_Version GetMinimumOsVersionRequired() const { return MinimumOperatingSystemVersionRequired; }
 };
