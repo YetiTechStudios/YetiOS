@@ -19,9 +19,7 @@ UYetiOS_Store::UYetiOS_Store()
 
 void UYetiOS_Store::RegisterUser(const FText& InUserEmail, const FText& InUserPassword, float Time, const FOnStoreRegister& Callback, float InitialCash /*= 10000.f*/)
 {
-	DECLARE_DELEGATE(FOnDone);
-	FOnDone OnDone;
-
+	FTimerDelegate OnDone;
 	OnDone.BindLambda([&, InUserEmail, InUserPassword, InitialCash, Callback]
 	{
 		if (CurrentUser.IsValid())
@@ -64,9 +62,7 @@ void UYetiOS_Store::RegisterUser(const FText& InUserEmail, const FText& InUserPa
 
 void UYetiOS_Store::SignIn(const FText& InUserEmail, const FText& InUserPassword, float Time, const FOnStoreLogin& Callback)
 {
-	DECLARE_DELEGATE(FOnDone);
-	FOnDone OnDone;
-
+	FTimerDelegate OnDone;
 	OnDone.BindLambda([&, InUserEmail, InUserPassword, Callback]
 	{
 		if (CurrentUser.IsValid())
@@ -122,9 +118,7 @@ void UYetiOS_Store::SignOut()
 
 void UYetiOS_Store::BuyStoreItem(const FYetiOsStoreItem& InStoreItem, float Time, const FOnStoreItemBought& Callback)
 {
-	DECLARE_DELEGATE(FOnDone);
-	FOnDone OnDone;
-
+	FTimerDelegate OnDone;
 	OnDone.BindLambda([&, InStoreItem, Callback]
 	{
 		if (CurrentUser.IsValid() && CurrentUser.ReduceCash(InStoreItem.StoreDetail.Price))
