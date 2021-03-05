@@ -116,6 +116,7 @@ public:
 	/**
 	* public UYetiOS_Store::GetStoreItems const
 	* Get all items from Store.
+	* @param bForceRefresh [const bool] Clears the cached StoreItems and repopulate it.
 	* @param bIgnoreInstalledWithOS [const bool] True to ignore items already installed with OS.
 	* @return [TArray<FYetiOsStoreItem>] List of items from Store.
 	**/
