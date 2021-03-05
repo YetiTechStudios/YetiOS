@@ -38,7 +38,7 @@ void UYetiOS_Store::RegisterUser(const FText& InUserEmail, const FText& InUserPa
 		}
 		else
 		{
-			FYetiOsStoreUser TempUser = FYetiOsStoreUser(InUserEmail, InUserPassword, InitialCash);
+			const FYetiOsStoreUser TempUser = FYetiOsStoreUser(InUserEmail, InUserPassword, InitialCash);
 			if (RegisteredUsers.Contains(TempUser))
 			{
 				Callback.Execute(EYetiOsStoreRegisterResult::UserAlreadyExists);
