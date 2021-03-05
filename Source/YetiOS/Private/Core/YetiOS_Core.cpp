@@ -552,6 +552,19 @@ void UYetiOS_Core::InstallProgramFromPackageWithTimer(const FString& InProgramId
 		OnInstallDone.Execute();
 	}
 }
+
+bool UYetiOS_Core::StartProgram(const FName& ProgramIdentifier, FYetiOsError& OutErrorMessage)
+{
+	UYetiOS_BaseProgram* FoundProgram = nullptr;
+	const bool bIsProgramInstalled = IsProgramInstalled(ProgramIdentifier, FoundProgram, OutErrorMessage);
+	if (bIsProgramInstalled)
+	{
+		return FoundProgram->StartProgram(OutErrorMessage);
+	}
+
+	return false;
+}
+
 const bool UYetiOS_Core::IsProgramRunning(const class UYetiOS_BaseProgram* InProgram) const
 {
 	TArray<UYetiOS_BaseProgram*> OutArray;

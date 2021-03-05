@@ -449,6 +449,16 @@ public:
 	void InstallProgramFromPackageWithTimer(const FString& InProgramIdentifier, float Time, const FOnInstallProgramFinishedDelegate& Callback);
 
 	/**
+	* public UYetiOS_Core::StartProgram
+	* Checks if any program with given identifier is found. If so, start it.
+	* @param ProgramIdentifier [const FName&] Identifier of the program.
+	* @param OutErrorMessage [FYetiOsError&] Any error message.
+	* @return [bool] True if program was started. False otherwise.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS")	
+	bool StartProgram(const FName& ProgramIdentifier, FYetiOsError& OutErrorMessage);
+
+	/**
 	* public UYetiOS_Core::IsProgramRunning const
 	* Checks if the given program is running.
 	* @param InProgram [const class UYetiOS_BaseProgram*] Program to check.
