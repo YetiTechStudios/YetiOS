@@ -640,6 +640,227 @@ struct FYetiOsUser
 };
 
 USTRUCT(BlueprintType)
+struct FYetiOsStoreComment
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Comment")
+	FText AuthorName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Comment", meta = (MultiLine = "true"))
+	FText Comment;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Comment", meta = (UIMax = "5", ClampMax = "5"))
+	uint8 Rating;
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOsStoreDetail
+{
+	GENERATED_USTRUCT_BODY();
+	
+	/** Who created this? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	FText CreatedBy;
+
+	/** Small description to show on store page */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	FText SmallDescription;
+
+	/** Long description to show in item page. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail", meta = (MultiLine = "true"))
+	FText LongDescription;
+
+	/** Price of this item. 0 means FREE! */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	float Price;
+
+	/** Delivery price. 0 means FREE! */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	float DeliveryPrice;
+
+	/** Bunch of preview images to show inside item page. Recommended between 5 - 10 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	TArray<class UObject*> PreviewImages;
+
+	/** Comments for this item */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	TArray<FYetiOsStoreComment> StoreComment;
+
+	/** What categories this item belongs to. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	TArray<FText> Categories;
+
+	/** Tags for this item */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Detail")
+	TArray<FText> Tags;
+
+	FYetiOsStoreDetail()
+	{
+		CreatedBy = FText::AsCultureInvariant("YetiTech Studios");
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOsStoreItem
+{
+	GENERATED_USTRUCT_BODY();
+
+	/** Name of this item. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	FText Name;
+
+	/** Identifier of the item. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	FName Identifier;
+
+	/** Store item details. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	FYetiOsStoreDetail StoreDetail;
+
+	/** Main image. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	class UObject* Icon;
+
+	/** Size of the item if it is an app. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	float Size;
+
+	/** True if the item requires a minimum version of OS. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	uint8 bRequiresMinVersion : 1;
+
+	/** Do you own this item? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	uint8 bIsOwned : 1;
+
+	/** Is this item installed? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	uint8 bIsInstalled : 1;
+
+	/** Version of this item */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	FYetiOS_Version Version;
+
+	/** Minimum OS Version required if Required Min Version is true. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	FYetiOS_Version MinVersion;
+
+	FYetiOsStoreItem()
+	{
+		Name = FText::GetEmpty();
+		Icon = nullptr;
+		Size = 0.f;
+		Version = MinVersion = FYetiOS_Version();
+		bIsOwned = false;
+		bIsInstalled = false;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FYetiOsStoreUser
+{
+	GENERATED_USTRUCT_BODY();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti Os Store User")
+	FText UserEmail;
+
+	FText Password;
+	float InitialCash;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti Os Store User")
+	float RemainingCash;
+
+	UPROPERTY(VisibleAnywhere, Category = "Yeti Os Store User")
+	TSet<FName> OwnedPrograms;
+
+	FORCEINLINE bool operator==(const FYetiOsStoreUser& Other) const
+	{
+		return Other.UserEmail.EqualTo(UserEmail) && Other.Password.EqualTo(Password);
+	}
+
+	FORCEINLINE int32 IsSameUser(const FYetiOsStoreUser& Other) const
+	{
+		if (*this == Other)
+		{
+			return 1;
+		}
+
+		if (Other.UserEmail.EqualTo(UserEmail) && Other.Password.EqualTo(Password) == false)
+		{
+			return 0;
+		}
+
+		return INDEX_NONE;
+	}
+
+	friend uint32 GetTypeHash(const FYetiOsStoreUser& Other)
+	{
+		return GetTypeHash(Other.UserEmail.ToString());
+	}
+
+	FORCEINLINE bool HasEnoughCash(const float& TestCash) const
+	{
+		return RemainingCash >= TestCash;
+	}
+
+	FORCEINLINE void AddCash(const float& InCash)
+	{
+		RemainingCash += InCash;
+	}
+
+	FORCEINLINE bool ReduceCash(const float& InCash)
+	{
+		if (HasEnoughCash(InCash))
+		{
+			RemainingCash -= InCash;
+			if (RemainingCash <= 0)
+			{
+				RemainingCash = 0;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	FORCEINLINE void AddOwnedProgram(const FName& InProgramIdentifier)
+	{
+		OwnedPrograms.Add(InProgramIdentifier);
+	}
+
+	FORCEINLINE bool OwnsProgram(const FName& InProgramIndentifier) const
+	{
+		return OwnedPrograms.Contains(InProgramIndentifier);
+	}
+
+	FORCEINLINE bool IsValid() const
+	{
+		return (UserEmail.IsEmpty() == false);
+	}
+
+	FORCEINLINE void SignOut()
+	{
+		UserEmail = FText::GetEmpty();
+	}
+
+
+	FYetiOsStoreUser()
+	{
+		UserEmail = Password = FText::GetEmpty();
+		InitialCash = RemainingCash = 0.f;
+	}
+
+	FYetiOsStoreUser(const FText& InUserEmail, const FText& InUserPassword, float InCash = 10000.f)
+	{
+		UserEmail = InUserEmail;
+		Password = InUserPassword;
+		InitialCash = RemainingCash = InCash;
+	}
+};
+
+USTRUCT(BlueprintType)
 struct FYetiOsNotification
 {
 	GENERATED_USTRUCT_BODY()
