@@ -156,14 +156,7 @@ void UYetiOS_TerminalCommand::OnFail(const FString& InErrorMessage)
 
 const bool UYetiOS_TerminalCommand::OpenNewProgram(const FName& InProgramIdentifier, FYetiOsError& OutErrorMessage)
 {
-	UYetiOS_BaseProgram* FoundProgram = nullptr;
-	const bool bIsProgramInstalled = OwningTerminal->GetOwningOS()->IsProgramInstalled(InProgramIdentifier, FoundProgram, OutErrorMessage);
-	if (bIsProgramInstalled)
-	{
-		return FoundProgram->StartProgram(OutErrorMessage);
-	}
-
-	return false;
+	return OwningTerminal->GetOwningOS()->StartProgram(InProgramIdentifier, OutErrorMessage);
 }
 
 void UYetiOS_TerminalCommand::CloseProgramByIdentifier(const FName& InProgramIdentifier)
