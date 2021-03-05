@@ -175,7 +175,7 @@ TArray<FYetiOsStoreItem> UYetiOS_Store::GetStoreItems(const bool bForceRefresh /
 		{
 			const TArray<UYetiOS_BaseProgram*>& Programs = ProgramsRepository->GetDefaultProgramObjects(bIgnoreInstalledWithOS);
 			const int32 ProgramsCount = Programs.Num();
-
+			StoreItems.SetNum(ProgramsCount);
 			for (int32 i = 0; i < ProgramsCount; ++i)
 			{
 				FYetiOsStoreItem TempItem;
@@ -189,7 +189,7 @@ TArray<FYetiOsStoreItem> UYetiOS_Store::GetStoreItems(const bool bForceRefresh /
 				TempItem.StoreDetail = Programs[i]->GetStoreDetail();
 				TempItem.Size = Programs[i]->GetProgramSpace();
 				TempItem.Version = Programs[i]->GetProgramVersion();
-				StoreItems.Emplace(TempItem);
+				StoreItems[i] = TempItem;
 			}
 		}
 		else
