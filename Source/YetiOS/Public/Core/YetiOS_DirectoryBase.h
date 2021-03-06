@@ -180,7 +180,7 @@ public:
 	* virtual public UYetiOS_DirectoryRoot::ToggleLock
 	* Given user will be locked for this file and won't be able to open it.
 	* @param bLock [const bool] True to lock. False to unlock
-	* @param InUserToLock [const FYetiOsUser&] The user to be locked out of this file.
+	* @param InUser [const FYetiOsUser&] The user to be locked out of this file.
 	**/
 	virtual void ToggleLock(const bool bLock, const FYetiOsUser& InUser);
 
@@ -277,7 +277,6 @@ private:
 	* @param bForceCreate [const bool] Forcefully creates child directory even if this folder cannot create new directory. Ignores bCanCreateNewFolder.
 	* @param bCreateGrandChildDirectories [const bool] Continue to create child directories inside child directories.
 	* @param CheckDirectoryName [const FText&] Override default directory name with this name. 
-	* @param bIsSystemDir [const bool] Indicates the newly created directory is a system directory.
 	* @return [TArray<UYetiOS_DirectoryBase*>] Reference to the list of newly created child directories. This does not include grand child directories.
 	**/
 	TArray<UYetiOS_DirectoryBase*> Internal_CreateChildDirectories(class UYetiOS_Core* InOwningOS, 
