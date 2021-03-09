@@ -1300,20 +1300,22 @@ public:
 	static FOnUserLocked OnUserLocked;
 	static FOnUserUnLocked OnUserUnlocked;
 
-	FORCEINLINE void AddUser(class UObject* Object, const FYetiOsUser& InUser)
+	FORCEINLINE void ToogleLock(class UObject* InObject, const FYetiOsUser& InUser, const bool bInLock)
 	{
-		if (LockedUsers.Find(InUser) == nullptr)
+		if (bInLock)
 		{
-			LockedUsers.Add(InUser);
-			OnUserLocked.Broadcast(Object, InUser);
+			if (LockedUsers.Find(InUser) == nullptr)
+			{
+				LockedUsers.Add(InUser);
+				OnUserLocked.Broadcast(InObject, InUser);
+			}
 		}
-	}
-
-	FORCEINLINE void RemoveUser(class UObject* Object, const FYetiOsUser& InUser)
-	{
-		if (LockedUsers.Remove(InUser) != 0)
+		else
 		{
-			OnUserUnlocked.Broadcast(Object, InUser);
+			if (LockedUsers.Remove(InUser) != 0)
+			{
+				OnUserUnlocked.Broadcast(InObject, InUser);
+			}
 		}
 	}
 

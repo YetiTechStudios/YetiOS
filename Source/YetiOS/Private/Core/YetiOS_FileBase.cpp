@@ -196,7 +196,7 @@ const bool UYetiOS_FileBase::IsAssociatedProgramInstalled() const
 
 void UYetiOS_FileBase::ToggleLock(const bool bLock, const FYetiOsUser& InUser)
 {
-	bLock ? LockedUsers.AddUser(this, InUser) : LockedUsers.RemoveUser(this, InUser);
+	LockedUsers.ToogleLock(this, InUser, bLock);
 }
 
 void UYetiOS_FileBase::Internal_OnFileCreate()
