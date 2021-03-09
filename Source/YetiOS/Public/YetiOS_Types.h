@@ -1282,8 +1282,8 @@ public:
 	}
 };
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserLocked, class UObject*, const FYetiOsUser&);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnUserUnLocked, class UObject*, const FYetiOsUser&);
+typedef TMulticastDelegate<void(class UObject* _InObject, const FYetiOsUser& _InUser)> FOnUserLocked;
+typedef TMulticastDelegate<void(class UObject* _InObject, const FYetiOsUser& _InUser)> FOnUserUnLocked;
 
 USTRUCT(BlueprintType)
 struct FYetiOS_Lock
