@@ -19,8 +19,7 @@ UYetiOS_AppIconWidget::UYetiOS_AppIconWidget(const FObjectInitializer& ObjectIni
 
 UYetiOS_AppIconWidget* UYetiOS_AppIconWidget::CreateProgramIconWidget(class UYetiOS_BaseProgram* InCreatedProgram, FYetiOsError& OutErrorMessage)
 {
-	const UYetiOS_BaseDevice* MyDevice = InCreatedProgram->GetOwningOS()->GetOwningDevice();
-	UYetiOS_Core* MyOS = MyDevice->GetOperatingSystem();
+	UYetiOS_Core* MyOS = InCreatedProgram->GetOwningOS();
 	if (MyOS && !MyOS->IsPendingKill())
 	{
 		if (InCreatedProgram->GetProgramIconWidgetClass() == nullptr)
