@@ -112,8 +112,18 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::Internal_StartProgram(FYetiOsError& Ou
 		return this;
 	}
 
+	for (const auto& It : DependantPrograms)
 	{
+		const FText RequiredProgramName = It.Get()->GetDefaultObject<UYetiOS_BaseProgram>()->ProgramName;
+		const FName RequiredIdentifierName = It.Get()->GetDefaultObject<UYetiOS_BaseProgram>()->ProgramIdentifier;
+		if (OwningOS->IsProgramInstalled(RequiredIdentifierName) == false)
 		{
+			const FText Title = FText::Format(LOCTEXT("YetiOS_RunProgramMissingDependency", "Cannot start {0}. Missing dependency: {1} ({2})."), ProgramName, RequiredProgramName, FText::FromName(RequiredIdentifierName));
+			const FText Description = FText::Format(LOCTEXT("YetiOS_RunProgramMissingDependencyDescription", "{0} cannot start without {1} (Identifier: {2})."), ProgramName, RequiredProgramName, FText::FromName(RequiredIdentifierName));
+			const FText RunError = LOCTEXT("YetiOS_RunProgramMissingDependencyErrorCode", "ERR_RUN_PROGRAM");
+			const FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, Title, Description, RunError, EYetiOsNotificationType::TYPE_Error);
+			OwningOS->CreateOsNotification(NewNotification);
+			return nullptr;
 		}
 	}
 

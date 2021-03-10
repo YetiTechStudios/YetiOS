@@ -137,6 +137,10 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	UYetiOS_AppWidget* ProgramWidget;
 
+	/** If set, this program will only start if the given programs are already installed. */
+	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Base Program")
+	TSet<TSoftClassPtr<class UYetiOS_BaseProgram>> DependantPrograms;
+
 	/** If true, then this program can be displayed on store. */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Store")
 	uint8 bSupportStore : 1;
