@@ -14,7 +14,9 @@ YetiOS_ProgramsRepository.h
 
 * Description:
 Programs repository simulates the Linux repository package system where
-programs can be installed from theh terminal using apt command.
+programs can be installed from the terminal using apt command.
+
+It also contains installer setups that can be installed via Store.
 *************************************************************************/
 UCLASS(hidedropdown, Blueprintable, NotBlueprintType)
 class YETIOS_API UYetiOS_ProgramsRepository : public UObject
@@ -26,11 +28,16 @@ private:
 	/** Set of programs */
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Programs Repository")
 	TSet<FYetiOS_RepoProgram> Programs;
+
+	/** Installers for the store */
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Programs Repository")
+	TSet<TSubclassOf<class UYetiOS_AppInstaller>> StoreInstallers;
 	
 public:
 	
-	FORCEINLINE const TSet<FYetiOS_RepoProgram> GetProgramsFromRepository() const { return Programs; }
-	FORCEINLINE const bool IsInstalledWithOS(TSubclassOf<class UYetiOS_BaseProgram> InProgramToCheck) const
+	FORCEINLINE TSet<FYetiOS_RepoProgram> GetProgramsFromRepository() const { return Programs; }
+	FORCEINLINE TArray<TSubclassOf<class UYetiOS_AppInstaller>> GetStoreInstallers() const { return StoreInstallers.Array(); }
+	FORCEINLINE bool IsInstalledWithOS(TSubclassOf<class UYetiOS_BaseProgram> InProgramToCheck) const
 	{
 		for (const auto& It : Programs)
 		{
