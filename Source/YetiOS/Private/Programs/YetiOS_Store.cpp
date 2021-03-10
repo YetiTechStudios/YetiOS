@@ -2,9 +2,9 @@
 
 
 #include "Programs/YetiOS_Store.h"
-#include "Core/YetiOS_BaseProgram.h"
 #include "Misc/YetiOS_ProgramsRepository.h"
 #include "Core/YetiOS_Core.h"
+#include "Programs/YetiOS_AppInstaller.h"
 #include <regex>
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsStore, All, All)
@@ -174,9 +174,11 @@ TArray<FYetiOsStoreItem> UYetiOS_Store::GetStoreItems(const bool bForceRefresh /
 		if (ProgramsRepository)
 		{
 			const TArray<UYetiOS_BaseProgram*>& Programs = ProgramsRepository->GetDefaultProgramObjects(bIgnoreInstalledWithOS);
+			const TArray<TSubclassOf<class UYetiOS_AppInstaller>>& StoreInstallers = ProgramsRepository->GetStoreInstallers();
 			const int32 ProgramsCount = Programs.Num();
-			StoreItems.SetNum(ProgramsCount);
-			for (int32 i = 0; i < ProgramsCount; ++i)
+			const int32 InstallersCount = StoreInstallers.Num();
+			StoreItems.SetNum(ProgramsCount + InstallersCount);
+			for (int32 i = 0; i < ProgramsCount; i++)
 			{
 				FYetiOsStoreItem TempItem;
 				TempItem.Identifier = Programs[i]->GetProgramIdentifierName();
@@ -189,6 +191,28 @@ TArray<FYetiOsStoreItem> UYetiOS_Store::GetStoreItems(const bool bForceRefresh /
 				TempItem.StoreDetail = Programs[i]->GetStoreDetail();
 				TempItem.Size = Programs[i]->GetProgramSpace();
 				TempItem.Version = Programs[i]->GetProgramVersion();
+				TempItem.bIsInstaller = false;
+				TempItem.Installer = nullptr;
+				StoreItems[i] = TempItem;
+			}
+
+			for (int32 i = 0; i < InstallersCount; i++)
+			{
+				const UYetiOS_AppInstaller* Local_CDO = StoreInstallers[i]->GetDefaultObject<UYetiOS_AppInstaller>();
+				const UYetiOS_BaseProgram* Local_TargetProgram = Local_CDO->GetTargetProgram()->GetDefaultObject<UYetiOS_BaseProgram>();
+				FYetiOsStoreItem TempItem;
+				TempItem.Identifier = Local_TargetProgram->GetProgramIdentifierName();
+				TempItem.bIsOwned = UserOwnsItem(TempItem.Identifier);
+				TempItem.bIsInstalled = OwningOS->IsProgramInstalled(TempItem.Identifier);
+				TempItem.bRequiresMinVersion = Local_TargetProgram->RequireMinimumOsVersion();
+				TempItem.Icon = Local_TargetProgram->GetProgramIcon();
+				TempItem.MinVersion = Local_TargetProgram->GetMinimumOsVersionRequired();
+				TempItem.Name = Local_TargetProgram->GetProgramName();
+				TempItem.StoreDetail = Local_CDO->GetStoreDetail();
+				TempItem.Size = Local_TargetProgram->GetProgramSpace();
+				TempItem.Version = Local_TargetProgram->GetProgramVersion();
+				TempItem.bIsInstaller = true;
+				TempItem.Installer = StoreInstallers[i];
 				StoreItems[i] = TempItem;
 			}
 		}
