@@ -197,13 +197,12 @@ public:
 private:
 
 	/**
-	* private static UYetiOS_BaseProgram::Internal_StartProgram
+	* private UYetiOS_BaseProgram::Internal_StartProgram
 	* Starts the program. If single instance, this will return the current instance instead of starting new.
-	* @param Program [UYetiOS_BaseProgram*] Program to start.
 	* @param OutErrorMessage [FYetiOsError&] Errors if any.
-	* @return [UYetiOS_BaseProgram*] Reference to the newly started program.
+	* @return [UYetiOS_BaseProgram*] Reference to the newly started program or this if single instance.
 	**/
-	static UYetiOS_BaseProgram* Internal_StartProgram(UYetiOS_BaseProgram* Program, FYetiOsError& OutErrorMessage);
+	UYetiOS_BaseProgram* Internal_StartProgram(FYetiOsError& OutErrorMessage);
 
 public:
 

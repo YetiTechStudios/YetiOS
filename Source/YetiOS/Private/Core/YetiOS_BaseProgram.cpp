@@ -105,38 +105,41 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 	return nullptr;
 }
 
-UYetiOS_BaseProgram* UYetiOS_BaseProgram::Internal_StartProgram(UYetiOS_BaseProgram* Program, FYetiOsError& OutErrorMessage)
+UYetiOS_BaseProgram* UYetiOS_BaseProgram::Internal_StartProgram(FYetiOsError& OutErrorMessage)
 {
-	UYetiOS_BaseProgram* ProxyProgram = nullptr;
-	if (Program->IsRunning() == false)
+	if (IsRunning() && IsSingleInstanceProgram())
 	{
-		ProxyProgram = Program;
+		return this;
 	}
-	else
-	{
-		ProxyProgram = NewObject<UYetiOS_BaseProgram>(Program->OwningOS, Program->GetClass());
-		ProxyProgram->OwningOS = Program->OwningOS;
-	}
-	
-	const int32 MyProcessID = ProxyProgram->OwningOS->AddRunningProgram(ProxyProgram, OutErrorMessage);
-	if (MyProcessID != INDEX_NONE)
-	{
-		ProxyProgram->bIsSystemInstalledProgram = Program->bIsSystemInstalledProgram;
-		ProxyProgram->ProgramWidget = UYetiOS_AppWidget::Internal_CreateAppWidget(ProxyProgram);
-		ProxyProgram->ProcessID = MyProcessID;
-		ProxyProgram->OwningWindow = ProxyProgram->OwningOS->GetOsWidget()->CreateNewWindow(ProxyProgram, ProxyProgram->ProgramWidget, ProxyProgram->bOverrideWindowSize ? ProxyProgram->OverrideWindowSize : FVector2D::ZeroVector);
-		printlog(FString::Printf(TEXT("Executing program %s..."), *ProxyProgram->ProgramName.ToString()));
-		if (ProxyProgram->bCanCallOnStart)
-		{
-			ProxyProgram->K2_OnStart();
-		}
 
-		ProxyProgram->Internal_LoadProgramSettings();
-	}
-	else
 	{
-		ProxyProgram->ConditionalBeginDestroy();
-		ProxyProgram = nullptr;
+		{
+		}
+	}
+
+	UYetiOS_BaseProgram* ProxyProgram = CreateProgram(OwningOS, GetClass(), OutErrorMessage);
+	if (ProxyProgram)
+	{
+		const int32 MyProcessID = ProxyProgram->OwningOS->AddRunningProgram(ProxyProgram, OutErrorMessage);
+		if (MyProcessID != INDEX_NONE)
+		{
+			ProxyProgram->bIsSystemInstalledProgram = bIsSystemInstalledProgram;
+			ProxyProgram->ProgramWidget = UYetiOS_AppWidget::Internal_CreateAppWidget(ProxyProgram);
+			ProxyProgram->ProcessID = MyProcessID;
+			ProxyProgram->OwningWindow = ProxyProgram->OwningOS->GetOsWidget()->CreateNewWindow(ProxyProgram, ProxyProgram->ProgramWidget, ProxyProgram->bOverrideWindowSize ? ProxyProgram->OverrideWindowSize : FVector2D::ZeroVector);
+			printlog(FString::Printf(TEXT("Executing program %s..."), *ProxyProgram->ProgramName.ToString()));
+			if (ProxyProgram->bCanCallOnStart)
+			{
+				ProxyProgram->K2_OnStart();
+			}
+
+			ProxyProgram->Internal_LoadProgramSettings();
+		}
+		else
+		{
+			ProxyProgram->ConditionalBeginDestroy();
+			ProxyProgram = nullptr;
+		}
 	}
 
 	return ProxyProgram;
@@ -164,14 +167,8 @@ const bool UYetiOS_BaseProgram::StartProgram(FYetiOsError& OutErrorMessage)
 }
 
 const bool UYetiOS_BaseProgram::StartProgram(UYetiOS_BaseProgram*& OutProgram, FYetiOsError& OutErrorMessage)
-{
-	if (IsRunning() && IsSingleInstanceProgram())
-	{
-		OutProgram = this;
-		return true;
-	}
-
-	OutProgram = Internal_StartProgram(this, OutErrorMessage);
+{	
+	OutProgram = Internal_StartProgram(OutErrorMessage);
 	return OutProgram != nullptr;
 }
 
