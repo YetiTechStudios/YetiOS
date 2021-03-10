@@ -738,6 +738,14 @@ struct FYetiOsStoreItem
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
 	uint8 bIsInstalled : 1;
 
+	/** Is this item coming as an installer? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	uint8 bIsInstaller : 1;
+
+	/** Installer class if bIsInstaller is true */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
+	TSubclassOf<class UYetiOS_AppInstaller> Installer;
+
 	/** Version of this item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Store Item")
 	FYetiOS_Version Version;
@@ -754,6 +762,7 @@ struct FYetiOsStoreItem
 		Version = MinVersion = FYetiOS_Version();
 		bIsOwned = false;
 		bIsInstalled = false;
+		bIsInstaller = false;
 	}
 };
 
