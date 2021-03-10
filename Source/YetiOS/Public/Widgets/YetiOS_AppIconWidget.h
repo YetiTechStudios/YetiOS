@@ -49,6 +49,6 @@ public:
 	* @param OutErrorMessage [FYetiOsError&] Error message (if any)
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS App Icon Widget")	
-	void StartProgram(FYetiOsError& OutErrorMessage);
+	bool StartProgram(FYetiOsError& OutErrorMessage);
 
 };

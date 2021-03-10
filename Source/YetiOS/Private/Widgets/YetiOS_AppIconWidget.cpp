@@ -43,21 +43,21 @@ UYetiOS_AppIconWidget* UYetiOS_AppIconWidget::CreateProgramIconWidget(class UYet
 	return nullptr;
 }
 
-void UYetiOS_AppIconWidget::StartProgram(FYetiOsError& OutErrorMessage)
+bool UYetiOS_AppIconWidget::StartProgram(FYetiOsError& OutErrorMessage)
 {
-	if (BaseProgram != nullptr)
+	if (BaseProgram)
 	{
-		BaseProgram->StartProgram(OutErrorMessage);
+		return BaseProgram->StartProgram(OutErrorMessage);
 	}
-	else
-	{
-		OutErrorMessage.ErrorCode = LOCTEXT("Program_StartErrorCode", "ERR_NO_PROGRAM_CLASS");
-		OutErrorMessage.ErrorException = LOCTEXT("Program_StartErrorException", "Cannot start program.");
-		OutErrorMessage.ErrorDetailedException = LOCTEXT("Program_StartErrorDetailedException", "Failed to start a program. Program reference was null.");
+	
+	OutErrorMessage.ErrorCode = LOCTEXT("Program_StartErrorCode", "ERR_NO_PROGRAM_CLASS");
+	OutErrorMessage.ErrorException = LOCTEXT("Program_StartErrorException", "Cannot start program.");
+	OutErrorMessage.ErrorDetailedException = LOCTEXT("Program_StartErrorDetailedException", "Failed to start a program. Program reference was null.");
 
-		FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, nullptr, EYetiOsNotificationType::TYPE_Error, 5.f);
-		OwningOS->CreateOsNotification(NewNotification);
-	}
+	FYetiOsNotification NewNotification = FYetiOsNotification(EYetiOsNotificationCategory::CATEGORY_App, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, nullptr, EYetiOsNotificationType::TYPE_Error, 5.f);
+	OwningOS->CreateOsNotification(NewNotification);
+
+	return false;
 }
 
 #undef LOCTEXT_NAMESPACE
