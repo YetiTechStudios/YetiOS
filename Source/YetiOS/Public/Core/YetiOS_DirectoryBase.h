@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base", meta = (EditCondition = "bCanCreateNewFolder"))
 	TArray<TSubclassOf<UYetiOS_DirectoryBase>> ChildDirectoryClasses;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Yeti OS Directory Base")
+	TSet<TSubclassOf<class UYetiOS_BaseProgram>> ProgramClasses;
+
 	UPROPERTY(EditDefaultsOnly, AdvancedDisplay, Category = "Yeti OS Directory Base")
 	FYetiOS_Lock LockedUsers;
 
@@ -68,6 +71,10 @@ protected:
 	/** Set of files in this directory. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
 	TSet<class UYetiOS_FileBase*> Files;
+
+	/** List of programs in this directory */
+	UPROPERTY(VisibleInstanceOnly, Category = Debug)
+	TSet<class UYetiOS_BaseProgram*> Programs;
 
 	/** List of child directories. */
 	UPROPERTY(VisibleInstanceOnly, Category = Debug)
@@ -80,6 +87,9 @@ protected:
 public:
 
 	UYetiOS_DirectoryBase();
+
+	static bool AddProgramToDirectory(UYetiOS_DirectoryBase* InDirectory, class UYetiOS_BaseProgram* ProgramToAdd);
+	static void RemoveProgramFromDirectory(UYetiOS_DirectoryBase* InDirectory, class UYetiOS_BaseProgram* ProgramToRemove);
 
 	/**
 	* public UYetiOS_DirectoryBase::GetDirectoryName const
@@ -159,6 +169,9 @@ public:
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
 	TSet<class UYetiOS_FileBase*> GetDirectoryFiles(const FString WithExtension = "*") const;
+
+	UFUNCTION(BlueprintPure, Category = "Yeti Directory Base")
+	TArray<class UYetiOS_BaseProgram*> GetPrograms() const { return Programs.Array(); }
 
 	/**
 	* public UYetiOS_Directory::IsHidden const

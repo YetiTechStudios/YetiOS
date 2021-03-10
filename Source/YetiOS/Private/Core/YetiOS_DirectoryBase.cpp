@@ -7,6 +7,8 @@
 #include "Devices/YetiOS_BaseDevice.h"
 #include "Devices/YetiOS_DeviceManagerActor.h"
 #include "Core/YetiOS_FileBase.h"
+#include "Widgets/YetiOS_AppIconWidget.h"
+#include "Core/YetiOS_BaseProgram.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogYetiOsDirectoryBase, All, All)
 
@@ -22,6 +24,27 @@ UYetiOS_DirectoryBase::UYetiOS_DirectoryBase()
 	bIsHidden = false;
 	ParentDirectory = nullptr;
 	DirectoryType = EDirectoryType::Other;
+}
+
+bool UYetiOS_DirectoryBase::AddProgramToDirectory(UYetiOS_DirectoryBase* InDirectory, class UYetiOS_BaseProgram* ProgramToAdd)
+{
+	if (InDirectory && ProgramToAdd)
+	{
+		FYetiOsError DummyError;
+		UYetiOS_AppIconWidget::CreateProgramIconWidget(ProgramToAdd, DummyError);
+		InDirectory->Programs.Add(ProgramToAdd);
+		return true;
+	}
+
+	return false;
+}
+
+void UYetiOS_DirectoryBase::RemoveProgramFromDirectory(UYetiOS_DirectoryBase* InDirectory, class UYetiOS_BaseProgram* ProgramToRemove)
+{
+	if (InDirectory)
+	{
+		InDirectory->Programs.Remove(ProgramToRemove);
+	}
 }
 
 UYetiOS_DirectoryBase* UYetiOS_DirectoryBase::GetChildDirectory(TSubclassOf<UYetiOS_DirectoryBase> InDirectoryClass) const
@@ -252,11 +275,17 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 {
 	EnsureOS(InOwningOS);
 	TArray<UYetiOS_DirectoryBase*> ReturnResult;
-	bool bLocal_CanCreateNewDir = bCanCreateNewFolder;
+	const bool bLocal_CanCreateNewDir = bForceCreate ? true : bCanCreateNewFolder;
 
-	if (bForceCreate)
+	if (Programs.Num() == 0)
 	{
-		bLocal_CanCreateNewDir = true;
+		Programs.Reserve(ProgramClasses.Num());
+		for (const auto& It : ProgramClasses)
+		{
+			FYetiOsError DummyError;
+			UYetiOS_BaseProgram* NewProgram = UYetiOS_BaseProgram::CreateProgram(InOwningOS, It, DummyError, false);
+			UYetiOS_DirectoryBase::AddProgramToDirectory(this, NewProgram);
+		}
 	}
 
 	if (bLocal_CanCreateNewDir)
@@ -319,6 +348,13 @@ void UYetiOS_DirectoryBase::DestroyDirectory()
 	{
 		It->DestroyDirectory();
 	}
+
+	for (UYetiOS_BaseProgram* It : Programs)
+	{
+		It->ConditionalBeginDestroy();
+	}
+
+	Programs.Empty();
 	ChildDirectories.Empty();
 	ParentDirectory = nullptr;
 	printlog_veryverbose(FString::Printf(TEXT("Destroying directory %s"), *DirectoryName.ToString()));
