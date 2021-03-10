@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Factories/Factory.h"
 #include "AssetTypeActions_Base.h"
-#include "Core/YetiOS_BaseProgram.h"
+#include "Programs/YetiOS_AppInstaller.h"
 #include "Core/YetiOS_Core.h"
 #include "Core/YetiOS_DirectoryBase.h"
 #include "Core/YetiOS_FileBase.h"
@@ -43,6 +43,13 @@ class FAssetTypeActions_BaseProgram : public FAssetTypeActions_YetiOsBase
 	virtual FText GetName() const override { return FText::FromString("New Program"); }
 	virtual FText GetAssetDescription(const FAssetData& AssetData) const override { return FText::FromString("Constructs a new Program which you can use for your Operating System."); }
 	virtual UClass* GetSupportedClass() const override { return UYetiOS_BaseProgram::StaticClass(); }
+};
+
+class FAssetTypeActions_AppInstaller : public FAssetTypeActions_YetiOsBase
+{
+	virtual FText GetName() const override { return FText::FromString("New Installer"); }
+	virtual FText GetAssetDescription(const FAssetData& AssetData) const override { return FText::FromString("Constructs a new installer which you can use to simulate setup."); }
+	virtual UClass* GetSupportedClass() const override { return UYetiOS_AppInstaller::StaticClass(); }
 };
 
 class FAssetTypeActions_OperatingSystem : public FAssetTypeActions_YetiOsBase
@@ -97,6 +104,19 @@ class YETIOSEDITOR_API UYetiOS_BaseProgram_Factory : public UFactory
 public:
 
 	UYetiOS_BaseProgram_Factory();
+
+	virtual UObject* FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
+
+};
+
+UCLASS()
+class YETIOSEDITOR_API UYetiOS_AppInstaller_Factory : public UFactory
+{
+	GENERATED_BODY()
+
+	public:
+
+	UYetiOS_AppInstaller_Factory();
 
 	virtual UObject* FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
 

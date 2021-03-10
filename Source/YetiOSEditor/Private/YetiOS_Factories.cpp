@@ -32,6 +32,18 @@ UObject* UYetiOS_BaseProgram_Factory::FactoryCreateNew(UClass* InClass, UObject*
 	YETI_CREATE_BLUEPRINT(UYetiOS_BaseProgram);
 }
 
+UYetiOS_AppInstaller_Factory::UYetiOS_AppInstaller_Factory()
+{
+	SupportedClass = UYetiOS_AppInstaller::StaticClass();
+	bEditAfterNew = true;
+	bCreateNew = true;
+}
+
+UObject* UYetiOS_AppInstaller_Factory::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
+{
+	YETI_CREATE_BLUEPRINT(UYetiOS_AppInstaller);
+}
+
 UYetiOS_OperatingSystem_Factory::UYetiOS_OperatingSystem_Factory()
 {
 	SupportedClass = UYetiOS_Core::StaticClass();

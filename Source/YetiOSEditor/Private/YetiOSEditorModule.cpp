@@ -30,6 +30,7 @@ void FYetiOSEditorModule::StartupModule()
 	TSharedRef<IAssetTypeActions> Category_BaseDirectory = MakeShareable(new FAssetTypeActions_BaseDirectory);
 	TSharedRef<IAssetTypeActions> Category_BaseFile = MakeShareable(new FAssetTypeActions_BaseFile);
 	TSharedRef<IAssetTypeActions> Category_BaseProgram = MakeShareable(new FAssetTypeActions_BaseProgram);
+	TSharedRef<IAssetTypeActions> Category_AppInstaller = MakeShareable(new FAssetTypeActions_AppInstaller);
 	TSharedRef<IAssetTypeActions> Category_OS = MakeShareable(new FAssetTypeActions_OperatingSystem);
 	TSharedRef<IAssetTypeActions> Category_PortableDevice = MakeShareable(new FAssetTypeActions_PortableDevice);
 	TSharedRef<IAssetTypeActions> Category_StationaryDevice = MakeShareable(new FAssetTypeActions_StationaryDevice);
@@ -40,6 +41,7 @@ void FYetiOSEditorModule::StartupModule()
 	AssetTools.RegisterAssetTypeActions(Category_BaseDirectory);
 	AssetTools.RegisterAssetTypeActions(Category_BaseFile);
 	AssetTools.RegisterAssetTypeActions(Category_BaseProgram);
+	AssetTools.RegisterAssetTypeActions(Category_AppInstaller);
 	AssetTools.RegisterAssetTypeActions(Category_OS);
 	AssetTools.RegisterAssetTypeActions(Category_PortableDevice);
 	AssetTools.RegisterAssetTypeActions(Category_StationaryDevice);
