@@ -186,6 +186,13 @@ public:
 	* @return [UYetiOS_BaseProgram*] Newly created program. Will be nullptr if InOS is not valid.
 	**/
 	static UYetiOS_BaseProgram* CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bInstalledWithOS = false);
+
+	template <class T>
+	static T* CreateProgram(UYetiOS_Core* InOS, TSubclassOf<UYetiOS_BaseProgram> ProgramClass, FYetiOsError& OutErrorMessage, const bool bInstalledWithOS = false)
+	{
+		static_assert(TIsDerivedFrom<T, UYetiOS_BaseProgram>::IsDerived, "CreateProgram can only cast to classes derived from UYetiOS_BaseProgram.");
+		return Cast<T>(CreateProgram(InOS, ProgramClass, OutErrorMessage, bInstalledWithOS));
+	}
 	
 private:
 
