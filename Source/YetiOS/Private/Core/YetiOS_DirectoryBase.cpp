@@ -296,7 +296,8 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 			OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_DirectoryCreateDuplicateDir", "ERR_DIRECTORY_EXISTS");
 			OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_DirectoryCreateDuplicateDirException", "A directory with name '{0}' already exists in '{1}'."), CheckDirectoryName, DirectoryName);
 			OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_DirectoryCreateDuplicateDirDetailedException", "User cannot create '{0}' inside {1}. Directory already exists."), CheckDirectoryName, DirectoryName);
-			// #TERMINALPLUGIN TODO Add to OS notification.
+			const FYetiOsNotification MyNotification(EYetiOsNotificationCategory::CATEGORY_OS, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, EYetiOsNotificationType::TYPE_Error);
+			InOwningOS->CreateOsNotification(MyNotification);
 		}
 		else
 		{
@@ -336,7 +337,8 @@ TArray<UYetiOS_DirectoryBase*> UYetiOS_DirectoryBase::Internal_CreateChildDirect
 		OutErrorMessage.ErrorCode = LOCTEXT("YetiOS_DirectoryCreateFailNoPermisson", "ERR_PERMISSION_DENIED");
 		OutErrorMessage.ErrorException = FText::Format(LOCTEXT("YetiOS_DirectoryCreateFailNoPermissonException", "Cannot create folder inside {0}."), DirectoryName);
 		OutErrorMessage.ErrorDetailedException = FText::Format(LOCTEXT("YetiOS_DirectoryCreateFailNoPermissonDetailedException", "User cannot create folder due to permission error. Please make sure that {0} directory can create new folder."), DirectoryName);
-		// #TERMINALPLUGIN TODO Add to OS notification.
+		const FYetiOsNotification MyNotification(EYetiOsNotificationCategory::CATEGORY_OS, OutErrorMessage.ErrorException, OutErrorMessage.ErrorDetailedException, OutErrorMessage.ErrorCode, EYetiOsNotificationType::TYPE_Error);
+		InOwningOS->CreateOsNotification(MyNotification);
 	}
 
 	return ReturnResult;
