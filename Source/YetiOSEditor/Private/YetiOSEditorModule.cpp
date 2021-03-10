@@ -98,30 +98,30 @@ TSharedPtr<FUICommandList> FYetiOSEditorModule::Internal_CreateCommands()
 	Local_YetiOsCommands->MapAction(
 		FYetiOSEditorCommands::Get().SupportCommand,
 		FExecuteAction::CreateLambda([]()
-	{
-		FPlatformProcess::LaunchURL(TEXT("https://patreon.com/YetiTechStudios"), NULL, NULL);
-	}), FCanExecuteAction());
+		{
+			FPlatformProcess::LaunchURL(TEXT("https://patreon.com/YetiTechStudios"), NULL, NULL);
+		}), FCanExecuteAction());
 
 	Local_YetiOsCommands->MapAction(
 		FYetiOSEditorCommands::Get().HelpCommand,
 		FExecuteAction::CreateLambda([]()
-	{
-		FPlatformProcess::LaunchURL(TEXT("http://bit.ly/YTDocs"), NULL, NULL);
-	}), FCanExecuteAction());
+		{
+			FPlatformProcess::LaunchURL(TEXT("http://bit.ly/YTDocs"), NULL, NULL);
+		}), FCanExecuteAction());
 
 	Local_YetiOsCommands->MapAction(
 		FYetiOSEditorCommands::Get().DiscordCommand,
 		FExecuteAction::CreateLambda([]()
-	{
-		FPlatformProcess::LaunchURL(TEXT("https://discord.gg/S7ykM2q"), NULL, NULL);
-	}), FCanExecuteAction());
+		{
+			FPlatformProcess::LaunchURL(TEXT("https://discord.gg/S7ykM2q"), NULL, NULL);
+		}), FCanExecuteAction());
 
 	Local_YetiOsCommands->MapAction(
 		FYetiOSEditorCommands::Get().MarketplaceCommand,
 		FExecuteAction::CreateLambda([]()
-	{
-		FPlatformProcess::LaunchURL(TEXT("https://www.unrealengine.com/marketplace/profile/YetiTech+Studios"), NULL, NULL);
-	}), FCanExecuteAction());
+		{
+			FPlatformProcess::LaunchURL(TEXT("https://www.unrealengine.com/marketplace/profile/YetiTech+Studios"), NULL, NULL);
+		}), FCanExecuteAction());
 
 	printlog("Registered FUICommandList for YetiOS Commands.");
 	return Local_YetiOsCommands;
