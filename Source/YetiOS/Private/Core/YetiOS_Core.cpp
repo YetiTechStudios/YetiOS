@@ -79,6 +79,12 @@ UYetiOS_Core* UYetiOS_Core::CreateOperatingSystem(class UYetiOS_BaseDevice* InPa
 				}
 			}
 
+			if (ProxyOS->RootCommand.IsEmptyOrWhitespace())
+			{
+				ProxyOS->RootCommand = FText::AsCultureInvariant("sudo");
+				printlog_warn(FString::Printf(TEXT("Missing root command for %s. Setting to %s."), *ProxyOS->OsName.ToString(), *ProxyOS->RootCommand.ToString()));
+			}
+
 			ProxyOS->Device = InParentDevice;
 			ProxyOS->OsWorld = InParentDevice->GetWorld();
 			ProxyOS->bIsPreInstalled = InParentDevice->IsOperatingSystemPreInstalled();
