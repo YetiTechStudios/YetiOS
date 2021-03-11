@@ -1124,6 +1124,19 @@ bool UYetiOS_Core::IsModalDialogOpen() const
 	return bModalDialogOpen;
 }
 
+class UYetiOS_BaseProgram* UYetiOS_Core::GetProgramFromInstalled(const FName& InIdentifier) const
+{
+	for (const auto& It : InstalledPrograms)
+	{
+		if (It->GetProgramIdentifierName().IsEqual(InIdentifier))
+		{
+			return It;
+		}
+	}
+
+	return nullptr;
+}
+
 const TArray<class UYetiOS_BaseProgram*> UYetiOS_Core::GetInstalledPrograms(const bool bSystemProgramsOnly /*= false*/) const
 {
 	if (bSystemProgramsOnly)

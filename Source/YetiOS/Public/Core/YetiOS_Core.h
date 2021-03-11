@@ -826,6 +826,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Yeti OS")
 	bool IsModalDialogOpen() const;
 
+	/**
+	* public UYetiOS_Core::GetProgramFromInstalled const
+	* Returns the program with given identifier if it is installed. nullptr if not installed.
+	* @param InIdentifier [const FName&] Identifier of the program to check.
+	* @return [class UYetiOS_BaseProgram*] Pointer to the program that is installed. Null if not installed.
+	**/
+	class UYetiOS_BaseProgram* GetProgramFromInstalled(const FName& InIdentifier) const;
+
 protected:
 
 	/**
