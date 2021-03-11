@@ -107,11 +107,6 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::CreateProgram(UYetiOS_Core* InOS, TSub
 
 UYetiOS_BaseProgram* UYetiOS_BaseProgram::Internal_StartProgram(FYetiOsError& OutErrorMessage)
 {
-	if (IsRunning() && IsSingleInstanceProgram())
-	{
-		return this;
-	}
-
 	for (const auto& It : DependantPrograms)
 	{
 		const FText RequiredProgramName = It.Get()->GetDefaultObject<UYetiOS_BaseProgram>()->ProgramName;
@@ -127,7 +122,14 @@ UYetiOS_BaseProgram* UYetiOS_BaseProgram::Internal_StartProgram(FYetiOsError& Ou
 		}
 	}
 
-	UYetiOS_BaseProgram* ProxyProgram = CreateProgram(OwningOS, GetClass(), OutErrorMessage);
+	if (IsSingleInstanceProgram() && IsRunning())
+	{
+		printlog(FString::Printf(TEXT("%s is already running. Cannot start a new instance."), *ProgramName.ToString()));
+		return this;
+	}
+
+	check(OwningOS);
+	UYetiOS_BaseProgram* ProxyProgram = DuplicateObject(this, OwningOS, *FString::Printf(TEXT("%s_%s"), *GetName(), *FGuid::NewGuid().ToString(EGuidFormats::UniqueObjectGuid)));
 	if (ProxyProgram)
 	{
 		const int32 MyProcessID = ProxyProgram->OwningOS->AddRunningProgram(ProxyProgram, OutErrorMessage);
