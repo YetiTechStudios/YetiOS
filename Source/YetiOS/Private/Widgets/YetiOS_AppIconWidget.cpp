@@ -47,7 +47,7 @@ bool UYetiOS_AppIconWidget::StartProgram(FYetiOsError& OutErrorMessage)
 {
 	if (BaseProgram)
 	{
-		return BaseProgram->StartProgram(OutErrorMessage);
+		return OwningOS->StartProgram(BaseProgram->GetProgramIdentifierName(), OutErrorMessage);
 	}
 	
 	OutErrorMessage.ErrorCode = LOCTEXT("Program_StartErrorCode", "ERR_NO_PROGRAM_CLASS");
