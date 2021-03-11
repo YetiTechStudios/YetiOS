@@ -291,6 +291,11 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 	ConditionalBeginDestroy();
 }
 
+bool UYetiOS_BaseProgram::IsRunning() const
+{
+	return OwningOS->IsProgramRunning(this);
+}
+
 bool UYetiOS_BaseProgram::Internal_LoadProgramSettings()
 {
 	if (ProgramSettings)

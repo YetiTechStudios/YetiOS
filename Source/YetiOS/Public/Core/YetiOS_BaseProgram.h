@@ -294,7 +294,7 @@ public:
 	* @return [bool] True if this program is currently running.
 	**/
 	UFUNCTION(BlueprintPure, Category = "Yeti OS Base Program")	
-	bool IsRunning() const { return ProcessID != INDEX_NONE; }
+	bool IsRunning() const;
 
 	/**
 	* public UYetiOS_BaseProgram::GetProgramIconWidget const
