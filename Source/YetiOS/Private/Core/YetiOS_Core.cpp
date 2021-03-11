@@ -561,23 +561,15 @@ bool UYetiOS_Core::StartProgram(const FName& ProgramIdentifier, FYetiOsError& Ou
 	{
 		return FoundProgram->StartProgram(OutErrorMessage);
 	}
-
+	
+	OutErrorMessage = GetErrorStruct(YetiOS_CommonErrors::NotInstalledCode, YetiOS_CommonErrors::NotInstalledException, YetiOS_CommonErrors::NotInstalledDetailedException);
 	return false;
 }
 
 const bool UYetiOS_Core::IsProgramRunning(const class UYetiOS_BaseProgram* InProgram) const
 {
-	TArray<UYetiOS_BaseProgram*> OutArray;
-	RunningPrograms.GenerateValueArray(OutArray);
-	for (const auto& It : OutArray)
-	{
-		if (It == InProgram)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	UYetiOS_BaseProgram* OutDummy;
+	return IsProgramRunning(InProgram->GetProgramIdentifierName(), OutDummy);
 }
 
 const bool UYetiOS_Core::IsProgramRunning(const FName& InProgramIdentifier, class UYetiOS_BaseProgram*& OutProgram) const
