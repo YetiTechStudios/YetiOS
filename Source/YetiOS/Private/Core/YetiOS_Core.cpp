@@ -531,9 +531,7 @@ UYetiOS_BaseProgram* UYetiOS_Core::InstallProgramFromPackage(const FString& InPr
 
 void UYetiOS_Core::InstallProgramFromPackageWithTimer(const FString& InProgramIdentifier, float Time, const FOnInstallProgramFinishedDelegate& Callback)
 {
-	DECLARE_DELEGATE(FOnInstallDone);
-	FOnInstallDone OnInstallDone;
-
+	FTimerDelegate OnInstallDone;
 	OnInstallDone.BindLambda([&, InProgramIdentifier, Callback]
 	{
 		FYetiOsError OutMessage;
