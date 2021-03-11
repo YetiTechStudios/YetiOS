@@ -1408,6 +1408,10 @@ namespace YetiOS_CommonErrors
 	static const FText OsRootCode = LOCTEXT("RootDirErrorCode", "NO_ROOT_DIR");
 	static const FText OsRootException = LOCTEXT("RootDirError", "Root directory not found.");
 	static const FText OsRootDetailedException = LOCTEXT("RootDirDescription", "Failed to find Root Directory.");
+
+	static const FText NotInstalledCode = LOCTEXT("NotInstalled", "NOT_INSTALLED");
+	static const FText NotInstalledException = LOCTEXT("NotInstalledError", "Not installed.");
+	static const FText NotInstalledDetailedException = LOCTEXT("NotInstalledDescription", "Not installed.");
 }
 
 #undef LOCTEXT_NAMESPACE
