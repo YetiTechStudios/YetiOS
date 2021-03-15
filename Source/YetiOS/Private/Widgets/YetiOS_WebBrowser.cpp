@@ -155,6 +155,15 @@ void UYetiOS_WebBrowser::ExecuteJavascript(const FString& ScriptText)
 	}
 }
 
+void UYetiOS_WebBrowser::AddBookmark(const FBrowserBookmark& InBookmark)
+{
+	Bookmarks.Add(InBookmark);
+}
+
+void UYetiOS_WebBrowser::RemoveBookmark(const FBrowserBookmark& InBookmark)
+{
+	Bookmarks.RemoveSingle(InBookmark);
+}
 
 void UYetiOS_WebBrowser::SetCookie(const FString& URL, const FBrowserCookie& InCookie, FOnCookieSetComplete Delegate)
 {

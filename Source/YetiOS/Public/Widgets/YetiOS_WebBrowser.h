@@ -119,6 +119,25 @@ struct FBrowserCookie
 	FDateTime ExpireTime;
 };
 
+USTRUCT(BlueprintType)
+struct FBrowserBookmark
+{
+	GENERATED_USTRUCT_BODY();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Browser Bookmark")
+	FText Title;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Browser Bookmark")
+	FText URL;
+
+	FORCEINLINE bool operator==(const FBrowserBookmark& Other) const
+	{
+		return Other.Title.EqualToCaseIgnored(Title) && Other.URL.EqualToCaseIgnored(URL);
+	}
+
+	FBrowserBookmark() {}
+};
+
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnCookieSetComplete, bool, bSuccess);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnCookieDeleteComplete, int, bNumberOfCookiesDeleted);
 
@@ -181,6 +200,10 @@ private:
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Yeti OS Web Browser", meta = (EditCondition = "bAllowURLMasking", AllowPrivateAccess = "true"))
 	TMap<FCustomMaskedDomains, FString> MaskedDomains;
+
+	/** Browser bookmarks. */
+	UPROPERTY(EditAnywhere, Category = "Yeti OS Web Browser")
+	TArray<FBrowserBookmark> Bookmarks;
 
 	/** An array containing all web pages the user has visited. */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Debug, meta = (AllowPrivateAccess = "true"))
@@ -280,6 +303,30 @@ public:
 	**/
 	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser")
 	void ExecuteJavascript(const FString& ScriptText);
+
+	/**
+	* public UYetiOS_WebBrowser::AddBookmark
+	* Adds the given bookmark to bookmarks array.
+	* @param InBookmark [const FBrowserBookmark&] Bookmark struct.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser|Bookmark")	
+	void AddBookmark(const FBrowserBookmark& InBookmark);
+
+	/**
+	* public UYetiOS_WebBrowser::RemoveBookmark
+	* Removes the given bookmark.
+	* @param InBookmark [const FBrowserBookmark&] Bookmark struct.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Yeti OS Web Browser|Bookmark")	
+	void RemoveBookmark(const FBrowserBookmark& InBookmark);
+
+	/**
+	* public UYetiOS_WebBrowser::GetBookmarks const
+	* Returns all the bookmarks.
+	* @return [TArray<FBrowserBookmark>] Bookmarks array.
+	**/
+	UFUNCTION(BlueprintPure, Category = "Yeti OS Web Browser|Bookmark")	
+	inline TArray<FBrowserBookmark> GetBookmarks() const { return Bookmarks; }
 
 	/**
 	* public UYetiOS_WebBrowser::SetCookie
