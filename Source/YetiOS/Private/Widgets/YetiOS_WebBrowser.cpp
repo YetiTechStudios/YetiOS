@@ -201,7 +201,7 @@ void UYetiOS_WebBrowser::DeleteCookie(const FString& URL, const FString& CookieN
 
 	TFunction<void(int)> OnDeleteFunc = [&](int Total)
 	{
-		printlog_vv(FString::Printf(TEXT("Delete Cookie [%s]: Total (%i). URL(s): ."), *CookieName, Total, URL == "" ? *FString("all urls") : *URL));
+		printlog_vv(FString::Printf(TEXT("Delete Cookie [%s]: Total (%i). URL(s): %s."), *CookieName, Total, URL == "" ? *FString("all urls") : *URL));
 		Delegate.ExecuteIfBound(Total);
 	};
 	BrowserCookie->DeleteCookies(URL, CookieName, OnDeleteFunc);
