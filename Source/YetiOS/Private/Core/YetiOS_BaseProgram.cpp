@@ -251,6 +251,11 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 		K2_OnClose();
 	}
 
+	if (SaveMethod == EProgramSaveMethod::SaveOnExit || (bIsOperatingSystemShuttingDown && SaveMethod == EProgramSaveMethod::SaveOnOperatingSystemShutdown))
+	{
+		UYetiOS_ProgramSettings::SaveProgramSettings(this);
+	}
+
 	OwningOS->CloseRunningProgram(this, OutErrorMessage);
 	ProcessID = INDEX_NONE;
 
@@ -259,18 +264,6 @@ void UYetiOS_BaseProgram::CloseProgram(FYetiOsError& OutErrorMessage, const bool
 		CurrentFileOpened->CloseFile();
 		CurrentFileOpened->ConditionalBeginDestroy();
 		CurrentFileOpened = nullptr;
-	}
-
-	if (bIsOperatingSystemShuttingDown)
-	{
-		if (SaveMethod == EProgramSaveMethod::SaveOnOperatingSystemShutdown || SaveMethod == EProgramSaveMethod::SaveOnExit)
-		{
-			UYetiOS_ProgramSettings::SaveProgramSettings(this);
-		}
-	}
-	else if (SaveMethod == EProgramSaveMethod::SaveOnExit)
-	{
-		UYetiOS_ProgramSettings::SaveProgramSettings(this);
 	}
 
 	if (ProgramWidget)
